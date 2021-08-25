@@ -48,7 +48,7 @@ You can access the included PostgreSQL database from outside the container using
 Vessel's documentation contains more information regarding [everyday usage](https://vessel.shippingdocker.com/docs/everyday-usage/).
 
 ## Take into account:
-- You'll be given access to a private Basecamp group, where you may ask any question or share ideas in order to complete the exercise. We'll be waiting for you, come say hello!
+- You'll be given access to a Slack channel, where you may ask any question or share ideas in order to complete the exercise. We'll be waiting for you, come say hello!
 - The exercise is designed to take approximately 4 to 6 days, but it ultimately depends on the solution itself.
 - There are many correct ways of solving this exercise. Don't stress too much about implementing the perfect one, that's where the **Think big** part comes in.
 - There's no need to design and implement a fancy UI, but do keep in mind that the solution has to be easy to use and slightly visually appealing. Feel free to use a template or any UI library.
