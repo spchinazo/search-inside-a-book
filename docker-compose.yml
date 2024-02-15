@@ -1,55 +1,58 @@
-version: '2'
 services:
-  app:
-    build:
-      context: ./docker/app
-      dockerfile: Dockerfile
-    image: vessel/app
-    ports:
-     - "${APP_PORT}:80"
-    environment:
-      CONTAINER_ENV: "${APP_ENV}"
-      XDEBUG_HOST: "${XDEBUG_HOST}"
-      WWWUSER: "${WWWUSER}"
-    volumes:
-     - .:/var/www/html:cached
-    networks:
-     - vessel
-  node:
-    build:
-      context: ./docker/node
-      dockerfile: Dockerfile
-      args:
-        uid: "${WWWUSER}"
-    image: vessel/node
-    user: node
-    volumes:
-     - .:/var/www/html:cached
-    networks:
-     - vessel
-  pgsql:
-    image: postgres:11.0
-    ports:
-      - "${MYSQL_PORT}:5432"
-    environment:
-      POSTGRES_USER: "${DB_USERNAME}"
-      POSTGRES_PASSWORD: "${DB_PASSWORD}"
-      POSTGRES_DB: "${DB_DATABASE}"
-    volumes:
-      - vesselpgsql:/var/lib/postgresql/data
-    networks:
-      - vessel
-  redis:
-    image: redis:alpine
-    volumes:
-     - vesselredis:/data
-    networks:
-     - vessel
+    laravel.test:
+        build:
+            context: ./vendor/laravel/sail/runtimes/8.3
+            dockerfile: Dockerfile
+            args:
+                WWWGROUP: '${WWWGROUP}'
+        image: sail-8.3/app
+        extra_hosts:
+            - 'host.docker.internal:host-gateway'
+        ports:
+            - '${APP_PORT:-80}:80'
+            - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
+        environment:
+            WWWUSER: '${WWWUSER}'
+            LARAVEL_SAIL: 1
+            XDEBUG_MODE: '${SAIL_XDEBUG_MODE:-off}'
+            XDEBUG_CONFIG: '${SAIL_XDEBUG_CONFIG:-client_host=host.docker.internal}'
+            IGNITION_LOCAL_SITES_PATH: '${PWD}'
+        volumes:
+            - '.:/var/www/html'
+        networks:
+            - sail
+        depends_on:
+            - pgsql
+    pgsql:
+        image: 'postgres:15'
+        ports:
+            - '${FORWARD_DB_PORT:-5432}:5432'
+        environment:
+            PGPASSWORD: '${DB_PASSWORD:-secret}'
+            POSTGRES_DB: '${DB_DATABASE}'
+            POSTGRES_USER: '${DB_USERNAME}'
+            POSTGRES_PASSWORD: '${DB_PASSWORD:-secret}'
+        volumes:
+            - 'sail-pgsql:/var/lib/postgresql/data'
+            - './vendor/laravel/sail/database/pgsql/create-testing-database.sql:/docker-entrypoint-initdb.d/10-create-testing-database.sql'
+        networks:
+            - sail
+        healthcheck:
+            test:
+                - CMD
+                - pg_isready
+                - '-q'
+                - '-d'
+                - '${DB_DATABASE}'
+                - '-U'
+                - '${DB_USERNAME}'
+            retries: 3
+            timeout: 5s
 networks:
-  vessel:
-    driver: "bridge"
+    sail:
+        driver: bridge
 volumes:
-  vesselpgsql:
-    driver: "local"
-  vesselredis:
-    driver: "local"
+    sail-mysql:
+        driver: local
+    sail-pgsql:
+        driver: local
