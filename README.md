@@ -41,10 +41,12 @@ The project uses [Sail](https://laravel.com/docs/9.x/sail), a simple and easy to
 4. `./vendor/bin/sail up`, keep in mind that the first time it'll take a while, as it has to download the containers images
 5. That's it, the project is now accessible from `https://127.0.0.1`
 
-\* Regarding Vessel:  
+\* Regarding Sail:  
 To start or stop the environment use `./vendor/bin/sail up` and `./vendor/bin/sail down`.  
+You have more detailed info [here](https://laravel.com/docs/9.x/sail) 
 After starting the environment the project is accessible from `https://127.0.0.1`.  
-You can access the included PostgreSQL database from outside the container using `127.0.0.1:5432` with username `publicala_user` and password `publicala_password`. The database itself is called `publicala_db`. For example, in TablePlus you may use [this config](PostgreSQL_config_example.png).
+You can access the included PostgreSQL database from outside the container using `127.0.0.1:5432` with username `publicala_user` and password `publicala_password`.   
+The database itself is called `publicala_db`. For example, in TablePlus you may use [this config](PostgreSQL_config_example.png).
 
 ## Take into account:
 - You'll be given access to a Slack channel, where you may ask any question or share ideas in order to complete the exercise. We'll be waiting for you, come say hello!
