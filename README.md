@@ -1,5 +1,5 @@
 ## Goals
-The ultimate goal of this exercise is to simulate the day to day working environment at publica.la, as in during the exercise you'll be a member of the team.
+The ultimate goal of this exercise is to simulate the day-to-day working environment at publica.la, as in during the exercise you'll be a member of the team.
 
 We will evaluate:
 - Team interaction
@@ -8,7 +8,7 @@ We will evaluate:
 - Time management and self leadership
 - Coding skills, clarity
 - Creativity
-- Ability to understand the context and evaluate trade offs
+- Ability to understand the context and evaluate trade-offs
 
 ## Scenario
 As a programmer, I remember reading about "the DOM" in a book and I want to be able to search inside the book so that I can clarify some doubts.
@@ -20,8 +20,9 @@ Develop a feature that would allow a user to search inside a book, displaying a 
     - The user should then be able to choose a particular match and retrieve it's whole page.
     - You can find the book in `./storage/exercise-files/Eloquent_JavaScript.pdf` and, for convenience, there's also a `Eloquent_JavaScript.json` file with the text content of each page.
     - There's a demo of this kind of functionality [here](https://alephdigital.publica.la/reader/eloquent-javascript).
-    - You can use any tool or strategy, for any part of your solution. Keep in mind you're now a member of the team, so go ahead and ask for feedback if you need it.
-    - The solution has to be presented hosted online so that it can be tried before the presentation. It should also be kept there and working for up to 15 days after the presentation.
+    - You can use any tool, strategy, library or template for any part of your solution. Keep in mind you're now a member of the team, so go ahead and ask for feedback if you need it.
+    - The solution has to be sent as a Merge Request before the presentation. It doesn't need to be hosted.
+    - The solution will be presented online during another interview.
 
 2. **Think big**:  
 Imagine you have 2 to 3 entire months to develop the solution, would you take a different approach? Think about how to increase the relevance of the results, scalability, performance and content security. Describe it in as many details as you see fit.
@@ -49,8 +50,8 @@ You can access the included PostgreSQL database from outside the container using
 The database itself is called `publicala_db`. For example, in TablePlus you may use [this config](PostgreSQL_config_example.png).
 
 ## Take into account:
+- Focus on the **search feature** itself, there's no need to design and implement a fancy UI as long as it's clear and easy to use. Feel free to use a template or any UI library.
+- There are many correct ways of solving this exercise. Don't stress too much about implementing the perfect one, that's where the **Think big** part comes in.
 - You'll be given access to a Slack channel, where you may ask any question or share ideas in order to complete the exercise. We'll be waiting for you, come say hello!
 - The exercise is designed to take approximately 4 to 6 days, but it ultimately depends on the solution itself.
-- There are many correct ways of solving this exercise. Don't stress too much about implementing the perfect one, that's where the **Think big** part comes in.
-- There's no need to design and implement a fancy UI, but do keep in mind that the solution has to be easy to use and slightly visually appealing. Feel free to use a template or any UI library.
-- Clone this repository and develop the solution in a private one, then give us access to that repository so that we can follow along. Do not push your branch to this repo.
+- Create a Merge Request in this repo with your own solution.
