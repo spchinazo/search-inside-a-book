@@ -33,7 +33,7 @@ After you finish, we'll have a call where you present your solution for point **
 
 ## What's included
 This repository contains a blank [Laravel](https://laravel.com) project, to be used as a container for the exercise solution. To run it, you'll need:
-- PHP 8.2+ and [Composer](https://getcomposer.org/) installed locally. We recommend using [php.new](http://php.new/) to install both in a single step if you don't already have them.
+- PHP 8.3+ and [Composer](https://getcomposer.org/) installed locally. We recommend using [php.new](http://php.new/) to install both in a single step if you don't already have them.
 - [Docker](https://www.docker.com/products/docker-desktop)
 
 The project uses [Sail](https://laravel.com/docs/9.x/sail), a simple and easy to use Docker based Laravel development environment.
