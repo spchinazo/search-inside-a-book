@@ -43,13 +43,6 @@ Pick the angle that feels closest to the work you love doing:
 
 You're free to mix approaches—just tell us what you chose and why.
 
-### Deliverables
-When you open your Merge Request, include:
-- A short note about which track(s) you leaned into and why.
-- Clear run instructions for anything outside the default Laravel app (e.g. Expo commands, npm scripts, Postman collections).
-- Tests, scripts or manual steps we should run to validate your work (even if they're as simple as “`./vendor/bin/sail artisan test`” or “`yarn build`”).
-- Any assumptions, trade-offs or mocked pieces we should keep in mind while reviewing.
-
 2. **Think big**:
 Imagine you have 2 to 3 entire months to develop the solution, would you take a different approach? Think about how to increase the relevance of the results, scalability, performance, content security or maintainability. Describe it in as many details as you see fit.
 If you followed a specific focus in the **Hands on** stage, outline how that stream would evolve:
@@ -60,6 +53,14 @@ If you followed a specific focus in the **Hands on** stage, outline how that str
 
 3. **Presentation**:
 After you finish, we'll have a call where you present your solution for point **1** and your plan for point **2**. We'll be very interested in every little detail, complication or blocker you had, compromises you made, how you would improve what you've done, if you found something interesting, if you are particularly happy with something in the solution, etc.
+
+### Deliverables
+When you open your Merge Request, include:
+- A short note about which track(s) you leaned into and why.
+- Clear run instructions for anything outside the default Laravel app (e.g. Expo commands, npm scripts, Postman collections).
+- Tests, scripts or manual steps we should run to validate your work (even if they're as simple as “`./vendor/bin/sail artisan test`” or “`yarn build`”).
+- Any assumptions, trade-offs or mocked pieces we should keep in mind while reviewing.
+- A quick outline of what you'll cover during the presentation (point **3**) so reviewers know what to expect.
 
 ## What's included
 This repository ships with a fresh [Laravel](https://laravel.com) 12 backend you can extend, integrate with, or pair with your own clients. To run it, you'll need:
