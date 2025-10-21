@@ -26,8 +26,6 @@ install:php:
 build:js:
   stage: build
   image: node:20
-  needs:
-    - install:php
   cache:
     key: "$CI_COMMIT_REF_SLUG-yarn"
     paths:
