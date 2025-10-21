@@ -1,0 +1,44 @@
+# Base pipeline so candidates can extend with their own quality gates.
+# Followed GitLab CI naming standards from pla/docs.
+
+stages:
+  - build
+
+variables:
+  COMPOSER_ALLOW_SUPERUSER: "1"
+  YARN_CACHE_FOLDER: "$CI_PROJECT_DIR/.yarn-cache"
+
+install:php:
+  stage: build
+  image: composer:2
+  cache:
+    key: "$CI_COMMIT_REF_SLUG-composer"
+    paths:
+      - vendor/
+      - ~/.composer/cache/
+  script:
+    - composer install --prefer-dist --no-progress --no-interaction
+  artifacts:
+    paths:
+      - vendor/
+    expire_in: 1 day
+
+build:js:
+  stage: build
+  image: node:20
+  needs:
+    - install:php
+  cache:
+    key: "$CI_COMMIT_REF_SLUG-yarn"
+    paths:
+      - node_modules/
+      - .yarn-cache/
+  before_script:
+    - corepack enable
+  script:
+    - yarn install --frozen-lockfile
+    - yarn build
+  artifacts:
+    paths:
+      - public/build/
+    expire_in: 1 day
