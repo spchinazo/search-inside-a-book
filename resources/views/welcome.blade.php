@@ -9,6 +9,8 @@
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,600" rel="stylesheet">
 
+    @vite(['resources/js/app.js'])
+
     <!-- Styles -->
     <style>
         html, body {
