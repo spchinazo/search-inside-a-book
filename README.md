@@ -32,23 +32,28 @@ Imagine you have 2 to 3 entire months to develop the solution, would you take a 
 After you finish, we'll have a call where you present your solution for point **1** and your plan for point **2**. We'll be very interested in every little detail, complication or blocker you had, compromises you made, how you would improve what you've done, if you found something interesting, if you are particularly happy with something in the solution, etc.
 
 ## What's included
-This repository contains a blank [Laravel](https://laravel.com) project, to be used as a container for the exercise solution. To run it, you'll need PHP 8.1, [Composer](https://getcomposer.org/) and [Docker](https://www.docker.com/products/docker-desktop) installed.
+This repository contains a blank [Laravel](https://laravel.com) project, to be used as a container for the exercise solution. To run it, you'll need:
+- PHP 8.2+ and [Composer](https://getcomposer.org/) installed locally. We recommend using [php.new](http://php.new/) to install both in a single step if you don't already have them.
+- [Docker](https://www.docker.com/products/docker-desktop)
+
 The project uses [Sail](https://laravel.com/docs/9.x/sail), a simple and easy to use Docker based Laravel development environment.
 
 #### Step by step instructions:
 1. Clone the repo `git clone git@gitlab.com:publicala_exercises/search-inside-a-book.git` and `cd search-inside-a-book`
 2. Copy the .env.example file into .env, `cp .env.example .env`
-3. Run `composer install`
+3. Install PHP dependencies: `composer install`
 4. Start the Docker environment: `./vendor/bin/sail up -d` (the first time it'll take a while, as it has to download the container images)
-5. Generate the application key: `./vendor/bin/sail artisan key:generate`
-6. Run database migrations: `./vendor/bin/sail artisan migrate`
-7. Create storage symlink: `./vendor/bin/sail artisan storage:link`
-8. That's it, the project is now accessible from `http://localhost:8888`
+5. Copy your environment file if you haven’t yet and generate the key: `./vendor/bin/sail artisan key:generate`
+6. Install JavaScript dependencies inside Sail: `./vendor/bin/sail yarn install`
+7. Start the dev asset server: `./vendor/bin/sail yarn dev` (for production builds use `./vendor/bin/sail yarn build`)
+8. Run migrations or other setup when needed (none are shipped by default): `./vendor/bin/sail artisan migrate`
+9. Create the storage symlink if your solution needs it: `./vendor/bin/sail artisan storage:link`
+10. Access the project from `http://localhost` (or the port you configure in `.env`)
 
 \* Regarding Sail:  
 To start or stop the environment use `./vendor/bin/sail up` and `./vendor/bin/sail down`.  
 You have more detailed info [here](https://laravel.com/docs/9.x/sail) 
-After starting the environment the project is accessible from `http://localhost:8888`.  
+After starting the environment the project is accessible from `http://localhost` (update the port in `.env` if you need 8888 or another value).  
 You can access the included PostgreSQL database from outside the container using `127.0.0.1:5432` with username `publicala_user` and password `publicala_password`.   
 The database itself is called `publicala_db`. For example, in TablePlus you may use [this config](PostgreSQL_config_example.png).
 
