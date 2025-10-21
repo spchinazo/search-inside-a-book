@@ -40,6 +40,7 @@ publicala-production-a424d432adf4.json
 /storage/*.key
 # Composer
 .phpunit.result.cache
+.phpunit.cache/
 /vendor
 
 # Homestead
