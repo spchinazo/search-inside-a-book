@@ -62,7 +62,7 @@ If you followed a specific focus in the **Hands on** stage, outline how that str
 After you finish, we'll have a call where you present your solution for point **1** and your plan for point **2**. We'll be very interested in every little detail, complication or blocker you had, compromises you made, how you would improve what you've done, if you found something interesting, if you are particularly happy with something in the solution, etc.
 
 ## What's included
-This repository contains a blank [Laravel](https://laravel.com) project, to be used as a container for the exercise solution. To run it, you'll need:
+This repository ships with a fresh [Laravel](https://laravel.com) 12 backend you can extend, integrate with, or pair with your own clients. To run it, you'll need:
 - PHP 8.3+ and [Composer](https://getcomposer.org/) installed locally. We recommend using [php.new](http://php.new/) to install both in a single step if you don't already have them.
 - [Docker](https://www.docker.com/products/docker-desktop)
 
@@ -73,18 +73,18 @@ The project uses [Sail](https://laravel.com/docs/12.x/sail), a simple and easy t
 2. Copy the .env.example file into .env, `cp .env.example .env`
 3. Install PHP dependencies: `composer install`
 4. Start the Docker environment: `./vendor/bin/sail up -d` (the first time it'll take a while, as it has to download the container images)
-5. Copy your environment file if you haven’t yet and generate the key: `./vendor/bin/sail artisan key:generate`
+5. Generate the application key: `./vendor/bin/sail artisan key:generate`
 6. Install JavaScript dependencies inside Sail: `./vendor/bin/sail yarn install`
 7. Start the dev asset server: `./vendor/bin/sail yarn dev` (for production builds use `./vendor/bin/sail yarn build`)
 8. Run migrations or other setup when needed (none are shipped by default): `./vendor/bin/sail artisan migrate`
 9. Create the storage symlink if your solution needs it: `./vendor/bin/sail artisan storage:link`
-10. Access the project from `http://localhost` (or the port you configure in `.env`)
+10. Access the Laravel app from `http://localhost` (or the port you configure in `.env`). If you keep the defaults in `.env.example` it's `http://localhost:8888`.
 
 \* Regarding Sail:
 To start or stop the environment use `./vendor/bin/sail up` and `./vendor/bin/sail down`.
 You have more detailed info [here](https://laravel.com/docs/12.x/sail)
-After starting the environment the project is accessible from `http://localhost` (update the port in `.env` if you need 8888 or another value).
-You can access the included PostgreSQL database from outside the container using `127.0.0.1:5432` with username `publicala_user` and password `publicala_password`.
+After starting the environment the project is accessible from `http://localhost:8888` by default (change `APP_PORT` in `.env` if you need another value).
+You can access the included PostgreSQL database from outside the container using `127.0.0.1:${FORWARD_DB_PORT}` (defaults to `5432`) with username `publicala_user` and password `publicala_password`.
 The database itself is called `publicala_db`. For example, in TablePlus you may use [this config](PostgreSQL_config_example.png).
 
 ## Take into account:
