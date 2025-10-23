@@ -15,9 +15,9 @@ As a programmer, I remember reading about "the DOM" in a book and I want to be a
 
 ## Choose your track
 This challenge flexes around the kind of work you thrive on. Feel free to lean into one (or combine them) as you shape your solution:
-- **Frontend / Livewire mindset** – Focus on the interaction model, component architecture and how the experience feels to a reader. It's ok to simulate latency or canned responses—just call out what a production API would return.
+- **Frontend / Livewire mindset** – Focus on the interaction model, component architecture and how the experience feels to a reader. It's ok to simulate latency or canned responses, just call out what a production API would return.
 - **Fullstack backend mindset** – Dive deep into data modeling, indexing and APIs that make search accurate, resilient and observable. A minimal UI (or even a documented Postman collection) is fine if your endpoints and tests tell the story.
-- **Mobile TypeScript mindset** – Explore how a mobile or cross-platform client would surface search, share UI state and ship to devices (React Native, Expo, Electron or plain web are all welcome). Mocking the backend with fixtures or a tiny local server is totally fine—just let us know what the real integration would look like and where to find the client (e.g. `apps/mobile`).
+- **Mobile TypeScript mindset** – Explore how a mobile or cross-platform client would surface search, share UI state and ship to devices (React Native, Expo, Electron or plain web are all welcome). Mocking the backend with fixtures or a tiny local server is totally fine, just let us know what the real integration would look like and where to find the client (e.g. `apps/mobile`).
 
 ## Exercise
 
@@ -27,7 +27,7 @@ Develop a feature that would allow a user to search inside a book, displaying a 
     - You can find the book in `./storage/exercise-files/Eloquent_JavaScript.pdf` and, for convenience, there's also a `Eloquent_JavaScript.json` file with the text content of each page.
     - There's a demo of this kind of functionality [here](https://alephdigital.publica.la/reader/eloquent-javascript).
     - You can use any tool, strategy, library or template for any part of your solution. Keep in mind you're now a member of the team, so go ahead and ask for feedback if you need it.
-    - The solution has to be sent as a Merge Request before the presentation. It doesn't need to be hosted online, but it does need to be fully working on your local environment.
+    - The solution has to be sent as a Merge Request from your fork before the presentation. It doesn't need to be hosted online, but it does need to be fully working on your local environment.
     - The solution will be presented online during the final interview.
 
 This feature may be developed in 1h, 1 day, 1 week or take months worth of work. Take this as an opportunity to cut scope, get creative and focus on your strengths. You may even fake parts of the feature and focus on what matters to you.
@@ -37,11 +37,11 @@ For this part of the exercise, you are encouraged to use any AI tool you are com
 We'll want to know what tools you used, how and why you used them in those specific ways.
 
 Pick the angle that feels closest to the work you love doing:
-- **Frontend / Livewire mindset** – Prioritize user flows, interactions and how the experience comes together. Livewire, Blade, and reactive UI patterns are fair game—note any mocked behaviours so we understand the constraints you assumed.
+- **Frontend / Livewire mindset** – Prioritize user flows, interactions and how the experience comes together. Livewire, Blade, and reactive UI patterns are fair game, note any mocked behaviours so we understand the constraints you assumed.
 - **Fullstack backend mindset** – Lean into the search domain, data modeling, API design and how you validate relevance, performance or resilience. It's fine to keep the UI thin if you supply API docs, tests or sample clients.
 - **Mobile TypeScript mindset** – Show how a mobile or cross-platform client would consume the search experience. React Native, Expo, Electron or web-first stacks are welcome, and faking the API with static data is fair game if you document the intended contract and how to run the client.
 
-You're free to mix approaches—just tell us what you chose and why.
+You're free to mix approaches, just tell us what you chose and why.
 
 2. **Think big**:
 Imagine you have 2 to 3 entire months to develop the solution, would you take a different approach? Think about how to increase the relevance of the results, scalability, performance, content security or maintainability. Describe it in as many details as you see fit.
@@ -70,7 +70,7 @@ This repository ships with a fresh [Laravel](https://laravel.com) 12 backend you
 The project uses [Sail](https://laravel.com/docs/12.x/sail), a simple and easy to use Docker based Laravel development environment.
 
 #### Step by step instructions:
-1. Clone the repo `git clone git@gitlab.com:publicala_exercises/search-inside-a-book.git` and `cd search-inside-a-book`
+1. Fork this repository in GitLab, then clone your fork: `git clone git@gitlab.com:<your-namespace>/search-inside-a-book.git` and `cd search-inside-a-book`
 2. Copy the .env.example file into .env, `cp .env.example .env`
 3. Install PHP dependencies: `composer install`
 4. Start the Docker environment: `./vendor/bin/sail up -d` (the first time it'll take a while, as it has to download the container images)
@@ -92,4 +92,4 @@ The database itself is called `publicala_db`. For example, in TablePlus you may 
 - Focus on the **search feature** itself, there's no need to design and implement a fancy UI as long as it's clear and easy to use. Feel free to use a template or any UI library.
 - There are many correct ways of solving this exercise. Don't stress too much about implementing the perfect one, that's where the **Think big** part comes in.
 - You'll be given access to a Slack channel, where you may ask any question or share ideas in order to complete the exercise. We'll be waiting for you, come say hello!
-- Create a Merge Request in this repo with your own solution.
+- Submit your work via a Merge Request from your fork. You cannot create branches directly in this exercise repo; fork it, push your branch to your fork, and open an MR targeting `publicala_exercises/search-inside-a-book`.
