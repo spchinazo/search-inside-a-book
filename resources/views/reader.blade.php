@@ -8,6 +8,12 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     @vite(['resources/sass/app.scss'])
+    
+    <!-- PDF.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    </script>
 </head>
 <body>
     <div class="progress-container">
@@ -20,11 +26,13 @@
 
         <!-- Main Content -->
         <div class="reader-main">
-            <!-- Page Viewer -->
+            <!-- PDF Viewer -->
             <div class="reader-content">
-                <div class="page-container">
-                    <div class="page-wrapper">
-                        <img id="pageViewer" src="{{ asset('storage/exercise-files/Eloquent_JavaScript_pages/page-001.png') }}" alt="Page 1" class="page-image">
+                <div class="pdf-container">
+                    <div class="pdf-viewer" id="pdfViewer">
+                        <div class="pdf-pages-container" id="pageContainer">
+                            <!-- PDF pages will be rendered here -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -39,7 +47,7 @@
                 </button>
                 <div class="footer-page-info">
                     <span class="footer-page-display">
-                        <span id="currentPage">1</span> / <span id="totalPages">583</span>
+                        <span id="currentPage">1</span> / <span id="totalPages">-</span>
                     </span>
                 </div>
                 <button class="footer-nav-button" id="nextBtn" onclick="nextPage()">
@@ -169,63 +177,146 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         let currentPage = 1;
-        let totalPages = 583;
-        let pageViewer = null;
+        let totalPages = 0;
+        let pdfDocument = null;
         let currentZoom = 100;
         let bookmarks = JSON.parse(localStorage.getItem('bookmarks') || '[]');
 
         // Initialize reader
         document.addEventListener('DOMContentLoaded', function() {
-            // Get page from URL parameter (support both 'page' and 'location')
             const urlParams = new URLSearchParams(window.location.search);
             const pageParam = urlParams.get('page') || urlParams.get('location');
             
             if (pageParam) {
                 currentPage = parseInt(pageParam);
             } else {
-                currentPage = 1; // Default to page 1
+                currentPage = 1;
             }
             
-            // Initialize page viewer
-            initializePageViewer();
-            
-            // Update progress bar
-            updateProgress();
+            loadPDF();
         });
 
-        // Initialize page viewer
-        function initializePageViewer() {
-            pageViewer = document.getElementById('pageViewer');
-            if (pageViewer) {
-                // Set initial page
+        async function loadPDF() {
+            try {
+                const pdfUrl = "{{ asset('storage/exercise-files/Eloquent_JavaScript.pdf') }}";
+                console.log('Loading PDF from:', pdfUrl);
+                
+                pdfDocument = await pdfjsLib.getDocument(pdfUrl).promise;
+                totalPages = pdfDocument.numPages;
+                
+                console.log('PDF loaded successfully. Total pages:', totalPages);
+                
+                document.getElementById('totalPages').textContent = totalPages;
+                
+                initializePageContainer();
+                
                 goToPage(currentPage);
+                
+                updateProgress();
+            } catch (error) {
+                console.error('Error loading PDF:', error);
+                showError('Failed to load PDF document: ' + error.message);
             }
         }
 
-        // Load specific page image
-        function loadPage(pageNumber) {
-            if (pageViewer) {
-                // Format page number with leading zeros (001, 002, etc.)
-                const paddedPageNumber = pageNumber.toString().padStart(3, '0');
-                const imageUrl = `{{ asset('storage/exercise-files/Eloquent_JavaScript_pages/page-') }}${paddedPageNumber}.png`;
-                
-                pageViewer.src = imageUrl;
-                pageViewer.alt = `Page ${pageNumber}`;
-                
-                // Update current page
-                currentPage = pageNumber;
-                document.getElementById('currentPage').textContent = currentPage;
-                
-                // Update navigation buttons
-                updateNavigation();
-                updateProgress();
-                updateBookmarkButton();
-                
-                // Update URL without reload (use 'location' parameter like Aleph Digital)
-                const url = new URL(window.location);
-                url.searchParams.set('location', currentPage);
-                window.history.pushState({}, '', url);
+        function initializePageContainer() {
+            const pageContainer = document.getElementById('pageContainer');
+            pageContainer.innerHTML = '';
+            
+            const pageWrapper = document.createElement('div');
+            pageWrapper.className = 'pdf-page-wrapper';
+            pageWrapper.id = 'currentPageWrapper';
+            
+            const placeholder = document.createElement('div');
+            placeholder.className = 'pdf-page-placeholder';
+            placeholder.innerHTML = `
+                <div class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <span>Loading page ${currentPage}...</span>
+                </div>
+            `;
+            
+            pageWrapper.appendChild(placeholder);
+            pageContainer.appendChild(pageWrapper);
+        }
+
+        async function renderPage(pageNumber) {
+            const pageWrapper = document.getElementById('currentPageWrapper');
+            if (!pageWrapper) {
+                console.error('Page wrapper not found');
+                return;
             }
+            
+            try {
+                console.log(`Rendering PDF page ${pageNumber}`);
+                const page = await pdfDocument.getPage(pageNumber);
+                const viewport = page.getViewport({ scale: 1.0 });
+                
+                console.log(`Page ${pageNumber} viewport:`, viewport);
+                
+                // Create canvas
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+                canvas.className = 'pdf-page-canvas';
+                
+                // Render page to canvas
+                const renderContext = {
+                    canvasContext: context,
+                    viewport: viewport
+                };
+                
+                await page.render(renderContext).promise;
+                
+                console.log(`Page ${pageNumber} rendered successfully`);
+                
+                // Replace placeholder with canvas
+                pageWrapper.innerHTML = '';
+                pageWrapper.appendChild(canvas);
+                
+            } catch (error) {
+                console.error(`Error rendering page ${pageNumber}:`, error);
+                pageWrapper.innerHTML = `
+                    <div class="error-placeholder">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Error loading page ${pageNumber}: ${error.message}</span>
+                    </div>
+                `;
+            }
+        }
+
+        // Navigate to specific page (single page view)
+        async function loadPage(pageNumber) {
+            // Update current page
+            currentPage = pageNumber;
+            document.getElementById('currentPage').textContent = currentPage;
+            
+            // Show loading placeholder
+            const pageWrapper = document.getElementById('currentPageWrapper');
+            if (pageWrapper) {
+                pageWrapper.innerHTML = `
+                    <div class="pdf-page-placeholder">
+                        <div class="loading-spinner">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <span>Loading page ${pageNumber}...</span>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Render the new page
+            await renderPage(pageNumber);
+            
+            // Update navigation buttons
+            updateNavigation();
+            updateProgress();
+            updateBookmarkButton();
+            
+            // Update URL without reload (use 'location' parameter like Aleph Digital)
+            const url = new URL(window.location);
+            url.searchParams.set('location', currentPage);
+            window.history.pushState({}, '', url);
         }
 
         // Navigation functions
@@ -344,8 +435,11 @@
         }
 
         function updateZoom() {
-            if (pageViewer) {
-                pageViewer.style.transform = `scale(${currentZoom / 100})`;
+            const pageContainer = document.getElementById('pageContainer');
+            if (pageContainer) {
+                pageContainer.style.transform = `scale(${currentZoom / 100})`;
+                pageContainer.style.transformOrigin = 'center center';
+                
                 // Update both zoom level displays
                 const zoomLevel = document.getElementById('zoomLevel');
                 const zoomLevelDisplay = document.getElementById('zoomLevelDisplay');

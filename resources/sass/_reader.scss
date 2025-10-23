@@ -6,9 +6,9 @@
 @use 'mixins' as *;
 
 // =============================================================================
-// PAGE VIEWER (Images)
+// PDF VIEWER
 // =============================================================================
-.page-container {
+.pdf-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -16,26 +16,108 @@
   height: 100%;
   overflow: hidden;
   position: relative;
+  width: 100%;
 }
 
-.page-wrapper {
+.pdf-viewer {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100%;
-  overflow: hidden;
-  transition: transform 0.3s ease;
 }
 
-.page-image {
+.pdf-pages-container {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  overflow: hidden;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-lg;
   width: 100%;
+}
+
+.pdf-page-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  flex: 1;
+  min-height: 100%;
+}
+
+.pdf-page-canvas {
+  max-width: 100%;
+  max-height: 100%;
   height: auto;
-  max-height: 100vh;
-  object-fit: contain;
-  display: block;
-  margin: 0 auto;
+  width: auto;
+  box-shadow: $shadow-lg;
+  border-radius: $radius-sm;
   transition: transform 0.3s ease;
   transform-origin: center;
+  display: block;
+  margin: 0 auto;
+  
+  &:hover {
+    transform: scale(1.02);
+  }
+}
+
+.pdf-page-placeholder {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  min-width: 300px;
+  background: $secondary-color;
+  border-radius: $radius-sm;
+  border: 2px dashed $border-color;
+  color: $text-secondary;
+  
+  .loading-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-sm;
+    
+    i {
+      font-size: $font-size-xl;
+      color: $primary-color;
+    }
+    
+    span {
+      font-size: $font-size-sm;
+      font-weight: $font-weight-medium;
+    }
+  }
+}
+
+.error-placeholder {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  min-width: 300px;
+  background: rgba($danger-color, 0.1);
+  border-radius: $radius-sm;
+  border: 2px dashed $danger-color;
+  color: $danger-color;
+  
+  i {
+    font-size: $font-size-xl;
+    margin-bottom: $spacing-sm;
+  }
+  
+  span {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+  }
 }
 
 .zoom-controls {
@@ -551,6 +633,7 @@
   margin-bottom: $spacing-sm;
   cursor: pointer;
   transition: all 0.2s ease;
+  background: white;
   
   &:hover {
     background-color: $secondary-color;
@@ -564,6 +647,14 @@
     font-size: $font-size-sm;
     margin-top: $spacing-xs;
     line-height: 1.4;
+    
+    mark {
+      background: $accent-color;
+      color: white;
+      padding: 2px 4px;
+      border-radius: 2px;
+      font-weight: $font-weight-medium;
+    }
   }
 }
 
@@ -599,10 +690,12 @@
   .reader-actions-button {
     color: $dark-text-secondary;
     border-color: $dark-border-color;
+    background: transparent;
     
     &:hover {
       background: $dark-bg-tertiary;
       color: $dark-text-primary;
+      border-color: $primary-color;
     }
     
     i {
@@ -643,14 +736,24 @@
   
   .search-result {
     border-color: $dark-border-color;
+    background-color: $dark-bg-secondary;
+    color: $dark-text-primary;
     
     &:hover {
       background-color: $dark-bg-tertiary;
       border-color: $primary-color;
+      color: $dark-text-primary;
     }
     
     &-snippet {
       color: $dark-text-secondary;
+      
+      mark {
+        background: $primary-color;
+        color: white;
+        padding: 2px 4px;
+        border-radius: 2px;
+      }
     }
   }
   
@@ -676,22 +779,64 @@
   }
   
   .zoom-controls {
-    background: rgba($dark-bg-secondary, 0.9);
+    background: rgba($dark-bg-secondary, 0.95);
     color: $dark-text-primary;
+    border: 1px solid $dark-border-color;
   }
   
   .zoom-btn {
     color: $dark-text-secondary;
     border-color: $dark-border-color;
+    background: transparent;
     
     &:hover {
       background: $dark-bg-tertiary;
       color: $dark-text-primary;
+      border-color: $primary-color;
     }
   }
   
   .zoom-level {
     color: $dark-text-primary;
+    font-weight: $font-weight-medium;
+  }
+  
+  .pdf-pages-container {
+    background: $dark-bg-primary;
+  }
+  
+  .pdf-page-canvas {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  }
+  
+  .pdf-page-placeholder {
+    background: $dark-bg-tertiary;
+    border-color: $dark-border-color;
+    color: $dark-text-secondary;
+    
+    .loading-spinner {
+      i {
+        color: $primary-color;
+      }
+      
+      span {
+        color: $dark-text-primary;
+      }
+    }
+  }
+  
+  .error-placeholder {
+    background: rgba($dark-danger-color, 0.15);
+    border-color: $dark-danger-color;
+    color: $dark-danger-color;
+    
+    i {
+      color: $dark-danger-color;
+    }
+    
+    span {
+      color: $dark-text-primary;
+    }
   }
 }
 
@@ -828,23 +973,32 @@
         border-color: $dark-border-color;
         
         &:hover {
-            background: $dark-bg-primary;
+            background: $dark-bg-tertiary;
+            color: $dark-text-primary;
+            border-color: $primary-color;
         }
         
         &.theme-toggle {
             background: $primary-color;
             color: white;
+            border-color: $primary-color;
+            
+            &:hover {
+                background: darken($primary-color, 10%);
+                border-color: darken($primary-color, 10%);
+            }
         }
     }
     
     .zoom-level-display {
-        background: $dark-bg-primary;
+        background: $dark-bg-tertiary;
         color: $dark-text-primary;
         border-color: $dark-border-color;
+        font-weight: $font-weight-medium;
     }
     
     .shortcut-item {
-        background: $dark-bg-primary;
+        background: $dark-bg-tertiary;
         border-color: $dark-border-color;
     }
     
@@ -852,10 +1006,11 @@
         background: $dark-bg-secondary;
         color: $primary-color;
         border-color: $dark-border-color;
+        font-weight: $font-weight-semibold;
     }
     
     .shortcut-desc {
-        color: $dark-text-secondary;
+        color: $dark-text-primary;
     }
 }
 
@@ -872,7 +1027,27 @@
     padding: $spacing-xl $spacing-lg;
   }
   
-  .page-text {
-    font-size: $font-size-base;
+  .pdf-pages-container {
+    padding: $spacing-sm;
+    width: 100%;
+  }
+  
+  .pdf-page-wrapper {
+    width: 100%;
+    min-height: 100%;
+  }
+  
+  .pdf-page-canvas {
+    max-width: 100%;
+    max-height: 80vh;
+    width: auto;
+    height: auto;
+  }
+  
+  .pdf-page-placeholder,
+  .error-placeholder {
+    min-height: 300px;
+    min-width: 250px;
+    width: 100%;
   }
 }
