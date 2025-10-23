@@ -10,10 +10,21 @@
 // =============================================================================
 .page-container {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 100%;
   overflow: hidden;
+  position: relative;
+}
+
+.page-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  overflow: hidden;
+  transition: transform 0.3s ease;
 }
 
 .page-image {
@@ -23,6 +34,57 @@
   object-fit: contain;
   display: block;
   margin: 0 auto;
+  transition: transform 0.3s ease;
+  transform-origin: center;
+}
+
+.zoom-controls {
+  position: absolute;
+  top: $spacing-md;
+  right: $spacing-md;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  background: rgba(255, 255, 255, 0.9);
+  padding: $spacing-sm;
+  border-radius: $radius-md;
+  box-shadow: $shadow-md;
+  backdrop-filter: blur(10px);
+  z-index: $z-sticky;
+  
+  .dark-theme & {
+    background: rgba($dark-bg-secondary, 0.9);
+    color: $dark-text-primary;
+  }
+}
+
+.zoom-btn {
+  @include button-base;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: transparent;
+  color: $text-secondary;
+  border: 1px solid $border-color;
+  border-radius: $radius-sm;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: $secondary-color;
+    color: $text-primary;
+  }
+  
+  i {
+    font-size: $font-size-sm;
+  }
+}
+
+.zoom-level {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $text-primary;
+  min-width: 40px;
+  text-align: center;
 }
 
 // =============================================================================
@@ -41,7 +103,7 @@
 .reader-header {
   background: white;
   border-bottom: 1px solid $border-color;
-  padding: $spacing-md $spacing-xl;
+  padding: $spacing-sm $spacing-xl;
   position: sticky;
   top: 0;
   z-index: $z-sticky;
@@ -156,6 +218,16 @@
     background: transparent;
     color: $text-secondary;
     border-color: $border-color;
+    @include flex-center;
+    gap: $spacing-xs;
+    
+    i {
+      font-size: $font-size-sm;
+    }
+    
+    span {
+      font-size: $font-size-sm;
+    }
     
     &:hover {
       background: $secondary-color;
@@ -350,15 +422,36 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 3px;
+  height: 4px;
   background: $border-color;
   z-index: $z-fixed;
+  display: flex;
+  flex-direction: column;
 }
 
 .progress-bar {
   height: 100%;
   background: $primary-color;
   transition: width 0.3s ease;
+}
+
+.progress-info {
+  position: absolute;
+  top: 8px;
+  right: $spacing-md;
+  background: rgba(255, 255, 255, 0.9);
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $radius-sm;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  color: $text-primary;
+  box-shadow: $shadow-sm;
+  backdrop-filter: blur(10px);
+  
+  .dark-theme & {
+    background: rgba($dark-bg-secondary, 0.9);
+    color: $dark-text-primary;
+  }
 }
 
 // =============================================================================
@@ -475,12 +568,304 @@
 }
 
 // =============================================================================
+// DARK THEME
+// =============================================================================
+
+.dark-theme {
+  background-color: $dark-bg-primary;
+  color: $dark-text-primary;
+  
+  .reader-header {
+    background: $dark-bg-secondary;
+    border-bottom-color: $dark-border-color;
+    padding: $spacing-sm $spacing-xl;
+  }
+  
+  .reader-footer {
+    background: rgba($dark-bg-secondary, 0.95);
+    border-top-color: $dark-border-color;
+  }
+  
+  .book-info-details {
+    h1 {
+      color: $dark-text-primary;
+    }
+    
+    p {
+      color: $dark-text-secondary;
+    }
+  }
+  
+  .reader-actions-button {
+    color: $dark-text-secondary;
+    border-color: $dark-border-color;
+    
+    &:hover {
+      background: $dark-bg-tertiary;
+      color: $dark-text-primary;
+    }
+    
+    i {
+      color: inherit;
+    }
+    
+    span {
+      color: inherit;
+    }
+  }
+  
+  .footer-nav-button {
+    color: $dark-text-secondary;
+    
+    &:hover:not(:disabled) {
+      background: $dark-bg-tertiary;
+      color: $dark-text-primary;
+      border-color: $dark-border-color;
+    }
+  }
+  
+  .footer-page-info {
+    background: $dark-bg-tertiary;
+    border-color: $dark-border-color;
+  }
+  
+  .footer-page-display {
+    color: $dark-text-primary;
+    
+    #currentPage {
+      color: $primary-color;
+    }
+    
+    #totalPages {
+      color: $dark-text-secondary;
+    }
+  }
+  
+  .search-result {
+    border-color: $dark-border-color;
+    
+    &:hover {
+      background-color: $dark-bg-tertiary;
+      border-color: $primary-color;
+    }
+    
+    &-snippet {
+      color: $dark-text-secondary;
+    }
+  }
+  
+  .modal-content {
+    background-color: $dark-bg-secondary;
+    color: $dark-text-primary;
+  }
+  
+  .modal-header {
+    border-bottom-color: $dark-border-color;
+  }
+  
+  .form-control {
+    background-color: $dark-bg-tertiary;
+    border-color: $dark-border-color;
+    color: $dark-text-primary;
+    
+    &:focus {
+      background-color: $dark-bg-tertiary;
+      border-color: $primary-color;
+      color: $dark-text-primary;
+    }
+  }
+  
+  .zoom-controls {
+    background: rgba($dark-bg-secondary, 0.9);
+    color: $dark-text-primary;
+  }
+  
+  .zoom-btn {
+    color: $dark-text-secondary;
+    border-color: $dark-border-color;
+    
+    &:hover {
+      background: $dark-bg-tertiary;
+      color: $dark-text-primary;
+    }
+  }
+  
+  .zoom-level {
+    color: $dark-text-primary;
+  }
+}
+
+// =============================================================================
+// SETTINGS MODAL
+// =============================================================================
+
+.settings-container {
+    .settings-section {
+        margin-bottom: $spacing-lg;
+        
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+    
+    .settings-title {
+        font-size: $font-size-base;
+        font-weight: $font-weight-semibold;
+        color: $text-primary;
+        margin-bottom: $spacing-md;
+        display: flex;
+        align-items: center;
+        
+        i {
+            color: $primary-color;
+        }
+    }
+}
+
+.zoom-controls-settings {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    justify-content: center;
+}
+
+.settings-btn {
+    @include button-base;
+    padding: $spacing-sm $spacing-md;
+    background: white;
+    color: $text-primary;
+    border: 1px solid $border-color;
+    border-radius: $radius-sm;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    font-size: $font-size-sm;
+    
+    &:hover {
+        background: $secondary-color;
+        color: $text-primary;
+        transform: translateY(-1px);
+    }
+    
+    &.theme-toggle {
+        background: $primary-color;
+        color: white;
+        border-color: $primary-color;
+        
+        &:hover {
+            background: darken($primary-color, 10%);
+            border-color: darken($primary-color, 10%);
+        }
+    }
+    
+    i {
+        font-size: $font-size-sm;
+    }
+}
+
+.zoom-level-display {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: $text-primary;
+    min-width: 50px;
+    text-align: center;
+    padding: $spacing-xs $spacing-sm;
+    background: $secondary-color;
+    border-radius: $radius-sm;
+    border: 1px solid $border-color;
+}
+
+.theme-controls,
+.display-controls {
+    display: flex;
+    justify-content: center;
+}
+
+.shortcuts-list {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+}
+
+.shortcut-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: $spacing-sm;
+    background: $secondary-color;
+    border-radius: $radius-sm;
+    border: 1px solid $border-color;
+}
+
+.shortcut-key {
+    font-family: 'Courier New', monospace;
+    font-weight: $font-weight-bold;
+    color: $primary-color;
+    background: white;
+    padding: $spacing-xs $spacing-sm;
+    border-radius: $radius-sm;
+    border: 1px solid $border-color;
+    font-size: $font-size-xs;
+}
+
+.shortcut-desc {
+    font-size: $font-size-sm;
+    color: $text-secondary;
+}
+
+// Dark theme for settings
+.dark-theme {
+    .settings-container {
+        .settings-title {
+            color: $dark-text-primary;
+        }
+    }
+    
+    .settings-btn {
+        background: $dark-bg-secondary;
+        color: $dark-text-primary;
+        border-color: $dark-border-color;
+        
+        &:hover {
+            background: $dark-bg-primary;
+        }
+        
+        &.theme-toggle {
+            background: $primary-color;
+            color: white;
+        }
+    }
+    
+    .zoom-level-display {
+        background: $dark-bg-primary;
+        color: $dark-text-primary;
+        border-color: $dark-border-color;
+    }
+    
+    .shortcut-item {
+        background: $dark-bg-primary;
+        border-color: $dark-border-color;
+    }
+    
+    .shortcut-key {
+        background: $dark-bg-secondary;
+        color: $primary-color;
+        border-color: $dark-border-color;
+    }
+    
+    .shortcut-desc {
+        color: $dark-text-secondary;
+    }
+}
+
+// =============================================================================
 // RESPONSIVE DESIGN
 // =============================================================================
 
 @include mobile {
   .reader-header {
-    padding: $spacing-md;
+    padding: $spacing-sm $spacing-md;
   }
   
   .reader-content {

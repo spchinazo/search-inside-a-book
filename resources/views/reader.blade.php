@@ -7,7 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="{{ asset('build/assets/app-Pgh_gDvZ.css') }}" rel="stylesheet">
+    @vite(['resources/sass/app.scss'])
 </head>
 <body>
     <div class="progress-container">
@@ -15,34 +15,17 @@
     </div>
 
     <div class="reader-container">
-        <!-- Header -->
-        <div class="reader-header">
-            <div class="reader-header-content">
-                <div class="book-info">
-                    <div class="book-info-cover">
-                        <i class="fas fa-book"></i>
-                    </div>
-                    <div class="book-info-details">
-                        <h1 id="bookTitle">Eloquent JavaScript</h1>
-                        <p id="bookAuthor">by Marijn Haverbeke</p>
-                    </div>
-                </div>
-
-                <div class="reader-actions">
-                    <button class="reader-actions-button" data-bs-toggle="modal" data-bs-target="#searchModal">
-                        <i class="fas fa-search"></i>
-                        Search
-                    </button>
-                </div>
-            </div>
-        </div>
+        <!-- Header Component -->
+        <x-reader-header />
 
         <!-- Main Content -->
         <div class="reader-main">
             <!-- Page Viewer -->
             <div class="reader-content">
                 <div class="page-container">
-                    <img id="pageViewer" src="{{ asset('storage/exercise-files/Eloquent_JavaScript_pages/page-001.png') }}" alt="Page 1" class="page-image">
+                    <div class="page-wrapper">
+                        <img id="pageViewer" src="{{ asset('storage/exercise-files/Eloquent_JavaScript_pages/page-001.png') }}" alt="Page 1" class="page-image">
+                    </div>
                 </div>
             </div>
 
@@ -87,11 +70,109 @@
         </div>
     </div>
 
+    <!-- Settings Modal -->
+    <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="settingsModalLabel">
+                        <i class="fas fa-cog me-2"></i>
+                        Reader Settings
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="settings-container">
+                        <!-- Zoom Settings -->
+                        <div class="settings-section">
+                            <h6 class="settings-title">
+                                <i class="fas fa-search-plus me-2"></i>
+                                Zoom
+                            </h6>
+                            <div class="zoom-controls-settings">
+                                <button class="settings-btn" onclick="zoomOut()" title="Zoom Out">
+                                    <i class="fas fa-search-minus"></i>
+                                </button>
+                                <span class="zoom-level-display" id="zoomLevelDisplay">100%</span>
+                                <button class="settings-btn" onclick="zoomIn()" title="Zoom In">
+                                    <i class="fas fa-search-plus"></i>
+                                </button>
+                                <button class="settings-btn" onclick="resetZoom()" title="Reset Zoom">
+                                    <i class="fas fa-expand-arrows-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Theme Settings -->
+                        <div class="settings-section">
+                            <h6 class="settings-title">
+                                <i class="fas fa-palette me-2"></i>
+                                Theme
+                            </h6>
+                            <div class="theme-controls">
+                                <button class="settings-btn theme-toggle" id="settingsThemeToggle" onclick="toggleTheme()">
+                                    <i class="fas fa-moon" id="settingsThemeIcon"></i>
+                                    <span id="settingsThemeText">Switch to Dark</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Display Settings -->
+                        <div class="settings-section">
+                            <h6 class="settings-title">
+                                <i class="fas fa-desktop me-2"></i>
+                                Display
+                            </h6>
+                            <div class="display-controls">
+                                <button class="settings-btn" onclick="toggleFullscreen()" title="Toggle Fullscreen">
+                                    <i class="fas fa-expand" id="settingsFullscreenIcon"></i>
+                                    <span id="settingsFullscreenText">Enter Fullscreen</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Keyboard Shortcuts -->
+                        <div class="settings-section">
+                            <h6 class="settings-title">
+                                <i class="fas fa-keyboard me-2"></i>
+                                Keyboard Shortcuts
+                            </h6>
+                            <div class="shortcuts-list">
+                                <div class="shortcut-item">
+                                    <span class="shortcut-key">← →</span>
+                                    <span class="shortcut-desc">Navigate pages</span>
+                                </div>
+                                <div class="shortcut-item">
+                                    <span class="shortcut-key">+ -</span>
+                                    <span class="shortcut-desc">Zoom in/out</span>
+                                </div>
+                                <div class="shortcut-item">
+                                    <span class="shortcut-key">F</span>
+                                    <span class="shortcut-desc">Fullscreen</span>
+                                </div>
+                                <div class="shortcut-item">
+                                    <span class="shortcut-key">B</span>
+                                    <span class="shortcut-desc">Bookmark</span>
+                                </div>
+                                <div class="shortcut-item">
+                                    <span class="shortcut-key">S</span>
+                                    <span class="shortcut-desc">Search</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         let currentPage = 1;
-        let totalPages = 583; // Total number of page images
+        let totalPages = 583;
         let pageViewer = null;
+        let currentZoom = 100;
+        let bookmarks = JSON.parse(localStorage.getItem('bookmarks') || '[]');
 
         // Initialize reader
         document.addEventListener('DOMContentLoaded', function() {
@@ -138,6 +219,7 @@
                 // Update navigation buttons
                 updateNavigation();
                 updateProgress();
+                updateBookmarkButton();
                 
                 // Update URL without reload (use 'location' parameter like Aleph Digital)
                 const url = new URL(window.location);
@@ -205,6 +287,123 @@
             document.getElementById('searchResults').innerHTML = '';
         });
 
+        // Theme toggle functionality
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('themeIcon');
+            const themeText = document.getElementById('themeText');
+            const settingsThemeIcon = document.getElementById('settingsThemeIcon');
+            const settingsThemeText = document.getElementById('settingsThemeText');
+            
+            if (body.classList.contains('dark-theme')) {
+                // Switch to light theme
+                body.classList.remove('dark-theme');
+                if (themeIcon) themeIcon.className = 'fas fa-moon';
+                if (themeText) themeText.textContent = 'Dark';
+                if (settingsThemeIcon) settingsThemeIcon.className = 'fas fa-moon';
+                if (settingsThemeText) settingsThemeText.textContent = 'Switch to Dark';
+                localStorage.setItem('theme', 'light');
+            } else {
+                // Switch to dark theme
+                body.classList.add('dark-theme');
+                if (themeIcon) themeIcon.className = 'fas fa-sun';
+                if (themeText) themeText.textContent = 'Light';
+                if (settingsThemeIcon) settingsThemeIcon.className = 'fas fa-sun';
+                if (settingsThemeText) settingsThemeText.textContent = 'Switch to Light';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // Load saved theme on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-theme');
+                document.getElementById('themeIcon').className = 'fas fa-sun';
+                document.getElementById('themeText').textContent = 'Light';
+            }
+            
+            // Initialize bookmarks
+            updateBookmarkButton();
+        });
+
+        // Zoom functionality
+        function zoomIn() {
+            currentZoom = Math.min(currentZoom + 25, 300);
+            updateZoom();
+        }
+
+        function zoomOut() {
+            currentZoom = Math.max(currentZoom - 25, 50);
+            updateZoom();
+        }
+
+        function resetZoom() {
+            currentZoom = 100;
+            updateZoom();
+        }
+
+        function updateZoom() {
+            if (pageViewer) {
+                pageViewer.style.transform = `scale(${currentZoom / 100})`;
+                // Update both zoom level displays
+                const zoomLevel = document.getElementById('zoomLevel');
+                const zoomLevelDisplay = document.getElementById('zoomLevelDisplay');
+                if (zoomLevel) zoomLevel.textContent = `${currentZoom}%`;
+                if (zoomLevelDisplay) zoomLevelDisplay.textContent = `${currentZoom}%`;
+            }
+        }
+
+        // Fullscreen functionality
+        function toggleFullscreen() {
+            const fullscreenIcon = document.getElementById('fullscreenIcon');
+            const settingsFullscreenIcon = document.getElementById('settingsFullscreenIcon');
+            const settingsFullscreenText = document.getElementById('settingsFullscreenText');
+            
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().then(() => {
+                    if (fullscreenIcon) fullscreenIcon.className = 'fas fa-compress';
+                    if (settingsFullscreenIcon) settingsFullscreenIcon.className = 'fas fa-compress';
+                    if (settingsFullscreenText) settingsFullscreenText.textContent = 'Exit Fullscreen';
+                });
+            } else {
+                document.exitFullscreen().then(() => {
+                    if (fullscreenIcon) fullscreenIcon.className = 'fas fa-expand';
+                    if (settingsFullscreenIcon) settingsFullscreenIcon.className = 'fas fa-expand';
+                    if (settingsFullscreenText) settingsFullscreenText.textContent = 'Enter Fullscreen';
+                });
+            }
+        }
+
+        // Bookmark functionality
+        function toggleBookmark() {
+            const pageNumber = currentPage;
+            const bookmarkIndex = bookmarks.indexOf(pageNumber);
+            
+            if (bookmarkIndex > -1) {
+                bookmarks.splice(bookmarkIndex, 1);
+            } else {
+                bookmarks.push(pageNumber);
+            }
+            
+            localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+            updateBookmarkButton();
+        }
+
+        function updateBookmarkButton() {
+            const isBookmarked = bookmarks.includes(currentPage);
+            const bookmarkIcon = document.getElementById('bookmarkIcon');
+            const bookmarkText = document.getElementById('bookmarkText');
+            
+            if (isBookmarked) {
+                bookmarkIcon.className = 'fas fa-bookmark';
+                bookmarkText.textContent = 'Bookmarked';
+            } else {
+                bookmarkIcon.className = 'far fa-bookmark';
+                bookmarkText.textContent = 'Bookmark';
+            }
+        }
+
         async function performSearch(query) {
             try {
                 const response = await fetch(`/api/search?q=${encodeURIComponent(query)}&limit=10`);
@@ -269,7 +468,7 @@
             `;
         }
 
-        // Keyboard navigation
+        // Enhanced keyboard navigation
         document.addEventListener('keydown', function(e) {
             if (e.target.tagName === 'INPUT') return;
             
@@ -289,6 +488,34 @@
                 case 'End':
                     e.preventDefault();
                     goToPage(totalPages);
+                    break;
+                case '+':
+                case '=':
+                    e.preventDefault();
+                    zoomIn();
+                    break;
+                case '-':
+                    e.preventDefault();
+                    zoomOut();
+                    break;
+                case '0':
+                    e.preventDefault();
+                    resetZoom();
+                    break;
+                case 'f':
+                case 'F':
+                    e.preventDefault();
+                    toggleFullscreen();
+                    break;
+                case 'b':
+                case 'B':
+                    e.preventDefault();
+                    toggleBookmark();
+                    break;
+                case 's':
+                case 'S':
+                    e.preventDefault();
+                    document.getElementById('searchModal').click();
                     break;
             }
         });
