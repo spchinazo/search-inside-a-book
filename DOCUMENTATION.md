@@ -356,6 +356,127 @@ graph TB
 - **API marketplace** for third-party integrations
 - **White-label solutions** for enterprise clients
 
+## Setup and Execution Instructions
+
+### Prerequisites
+- PHP 8.3+ and Composer installed locally
+- Docker and Docker Desktop
+- Git for version control
+
+### Step-by-Step Setup
+```bash
+# 1. Clone and setup environment
+git clone <repository-url>
+cd search-inside-a-book
+cp .env.example .env
+
+# 2. Install dependencies
+composer install
+./vendor/bin/sail up -d
+
+# 3. Generate application key
+./vendor/bin/sail artisan key:generate
+
+# 4. Install frontend dependencies
+./vendor/bin/sail yarn install
+
+# 5. Create storage symlink
+./vendor/bin/sail artisan storage:link
+
+# 6. Run database migrations
+./vendor/bin/sail artisan migrate
+
+# 7. Seed the database with book data
+./vendor/bin/sail artisan db:seed --class=BookSeeder
+
+# 8. Start development server
+./vendor/bin/sail yarn dev
+```
+
+### Validation Steps
+```bash
+# Run all tests
+./vendor/bin/sail artisan test
+
+# Run specific search tests
+./vendor/bin/sail artisan test --filter=SearchTest
+
+# Test API endpoints manually
+curl "http://localhost:8888/api/book"
+curl "http://localhost:8888/api/search?q=DOM&limit=5"
+
+# Build production assets
+./vendor/bin/sail yarn build
+```
+
+### Access Points
+- **Application**: http://localhost:8888
+- **Database**: 127.0.0.1:5432 (publicala_user/publicala_password)
+- **API Base**: http://localhost:8888/api
+
+## Development Assumptions and Trade-offs
+
+### Key Assumptions Made
+- **Single book focus**: Implementation optimized for one book (Eloquent JavaScript)
+- **PostgreSQL preference**: Chose PostgreSQL over Elasticsearch for simplicity
+- **Laravel ecosystem**: Leveraged existing Laravel infrastructure
+- **Basic UI**: Prioritized backend functionality over complex frontend
+- **Local development**: Optimized for local Docker environment
+
+### Trade-offs and Compromises
+- **Search complexity**: Implemented basic relevance scoring instead of ML-based ranking
+- **Caching**: Deferred Redis implementation for MVP
+- **Security**: Basic input sanitization without advanced security features
+- **Monitoring**: No APM implementation in current version
+- **Multi-tenancy**: Single-tenant architecture for simplicity
+
+### Mocked/Simulated Components
+- **Rate limiting**: Basic implementation without Redis
+- **Analytics**: Search logging prepared but not fully implemented
+- **Advanced search**: Fuzzy matching and stemming prepared but not active
+- **Caching layer**: Architecture designed but not implemented
+
+## Presentation Outline
+
+### What Will Be Covered During Presentation
+
+#### 1. Technical Implementation (15 minutes)
+- **Database architecture** and indexing strategy
+- **Search algorithm** with relevance scoring
+- **API design** and response structure
+- **Performance optimizations** implemented
+
+#### 2. Code Walkthrough (10 minutes)
+- **SearchController** implementation details
+- **Database queries** and optimization techniques
+- **Snippet generation** algorithm
+- **Frontend integration** with APIs
+
+#### 3. Challenges and Solutions (10 minutes)
+- **Performance bottlenecks** encountered
+- **Search relevance** tuning process
+- **Database indexing** decisions
+- **API response** optimization
+
+#### 4. "Think Big" Roadmap (10 minutes)
+- **2-3 month development plan**
+- **Advanced features** roadmap
+- **Scalability considerations**
+- **Technology stack** evolution
+
+#### 5. Q&A and Discussion (15 minutes)
+- **Technical decisions** rationale
+- **Alternative approaches** considered
+- **Future improvements** priorities
+- **Team collaboration** aspects
+
+### Key Points to Highlight
+- **Backend-first approach** with focus on search quality
+- **Performance optimization** through database indexing
+- **Scalable architecture** for future growth
+- **Clean API design** for frontend integration
+- **Comprehensive testing** strategy
+
 ## Conclusion
 
 This technical documentation outlines a comprehensive approach to building a scalable, performant book search system. The implementation prioritizes backend excellence with robust data modeling, efficient search algorithms, and API design that supports both current needs and future growth.
