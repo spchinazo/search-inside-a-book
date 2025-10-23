@@ -9,7 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     @vite(['resources/sass/app.scss'])
     
-    <!-- PDF.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -21,25 +20,17 @@
     </div>
 
     <div class="reader-container">
-        <!-- Header Component -->
         <x-reader-header />
 
-        <!-- Main Content -->
         <div class="reader-main">
-            <!-- PDF Viewer -->
             <div class="reader-content">
                 <div class="pdf-container">
                     <div class="pdf-viewer" id="pdfViewer">
-                        <div class="pdf-pages-container" id="pageContainer">
-                            <!-- PDF pages will be rendered here -->
-                        </div>
+                        <div class="pdf-pages-container" id="pageContainer"></div>
                     </div>
                 </div>
             </div>
-
         </div>
-
-        <!-- Footer Pagination -->
         <div class="reader-footer">
             <div class="footer-pagination">
                 <button class="footer-nav-button" id="prevBtn" onclick="previousPage()">
@@ -57,7 +48,6 @@
         </div>
     </div>
 
-    <!-- Search Modal -->
     <div class="modal fade" id="searchModal" tabindex="-1" aria-labelledby="searchModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -78,7 +68,6 @@
         </div>
     </div>
 
-    <!-- Settings Modal -->
     <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -182,7 +171,6 @@
         let currentZoom = 100;
         let bookmarks = JSON.parse(localStorage.getItem('bookmarks') || '[]');
 
-        // Initialize reader
         document.addEventListener('DOMContentLoaded', function() {
             const urlParams = new URLSearchParams(window.location.search);
             const pageParam = urlParams.get('page') || urlParams.get('location');
@@ -254,14 +242,12 @@
                 
                 console.log(`Page ${pageNumber} viewport:`, viewport);
                 
-                // Create canvas
                 const canvas = document.createElement('canvas');
                 const context = canvas.getContext('2d');
                 canvas.height = viewport.height;
                 canvas.width = viewport.width;
                 canvas.className = 'pdf-page-canvas';
                 
-                // Render page to canvas
                 const renderContext = {
                     canvasContext: context,
                     viewport: viewport
@@ -271,7 +257,6 @@
                 
                 console.log(`Page ${pageNumber} rendered successfully`);
                 
-                // Replace placeholder with canvas
                 pageWrapper.innerHTML = '';
                 pageWrapper.appendChild(canvas);
                 
@@ -286,13 +271,10 @@
             }
         }
 
-        // Navigate to specific page (single page view)
         async function loadPage(pageNumber) {
-            // Update current page
             currentPage = pageNumber;
             document.getElementById('currentPage').textContent = currentPage;
             
-            // Show loading placeholder
             const pageWrapper = document.getElementById('currentPageWrapper');
             if (pageWrapper) {
                 pageWrapper.innerHTML = `
@@ -305,21 +287,17 @@
                 `;
             }
             
-            // Render the new page
             await renderPage(pageNumber);
             
-            // Update navigation buttons
             updateNavigation();
             updateProgress();
             updateBookmarkButton();
             
-            // Update URL without reload (use 'location' parameter like Aleph Digital)
             const url = new URL(window.location);
             url.searchParams.set('location', currentPage);
             window.history.pushState({}, '', url);
         }
 
-        // Navigation functions
         function previousPage() {
             if (currentPage > 1) {
                 loadPage(currentPage - 1);
@@ -339,30 +317,25 @@
             }
         }
 
-        // Update navigation state
         function updateNavigation() {
             document.getElementById('prevBtn').disabled = currentPage <= 1;
             document.getElementById('nextBtn').disabled = currentPage >= totalPages;
         }
 
-        // Update progress bar
         function updateProgress() {
             const progress = (currentPage / totalPages) * 100;
             document.getElementById('progressBar').style.width = `${progress}%`;
         }
 
-        // Modal functions
         function openSearchModal() {
             const searchModal = new bootstrap.Modal(document.getElementById('searchModal'));
             searchModal.show();
             
-            // Focus on search input when modal opens
             setTimeout(() => {
                 document.getElementById('searchInput').focus();
             }, 500);
         }
 
-        // Search functionality
         document.getElementById('searchInput').addEventListener('input', function(e) {
             const query = e.target.value.trim();
             if (query.length > 2) {
@@ -372,13 +345,11 @@
             }
         });
 
-        // Clear search when modal is closed
         document.getElementById('searchModal').addEventListener('hidden.bs.modal', function () {
             document.getElementById('searchInput').value = '';
             document.getElementById('searchResults').innerHTML = '';
         });
 
-        // Theme toggle functionality
         function toggleTheme() {
             const body = document.body;
             const themeIcon = document.getElementById('themeIcon');
@@ -387,7 +358,6 @@
             const settingsThemeText = document.getElementById('settingsThemeText');
             
             if (body.classList.contains('dark-theme')) {
-                // Switch to light theme
                 body.classList.remove('dark-theme');
                 if (themeIcon) themeIcon.className = 'fas fa-moon';
                 if (themeText) themeText.textContent = 'Dark';
@@ -395,7 +365,6 @@
                 if (settingsThemeText) settingsThemeText.textContent = 'Switch to Dark';
                 localStorage.setItem('theme', 'light');
             } else {
-                // Switch to dark theme
                 body.classList.add('dark-theme');
                 if (themeIcon) themeIcon.className = 'fas fa-sun';
                 if (themeText) themeText.textContent = 'Light';
@@ -405,7 +374,6 @@
             }
         }
 
-        // Load saved theme on page load
         document.addEventListener('DOMContentLoaded', function() {
             const savedTheme = localStorage.getItem('theme');
             if (savedTheme === 'dark') {
@@ -414,11 +382,9 @@
                 document.getElementById('themeText').textContent = 'Light';
             }
             
-            // Initialize bookmarks
             updateBookmarkButton();
         });
 
-        // Zoom functionality
         function zoomIn() {
             currentZoom = Math.min(currentZoom + 25, 300);
             updateZoom();
@@ -440,7 +406,6 @@
                 pageContainer.style.transform = `scale(${currentZoom / 100})`;
                 pageContainer.style.transformOrigin = 'center center';
                 
-                // Update both zoom level displays
                 const zoomLevel = document.getElementById('zoomLevel');
                 const zoomLevelDisplay = document.getElementById('zoomLevelDisplay');
                 if (zoomLevel) zoomLevel.textContent = `${currentZoom}%`;
@@ -448,7 +413,6 @@
             }
         }
 
-        // Fullscreen functionality
         function toggleFullscreen() {
             const fullscreenIcon = document.getElementById('fullscreenIcon');
             const settingsFullscreenIcon = document.getElementById('settingsFullscreenIcon');
@@ -469,7 +433,6 @@
             }
         }
 
-        // Bookmark functionality
         function toggleBookmark() {
             const pageNumber = currentPage;
             const bookmarkIndex = bookmarks.indexOf(pageNumber);
@@ -538,19 +501,16 @@
 
         function goToPageAndCloseModal(pageNumber) {
             goToPage(pageNumber);
-            // Close the modal
             const searchModal = bootstrap.Modal.getInstance(document.getElementById('searchModal'));
             if (searchModal) {
                 searchModal.hide();
             }
         }
 
-        // Go back to search
         function goBack() {
             window.location.href = '/';
         }
 
-        // Show error
         function showError(message) {
             document.getElementById('pageContent').innerHTML = `
                 <div class="text-center text-danger py-5">
@@ -562,7 +522,6 @@
             `;
         }
 
-        // Enhanced keyboard navigation
         document.addEventListener('keydown', function(e) {
             if (e.target.tagName === 'INPUT') return;
             
