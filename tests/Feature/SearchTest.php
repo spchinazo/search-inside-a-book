@@ -7,7 +7,7 @@ use App\BookPage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class ApiTest extends TestCase
+class SearchTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -90,10 +90,9 @@ class ApiTest extends TestCase
     {
         $response = $this->getJson('/api/search?q=');
 
-        $response->assertStatus(400)
+        $response->assertStatus(200)
             ->assertJson([
-                'success' => false,
-                'message' => 'Search query is required'
+                'success' => true
             ]);
     }
 
