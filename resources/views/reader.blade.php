@@ -170,13 +170,19 @@
         let pdfDocument = null;
         let currentZoom = 100;
         let bookmarks = JSON.parse(localStorage.getItem('bookmarks') || '[]');
+        let isLoading = false;
 
         document.addEventListener('DOMContentLoaded', function() {
             const urlParams = new URLSearchParams(window.location.search);
             const pageParam = urlParams.get('page') || urlParams.get('location');
             
             if (pageParam) {
-                currentPage = parseInt(pageParam);
+                const requestedPage = parseInt(pageParam);
+                if (isNaN(requestedPage) || requestedPage < 1) {
+                    currentPage = 1;
+                } else {
+                    currentPage = requestedPage;
+                }
             } else {
                 currentPage = 1;
             }
@@ -195,6 +201,16 @@
                 console.log('PDF loaded successfully. Total pages:', totalPages);
                 
                 document.getElementById('totalPages').textContent = totalPages;
+                
+                // Validate if requested page exists
+                if (currentPage > totalPages) {
+                    console.warn(`Requested page ${currentPage} exceeds total pages ${totalPages}. Redirecting to page 1.`);
+                    currentPage = 1;
+                    // Update URL to reflect the correction
+                    const url = new URL(window.location);
+                    url.searchParams.set('location', currentPage);
+                    window.history.replaceState({}, '', url);
+                }
                 
                 initializePageContainer();
                 
@@ -235,10 +251,22 @@
                 return;
             }
             
+            // Validate page number before rendering
+            if (pageNumber < 1 || pageNumber > totalPages) {
+                console.error(`Cannot render page ${pageNumber}. Valid range: 1-${totalPages}`);
+                pageWrapper.innerHTML = `
+                    <div class="error-placeholder">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Page ${pageNumber} does not exist. Valid range: 1-${totalPages}</span>
+                    </div>
+                `;
+                return;
+            }
+            
             try {
                 console.log(`Rendering PDF page ${pageNumber}`);
                 const page = await pdfDocument.getPage(pageNumber);
-                const viewport = page.getViewport({ scale: 1.0 });
+                const viewport = page.getViewport({ scale: currentZoom / 100 });
                 
                 console.log(`Page ${pageNumber} viewport:`, viewport);
                 
@@ -272,6 +300,20 @@
         }
 
         async function loadPage(pageNumber) {
+            // Prevent multiple simultaneous loads
+            if (isLoading) {
+                console.log('Page load already in progress, skipping...');
+                return;
+            }
+            
+            // Validate page number
+            if (pageNumber < 1 || pageNumber > totalPages) {
+                console.error(`Invalid page number: ${pageNumber}. Valid range: 1-${totalPages}`);
+                showError(`Page ${pageNumber} does not exist. Please choose a page between 1 and ${totalPages}.`);
+                return;
+            }
+            
+            isLoading = true;
             currentPage = pageNumber;
             document.getElementById('currentPage').textContent = currentPage;
             
@@ -287,15 +329,22 @@
                 `;
             }
             
-            await renderPage(pageNumber);
-            
-            updateNavigation();
-            updateProgress();
-            updateBookmarkButton();
-            
-            const url = new URL(window.location);
-            url.searchParams.set('location', currentPage);
-            window.history.pushState({}, '', url);
+            try {
+                await renderPage(pageNumber);
+                
+                updateNavigation();
+                updateProgress();
+                updateBookmarkButton();
+                
+                const url = new URL(window.location);
+                url.searchParams.set('location', currentPage);
+                window.history.pushState({}, '', url);
+            } catch (error) {
+                console.error(`Error loading page ${pageNumber}:`, error);
+                showError(`Failed to load page ${pageNumber}: ${error.message}`);
+            } finally {
+                isLoading = false;
+            }
         }
 
         function previousPage() {
