@@ -193,12 +193,10 @@
         async function loadPDF() {
             try {
                 const pdfUrl = "{{ asset('storage/exercise-files/Eloquent_JavaScript.pdf') }}";
-                console.log('Loading PDF from:', pdfUrl);
                 
                 pdfDocument = await pdfjsLib.getDocument(pdfUrl).promise;
                 totalPages = pdfDocument.numPages;
                 
-                console.log('PDF loaded successfully. Total pages:', totalPages);
                 
                 document.getElementById('totalPages').textContent = totalPages;
                 
@@ -264,11 +262,9 @@
             }
             
             try {
-                console.log(`Rendering PDF page ${pageNumber}`);
                 const page = await pdfDocument.getPage(pageNumber);
                 const viewport = page.getViewport({ scale: currentZoom / 100 });
                 
-                console.log(`Page ${pageNumber} viewport:`, viewport);
                 
                 const canvas = document.createElement('canvas');
                 const context = canvas.getContext('2d');
@@ -283,7 +279,6 @@
                 
                 await page.render(renderContext).promise;
                 
-                console.log(`Page ${pageNumber} rendered successfully`);
                 
                 pageWrapper.innerHTML = '';
                 pageWrapper.appendChild(canvas);
@@ -302,7 +297,6 @@
         async function loadPage(pageNumber) {
             // Prevent multiple simultaneous loads
             if (isLoading) {
-                console.log('Page load already in progress, skipping...');
                 return;
             }
             
