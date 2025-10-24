@@ -17,68 +17,92 @@ The implementation prioritizes:
 
 ## Technical Implementation
 
-### 1. Database Architecture
+### 1. Data Architecture
 
-#### Schema Design
-```sql
--- Books table
-CREATE TABLE books (
-    id BIGSERIAL PRIMARY KEY,
-    title VARCHAR NOT NULL,
-    author VARCHAR,
-    isbn VARCHAR,
-    description TEXT,
-    created_at TIMESTAMP,
-    updated_at TIMESTAMP
-);
-
--- Book pages table with optimized indexing
-CREATE TABLE book_pages (
-    id BIGSERIAL PRIMARY KEY,
-    book_id BIGINT REFERENCES books(id) ON DELETE CASCADE,
-    page_number INTEGER NOT NULL,
-    text_content TEXT NOT NULL,
-    created_at TIMESTAMP,
-    updated_at TIMESTAMP,
-    
-    -- Composite index for book/page queries
-    INDEX idx_book_page (book_id, page_number),
-    
-    -- Full-text search index
-    INDEX idx_text_content_fulltext (text_content)
-);
+#### JSON File Structure
+```json
+[
+  {
+    "page": 2,
+    "text_content": "EloquentJavaScript 3rdedition Marijn Haverbeke"
+  },
+  {
+    "page": 3,
+    "text_content": "Copyright © 2018 by Marijn Haverbeke This work is licensed under a Creative Commons attribution-noncommercial license..."
+  }
+]
 ```
 
 #### Key Design Decisions:
-- **Normalized structure** with separate books and pages tables
-- **Foreign key constraints** for data integrity
-- **Composite indexing** for efficient book/page lookups
-- **Full-text search indexing** for content search performance
+- **JSON file storage** for simplicity and portability
+- **In-memory data loading** for fast access
+- **No database dependency** for core search functionality
+- **File-based approach** for easy deployment and maintenance
+
+#### JSON Implementation Details:
+```php
+private function loadBookData(): array
+{
+    if ($this->bookData === null) {
+        $jsonPath = storage_path('exercise-files/Eloquent_JavaScript.json');
+        
+        if (!file_exists($jsonPath)) {
+            throw new \Exception('Book data file not found');
+        }
+        
+        $this->bookData = json_decode(file_get_contents($jsonPath), true);
+        
+        if (!$this->bookData) {
+            throw new \Exception('Failed to parse book data');
+        }
+    }
+    
+    return $this->bookData;
+}
+```
+
+#### Advantages of JSON Approach:
+- **Zero database setup** required for core functionality
+- **Portable deployment** with single file
+- **Fast in-memory processing** for search operations
+- **Easy data updates** by replacing JSON file
+- **Version control friendly** for data changes
 
 ### 2. Search Algorithm Implementation
 
 #### Relevance Scoring System
 ```php
-$relevanceScore = DB::raw("(
-    CASE 
-        WHEN LOWER(text_content) LIKE LOWER('%" . $query . "%') THEN 100
-        ELSE (
-            SELECT COUNT(*) 
-            FROM (
-                SELECT unnest(string_to_array(LOWER(text_content), ' ')) as word
-            ) words 
-            WHERE word LIKE LOWER('%" . $query . "%')
-        ) * 10
-    END
-) as relevance_score");
+private function calculateRelevanceScore(string $text, string $query, array $searchTerms): int
+{
+    $score = 0;
+    $textLower = strtolower($text);
+    $queryLower = strtolower($query);
+    
+    // Exact phrase match gets highest score
+    if (strpos($textLower, $queryLower) !== false) {
+        $score += 100;
+    }
+    
+    // Word frequency scoring
+    foreach ($searchTerms as $term) {
+        $termLower = strtolower($term);
+        if (strlen($term) > 2) { // Only count terms longer than 2 characters
+            $count = substr_count($textLower, $termLower);
+            $score += $count * 10;
+        }
+    }
+    
+    return $score;
+}
 ```
 
 #### Search Features:
 - **Exact phrase matching** (100 points)
 - **Word frequency scoring** (10 points per match)
 - **Position-based ranking** for result ordering
-- **Case-insensitive search** with ILIKE
+- **Case-insensitive search** with stripos()
 - **Multi-term search** with OR logic
+- **In-memory processing** for fast results
 
 ### 3. API Architecture
 
@@ -119,17 +143,18 @@ GET /api/book
 
 ### 4. Performance Optimizations
 
-#### Database Optimizations
-- **Composite indexes** for book/page queries
-- **Full-text search indexing** for content search
-- **Query optimization** with selective field loading
+#### JSON File Optimizations
+- **In-memory data caching** for fast access
+- **Lazy loading** of JSON data when needed
+- **Efficient array processing** for search operations
 - **Pagination** to limit result sets (max 1000 results)
 
 #### Application Optimizations
-- **Eager loading** with Eloquent relationships
+- **Memory-efficient data structures** for large datasets
 - **Efficient snippet generation** (200 character limit)
-- **SQL-based ranking** to reduce application processing
+- **PHP-based ranking** with optimized algorithms
 - **Input sanitization** for security
+- **File caching** to avoid repeated JSON parsing
 
 ### 5. Snippet Generation Algorithm
 
@@ -248,9 +273,9 @@ graph TB
     end
     
     subgraph "Data Layer"
-        M[PostgreSQL] --> N[Full-text Search]
-        N --> O[Composite Indexes]
-        O --> P[Query Optimization]
+        M[JSON File] --> N[In-Memory Search]
+        N --> O[Array Processing]
+        O --> P[PHP Optimization]
     end
     
     subgraph "Caching Layer"
@@ -383,10 +408,10 @@ composer install
 # 5. Create storage symlink
 ./vendor/bin/sail artisan storage:link
 
-# 6. Run database migrations
+# 6. Run database migrations (optional - for testing)
 ./vendor/bin/sail artisan migrate
 
-# 7. Seed the database with book data
+# 7. Seed the database with book data (optional - for testing)
 ./vendor/bin/sail artisan db:seed --class=BookSeeder
 
 # 8. Start development server
@@ -411,24 +436,28 @@ curl "http://localhost:8888/api/search?q=DOM&limit=5"
 
 ### Access Points
 - **Application**: http://localhost:8888
-- **Database**: 127.0.0.1:5432 (publicala_user/publicala_password)
 - **API Base**: http://localhost:8888/api
+- **JSON Data**: storage/exercise-files/Eloquent_JavaScript.json
+- **Database**: 127.0.0.1:5432 (publicala_user/publicala_password) - Optional for testing
 
 ## Development Assumptions and Trade-offs
 
 ### Key Assumptions Made
 - **Single book focus**: Implementation optimized for one book (Eloquent JavaScript)
-- **PostgreSQL preference**: Chose PostgreSQL over Elasticsearch for simplicity
+- **JSON file preference**: Chose JSON file over database for simplicity
 - **Laravel ecosystem**: Leveraged existing Laravel infrastructure
 - **Basic UI**: Prioritized backend functionality over complex frontend
 - **Local development**: Optimized for local Docker environment
+- **File-based approach**: No database dependency for core functionality
 
 ### Trade-offs and Compromises
 - **Search complexity**: Implemented basic relevance scoring instead of ML-based ranking
+- **Data storage**: Chose JSON file over database for simplicity and portability
 - **Caching**: Deferred Redis implementation for MVP
 - **Security**: Basic input sanitization without advanced security features
 - **Monitoring**: No APM implementation in current version
 - **Multi-tenancy**: Single-tenant architecture for simplicity
+- **Scalability**: File-based approach limits concurrent access but simplifies deployment
 
 ### Mocked/Simulated Components
 - **Rate limiting**: Basic implementation without Redis
