@@ -2,15 +2,37 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Book;
-use App\BookPage;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class SearchController extends Controller
 {
+    private $bookData = null;
+
+    /**
+     * Load book data from JSON file
+     */
+    private function loadBookData(): array
+    {
+        if ($this->bookData === null) {
+            $jsonPath = storage_path('exercise-files/Eloquent_JavaScript.json');
+            
+            if (!file_exists($jsonPath)) {
+                throw new \Exception('Book data file not found');
+            }
+            
+            $this->bookData = json_decode(file_get_contents($jsonPath), true);
+            
+            if (!$this->bookData) {
+                throw new \Exception('Failed to parse book data');
+            }
+        }
+        
+        return $this->bookData;
+    }
+
     /**
      * Search for text within the book
      */
@@ -20,22 +42,32 @@ class SearchController extends Controller
         $limit = min($request->get('limit', 20), 1000); // Max 1000 results
         $page = max($request->get('page', 1), 1);
 
-        // If query is empty, return all pages
-        if (empty(trim($query))) {
-            $searchResults = $this->getAllPages($limit, $page);
-        } else {
-            $searchResults = $this->performSearch($query, $limit, $page);
-        }
+        try {
+            $bookData = $this->loadBookData();
+            
+            // If query is empty, return all pages
+            if (empty(trim($query))) {
+                $searchResults = $this->getAllPages($bookData, $limit, $page);
+            } else {
+                $searchResults = $this->performSearch($bookData, $query, $limit, $page);
+            }
 
-        return response()->json([
-            'success' => true,
-            'data' => $searchResults,
-            'pagination' => [
-                'current_page' => $page,
-                'per_page' => $limit,
-                'total' => $searchResults['total']
-            ]
-        ]);
+            return response()->json([
+                'success' => true,
+                'data' => $searchResults,
+                'pagination' => [
+                    'current_page' => $page,
+                    'per_page' => $limit,
+                    'total' => $searchResults['total']
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Search failed: ' . $e->getMessage(),
+                'data' => null
+            ], 500);
+        }
     }
 
     /**
@@ -43,59 +75,47 @@ class SearchController extends Controller
      */
     public function getPageByNumber(Request $request, int $pageNumber): JsonResponse
     {
-        $page = BookPage::with('book')->where('page_number', $pageNumber)->first();
+        try {
+            $bookData = $this->loadBookData();
+            
+            $page = collect($bookData)->firstWhere('page', $pageNumber);
+            
+            if (!$page) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Page not found',
+                    'data' => null
+                ], 404);
+            }
 
-        if (!$page) {
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'id' => $pageNumber,
+                    'page_number' => $page['page'],
+                    'text_content' => $page['text_content'],
+                    'book' => [
+                        'id' => 1,
+                        'title' => 'Eloquent JavaScript',
+                        'author' => 'Marijn Haverbeke'
+                    ]
+                ]
+            ]);
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Page not found',
+                'message' => 'Failed to load page: ' . $e->getMessage(),
                 'data' => null
-            ], 404);
+            ], 500);
         }
-
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'id' => $page->id,
-                'page_number' => $page->page_number,
-                'text_content' => $page->text_content,
-                'book' => [
-                    'id' => $page->book->id,
-                    'title' => $page->book->title,
-                    'author' => $page->book->author
-                ]
-            ]
-        ]);
     }
 
     /**
-     * Get a specific page by ID
+     * Get a specific page by ID (same as page number for JSON implementation)
      */
     public function getPage(Request $request, int $pageId): JsonResponse
     {
-        $page = BookPage::with('book')->find($pageId);
-
-        if (!$page) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Page not found',
-                'data' => null
-            ], 404);
-        }
-
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'id' => $page->id,
-                'page_number' => $page->page_number,
-                'text_content' => $page->text_content,
-                'book' => [
-                    'id' => $page->book->id,
-                    'title' => $page->book->title,
-                    'author' => $page->book->author
-                ]
-            ]
-        ]);
+        return $this->getPageByNumber($request, $pageId);
     }
 
     /**
@@ -103,52 +123,47 @@ class SearchController extends Controller
      */
     public function getBook(): JsonResponse
     {
-        $book = Book::with('pages')->first();
-
-        if (!$book) {
+        try {
+            $bookData = $this->loadBookData();
+            
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'id' => 1,
+                    'title' => 'Eloquent JavaScript',
+                    'author' => 'Marijn Haverbeke',
+                    'description' => 'A Modern Introduction to Programming - 3rd Edition',
+                    'total_pages' => count($bookData)
+                ]
+            ]);
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Book not found',
+                'message' => 'Failed to load book: ' . $e->getMessage(),
                 'data' => null
-            ], 404);
+            ], 500);
         }
-
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'id' => $book->id,
-                'title' => $book->title,
-                'author' => $book->author,
-                'description' => $book->description,
-                'total_pages' => $book->pages->count()
-            ]
-        ]);
     }
 
     /**
      * Get all pages when no search query is provided
      */
-    private function getAllPages(int $limit, int $page): array
+    private function getAllPages(array $bookData, int $limit, int $page): array
     {
         $offset = ($page - 1) * $limit;
+        $total = count($bookData);
         
-        $results = BookPage::select(['book_pages.*'])
-            ->orderBy('page_number', 'asc')
-            ->limit($limit)
-            ->offset($offset)
-            ->get();
-
-        $total = BookPage::count();
-
-        $searchResults = $results->map(function ($page) {
+        $results = array_slice($bookData, $offset, $limit);
+        
+        $searchResults = array_map(function ($pageData, $index) {
             return [
-                'id' => $page->id,
-                'page_number' => $page->page_number,
-                'snippet' => $this->generateSnippet($page->text_content, '', []),
+                'id' => $pageData['page'],
+                'page_number' => $pageData['page'],
+                'snippet' => $this->generateSnippet($pageData['text_content'], '', []),
                 'relevance_score' => 0,
                 'match_position' => 0
             ];
-        });
+        }, $results, array_keys($results));
 
         return [
             'results' => $searchResults,
@@ -160,65 +175,86 @@ class SearchController extends Controller
     /**
      * Perform the actual search with ranking and snippets
      */
-    private function performSearch(string $query, int $limit, int $page): array
+    private function performSearch(array $bookData, string $query, int $limit, int $page): array
     {
         $offset = ($page - 1) * $limit;
         
         // Clean and prepare search terms
         $searchTerms = $this->prepareSearchTerms($query);
         
-        // Build the search query with ranking
-        $results = BookPage::select([
-                'book_pages.*',
-                DB::raw("(
-                    CASE 
-                        WHEN LOWER(text_content) LIKE LOWER('%" . addslashes($query) . "%') THEN 100
-                        ELSE (
-                            SELECT COUNT(*) 
-                            FROM (
-                                SELECT unnest(string_to_array(LOWER(text_content), ' ')) as word
-                            ) words 
-                            WHERE word LIKE LOWER('%" . addslashes($query) . "%')
-                        ) * 10
-                    END
-                ) as relevance_score"),
-                DB::raw("position(LOWER('" . addslashes($query) . "') in LOWER(text_content)) as match_position")
-            ])
-            ->where(function($q) use ($searchTerms) {
-                foreach ($searchTerms as $term) {
-                    $q->orWhere('text_content', 'ILIKE', "%{$term}%");
-                }
-            })
-            ->orderBy('relevance_score', 'desc')
-            ->orderBy('match_position', 'asc')
-            ->orderBy('page_number', 'asc')
-            ->limit($limit)
-            ->offset($offset)
-            ->get();
-
-        // Get total count for pagination
-        $total = BookPage::where(function($q) use ($searchTerms) {
-            foreach ($searchTerms as $term) {
-                $q->orWhere('text_content', 'ILIKE', "%{$term}%");
+        // Search through all pages
+        $results = [];
+        foreach ($bookData as $index => $pageData) {
+            $text = $pageData['text_content'];
+            $relevanceScore = $this->calculateRelevanceScore($text, $query, $searchTerms);
+            $matchPosition = stripos($text, $query);
+            
+            if ($relevanceScore > 0) {
+                $results[] = [
+                    'index' => $index,
+                    'page_data' => $pageData,
+                    'relevance_score' => $relevanceScore,
+                    'match_position' => $matchPosition !== false ? $matchPosition : 0
+                ];
             }
-        })->count();
-
-        // Generate snippets for each result
-        $searchResults = $results->map(function ($page) use ($query, $searchTerms) {
-            return [
-                'id' => $page->id,
-                'page_number' => $page->page_number,
-                'snippet' => $this->generateSnippet($page->text_content, $query, $searchTerms),
-                'relevance_score' => $page->relevance_score,
-                'match_position' => $page->match_position
-            ];
+        }
+        
+        // Sort by relevance score (descending) then by match position (ascending)
+        usort($results, function($a, $b) {
+            if ($a['relevance_score'] == $b['relevance_score']) {
+                return $a['match_position'] - $b['match_position'];
+            }
+            return $b['relevance_score'] - $a['relevance_score'];
         });
+        
+        // Get total count for pagination
+        $total = count($results);
+        
+        // Apply pagination
+        $paginatedResults = array_slice($results, $offset, $limit);
+        
+        // Generate snippets for each result
+        $searchResults = array_map(function ($result) use ($query, $searchTerms) {
+            return [
+                'id' => $result['page_data']['page'],
+                'page_number' => $result['page_data']['page'],
+                'snippet' => $this->generateSnippet($result['page_data']['text_content'], $query, $searchTerms),
+                'relevance_score' => $result['relevance_score'],
+                'match_position' => $result['match_position']
+            ];
+        }, $paginatedResults);
 
         return [
             'results' => $searchResults,
             'total' => $total,
             'query' => $query
         ];
+    }
+
+    /**
+     * Calculate relevance score for a text
+     */
+    private function calculateRelevanceScore(string $text, string $query, array $searchTerms): int
+    {
+        $score = 0;
+        $textLower = strtolower($text);
+        $queryLower = strtolower($query);
+        
+        // Exact phrase match gets highest score
+        if (strpos($textLower, $queryLower) !== false) {
+            $score += 100;
+        }
+        
+        // Word frequency scoring
+        foreach ($searchTerms as $term) {
+            $termLower = strtolower($term);
+            if (strlen($term) > 2) { // Only count terms longer than 2 characters
+                $count = substr_count($textLower, $termLower);
+                $score += $count * 10;
+            }
+        }
+        
+        return $score;
     }
 
     /**
