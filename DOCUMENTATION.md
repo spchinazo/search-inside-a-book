@@ -68,6 +68,38 @@ private function loadBookData(): array
 - **Easy data updates** by replacing JSON file
 - **Version control friendly** for data changes
 
+#### Database Migrations (Future Implementation)
+The project includes database migrations (`create_books_table` and `create_book_pages_table`) that are **not currently used** in the implementation. These migrations serve as:
+
+- **Future-proofing**: Ready-to-use database schema for when database integration is needed
+- **Scalability preparation**: Structured approach for handling multiple books and large datasets
+- **Testing infrastructure**: Available for running tests that require database state
+- **Development flexibility**: Easy transition from JSON to database when requirements change
+
+**Current Status**: The application works entirely with JSON files, making the database optional. The migrations are available but not required for core functionality.
+
+#### PostgreSQL Availability and Decision
+The Docker environment includes a fully configured PostgreSQL database:
+- **Host**: 127.0.0.1:5432
+- **Username**: publicala_user
+- **Password**: publicala_password
+- **Database**: publicala_db
+
+**Decision Rationale**: Despite PostgreSQL being readily available, the JSON approach was chosen because:
+- **Immediate deployment**: No database setup required
+- **Simplified architecture**: Single file contains all data
+- **Portability**: Easy to move between environments
+- **Development speed**: Faster iteration without database complexity
+
+#### Hybrid Architecture Benefits
+This approach provides the best of both worlds:
+
+- **Immediate functionality**: JSON-based implementation works out-of-the-box
+- **Future scalability**: Database migrations ready for when needed
+- **Development flexibility**: Easy to switch between JSON and database
+- **Testing options**: Can test both approaches independently
+- **Production readiness**: Can deploy with JSON for simplicity or database for scale
+
 ### 2. Search Algorithm Implementation
 
 #### Relevance Scoring System
@@ -408,10 +440,14 @@ composer install
 # 5. Create storage symlink
 ./vendor/bin/sail artisan storage:link
 
-# 6. Run database migrations (optional - for testing)
+# 6. Run database migrations (optional - for testing only)
+# Note: These migrations are NOT used in the current JSON-based implementation
+# They are available for future database integration or testing purposes
 ./vendor/bin/sail artisan migrate
 
-# 7. Seed the database with book data (optional - for testing)
+# 7. Seed the database with book data (optional - for testing only)
+# Note: This is only needed if you want to test database functionality
+# The main application uses JSON files, not the database
 ./vendor/bin/sail artisan db:seed --class=BookSeeder
 
 # 8. Start development server
@@ -449,10 +485,13 @@ curl "http://localhost:8888/api/search?q=DOM&limit=5"
 - **Basic UI**: Prioritized backend functionality over complex frontend
 - **Local development**: Optimized for local Docker environment
 - **File-based approach**: No database dependency for core functionality
+- **PostgreSQL availability**: While PostgreSQL is available in the Docker environment (127.0.0.1:5432, publicala_user/publicala_password, publicala_db), it was not utilized in favor of the JSON approach
 
 ### Trade-offs and Compromises
 - **Search complexity**: Implemented basic relevance scoring instead of ML-based ranking
 - **Data storage**: Chose JSON file over database for simplicity and portability
+- **Database migrations**: Created but not used - available for future database integration
+- **PostgreSQL utilization**: Despite PostgreSQL being available in the Docker environment, chose JSON approach for immediate functionality
 - **Caching**: Deferred Redis implementation for MVP
 - **Security**: Basic input sanitization without advanced security features
 - **Monitoring**: No APM implementation in current version
