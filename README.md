@@ -33,7 +33,9 @@ Develop a feature that would allow a user to search inside a book, displaying a 
 This feature may be developed in 1h, 1 day, 1 week or take months worth of work. Take this as an opportunity to cut scope, get creative and focus on your strengths. You may even fake parts of the feature and focus on what matters to you.
 We're not looking for a "perfect solution", we want to understand your skills and see where your expertise guides you.
 
+### AI Usage & Accountability
 For this part of the exercise, you are encouraged to use any AI tool you are comfortable with. Go ahead and take advantage of them!
+We welcome responsible AI support, but you must personally audit every line you ship and own it completely; if we sense you skipped that review, expect immediate disqualification.
 We'll want to know what tools you used, how and why you used them in those specific ways.
 
 Pick the angle that feels closest to the work you love doing:
