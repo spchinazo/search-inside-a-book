@@ -15,17 +15,6 @@ This approach allowed me to prioritize:
 
 By focusing on the backend, I built a foundation that any future frontend (Livewire, React, or Mobile) can consume reliably and efficiently.
 
-### Major Technical Challenges
-
-1.  **Meilisearch Asynchronous Configuration (`waitForTask`):**
-    * **The Problem:** Meilisearch tasks (like updating `filterableAttributes` for `book_id`) are asynchronous. In a test environment, if the next operation (the search query) runs before the configuration task is complete, the search fails with an error (`book_id is not filterable`).
-    * **The Fix:** We had to manually implement the Meilisearch PHP client's `->waitForTask($taskUid, 5000)` function in the `setUp()` method of the feature tests. This forced the test suite to pause until Meilisearch confirmed the configuration changes were active, ensuring reliable test execution.
-
-2.  **Data Persistence in Docker/Sail:**
-    * **The Problem:** During development, the database data and Meilisearch index data were frequently lost, forcing repetitive re-runs of `db:seed` and `scout:import`.
-    * **The Cause:** This was traced to the incorrect use of the destructive Docker command `sail down -v`, which removes persistent volumes.
-    * **The Fix:** The documentation now explicitly advises against `sail down -v` and uses the robust `sail up --build -d` sequence to maintain the integrity of the `sail-pgsql` and `sail-meilisearch` volumes.
-
 ## Getting Started
 
 These instructions will quickly set up the entire development environment on your local machine.
@@ -81,14 +70,8 @@ These instructions will quickly set up the entire development environment on you
     ./vendor/bin/sail artisan scout:sync
     ```
 
-## Meilisearch Indexing and Configuration
-
-After the database is seeded, the book content must be indexed for search functionality. **These steps are already included in the `Installation and Setup` section.**
-
-The two key operations are:
-
-1.  **Synchronize Index Settings:** This step ensures the `book_id` attribute is configured as filterable in Meilisearch, which is crucial for allowing scoped searches (e.g., searching only within a specific Book ID).
-2.  **Import Data to Meilisearch:** This imports all records from the `book_pages` table into the search engine's index.
+**NOTE on Docker Persistence:**
+During development, data was lost due to improper shutdown. To maintain the integrity of the PostgreSQL and Meilisearch data volumes, **avoid using the destructive command `sail down -v`**. Use `sail down` to stop containers safely.
 
 ## API Endpoints
 
@@ -141,12 +124,6 @@ This demonstrates that the application successfully migrated the schema and load
 
 ![Screenshot of successful db:seed terminal output] (seed.png)
 
-**IMPORTANT**  
-Always run this command to sync the registers with the database:
-
-```bash
-./vendor/bin/sail artisan scout:sync
-```
 ![Screenshot of successful db:seed terminal output] (seedandsync.png)
 
 ---
@@ -191,6 +168,9 @@ All core functionality, including the essential **search highlighting** and API 
 ./vendor/bin/sail artisan test
 ```
 ![Screenshot of all tests passing] (alltests.png)
+
+**Technical Note: Asynchronous Configuration in Tests**
+Meilisearch configuration tasks (like setting `filterableAttributes` for `book_id`) are asynchronous. To prevent test failures, the `setUp()` method manually implements the Meilisearch PHP client's **`->waitForTask($taskUid, 5000)`** functionality. This ensures the test execution pauses until Meilisearch confirms the configuration is active.
 
 ## Fullstack Backend Mindset
 
