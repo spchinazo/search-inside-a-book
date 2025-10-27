@@ -30,7 +30,8 @@ Develop a feature that would allow a user to search inside a book, displaying a 
 - There's a demo of this kind of functionality [here](https://alephdigital.publica.la/reader/eloquent-javascript).
 - You can use any tool, strategy, library or template for any part of your solution. Keep in mind you're now a member of the team, so go ahead and ask for feedback if you need it.
 - The solution has to be sent as a Merge Request from your fork before the presentation. It doesn't need to be hosted online, but it does need to be fully working on your local environment.
-- The solution will be presented online during the final interview.
+- Submit your solution as a Merge Request from your fork. It doesn't need to be hosted online, but it does need to be fully working on your local environment.
+- We may invite you to present it in a follow-up call.
 
 This feature may be developed in 1h, 1 day, 1 week or take months worth of work. Take this as an opportunity to cut scope, get creative and focus on your strengths. You may even fake parts of the feature and focus on what matters to you. We're not looking for a "perfect solution", we want to understand your skills and see where your expertise guides you.
 
@@ -55,7 +56,7 @@ If you followed a specific focus in the **Hands on** stage, outline how that str
 The solution has to be presented in written form, a markdown file in the repo is more than enough. You may include a diagram or anything you see useful.
 
 ### 3. Presentation
-After you finish, we'll have a call where you present your solution for point **1** and your plan for point **2**. We'll be very interested in every little detail, complication or blocker you had, compromises you made, how you would improve what you've done, if you found something interesting, if you are particularly happy with something in the solution, etc.
+After you submit your Merge Request, we'll review it. We may then schedule a call where you present your solution for point **1** and your plan for point **2**. If we meet, we'll be very interested in every little detail, complication or blocker you had, compromises you made, how you would improve what you've done, if you found something interesting, if you are particularly happy with something in the solution, etc.
 
 ## Deliverables
 When you open your Merge Request, include:
@@ -63,7 +64,7 @@ When you open your Merge Request, include:
 - Clear run instructions for anything outside the default Laravel app (e.g. Expo commands, npm scripts, Postman collections).
 - Tests, scripts or manual steps we should run to validate your work (even if they're as simple as “`./vendor/bin/sail artisan test`” or “`yarn build`”).
 - Any assumptions, trade-offs or mocked pieces we should keep in mind while reviewing.
-- A quick outline of what you'll cover during the presentation (point **3**) so reviewers know what to expect.
+- A quick outline of what you'd cover during the presentation (point **3**).
 
 ## Local Setup
 
