@@ -2,180 +2,138 @@
 
 namespace Tests\Feature;
 
-use App\Book;
-use App\BookPage;
+use App\Models\Book;
+use App\Models\BookPage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use MeiliSearch\Client;
 
 class SearchTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected Book $book;
+    protected BookPage $bookPage;
+
     protected function setUp(): void
     {
         parent::setUp();
         
-        // Create test book and pages
-        $book = Book::create([
+        $this->book = Book::create([
             'title' => 'Test Book',
             'author' => 'Test Author',
             'description' => 'A test book for search functionality'
         ]);
 
         BookPage::create([
-            'book_id' => $book->id,
+            'book_id' => $this->book->id,
             'page_number' => 1,
-            'text_content' => 'This is a test page about JavaScript and DOM manipulation.'
+            'text_content' => 'This is a test page about JavaScript and DOM manipulation. The DOM is great.'
         ]);
 
-        BookPage::create([
-            'book_id' => $book->id,
+        $this->bookPage = BookPage::create([
+            'book_id' => $this->book->id,
             'page_number' => 2,
             'text_content' => 'Another page with different content about programming.'
         ]);
 
         BookPage::create([
-            'book_id' => $book->id,
+            'book_id' => $this->book->id,
             'page_number' => 3,
             'text_content' => 'DOM elements can be manipulated using JavaScript.'
         ]);
+        
+        $this->artisan('scout:import', ['model' => 'App\Models\BookPage']);
+        $this->artisan('scout:sync-index-settings'); 
     }
-
-    public function test_get_book_info(): void
+    
+    protected function tearDown(): void
     {
-        $response = $this->getJson('/api/book');
+        $indexName = (new BookPage())->searchableAs();
+        
+        try {
+            (new Client(config('scout.meilisearch.host'), config('scout.meilisearch.key')))
+                ->index($indexName)
+                ->delete();
+        } catch (\Exception $e) {
+        }
+        
+        parent::tearDown();
+    }
+    
+    /** @test */
+    public function test_search_returns_results_and_correct_structure(): void
+    {
+        $response = $this->getJson("/api/books/{$this->book->id}/search?q=JavaScript");
 
         $response->assertStatus(200)
-            ->assertJson([
-                'success' => true,
-                'data' => [
-                    'title' => 'Eloquent JavaScript',
-                    'author' => 'Marijn Haverbeke',
-                    'total_pages' => 698
-                ]
-            ]);
-    }
-
-    public function test_search_returns_results(): void
-    {
-        $response = $this->getJson('/api/search?q=JavaScript');
-
-        $response->assertStatus(200)
-            ->assertJson([
-                'success' => true
-            ])
+            ->assertJsonCount(2, 'data')
             ->assertJsonStructure([
                 'data' => [
-                    'results' => [
-                        '*' => [
-                            'id',
-                            'page_number',
-                            'snippet',
-                            'relevance_score',
-                            'match_position'
-                        ]
-                    ],
-                    'total',
-                    'query'
-                ],
-                'pagination' => [
-                    'current_page',
-                    'per_page',
-                    'total'
-                ]
-            ]);
-    }
-
-    public function test_search_with_empty_query(): void
-    {
-        $response = $this->getJson('/api/search?q=');
-
-        $response->assertStatus(200)
-            ->assertJson([
-                'success' => true
-            ]);
-    }
-
-    public function test_search_pagination(): void
-    {
-        $response = $this->getJson('/api/search?q=DOM&limit=1&page=1');
-
-        $response->assertStatus(200)
-            ->assertJson([
-                'success' => true,
-                'pagination' => [
-                    'current_page' => 1,
-                    'per_page' => 1
-                ]
-            ]);
-    }
-
-    public function test_get_specific_page(): void
-    {
-        // Test with page 2 which should exist in the JSON file
-        $response = $this->getJson("/api/page/2");
-
-        $response->assertStatus(200)
-            ->assertJsonStructure([
-                'success',
-                'data' => [
-                    'id',
-                    'page_number',
-                    'text_content',
-                    'book' => [
+                    '*' => [
                         'id',
-                        'title',
-                        'author'
+                        'page_number',
+                        'snippet',
+                        'full_page_url' 
                     ]
                 ]
             ]);
     }
-
-    public function test_get_nonexistent_page(): void
+    
+    /** @test */
+    public function test_search_requires_query_parameter(): void
     {
-        $response = $this->getJson('/api/page/999');
+        $response = $this->getJson("/api/books/{$this->book->id}/search");
 
-        $response->assertStatus(404)
+        $response->assertStatus(400)
             ->assertJson([
-                'success' => false,
-                'message' => 'Page not found'
+                'message' => 'O parâmetro "q" é obrigatório para a busca.'
             ]);
     }
 
+    /** @test */
     public function test_search_highlights_terms(): void
     {
-        $response = $this->getJson('/api/search?q=DOM');
+        $response = $this->getJson("/api/books/{$this->book->id}/search?q=DOM");
 
         $response->assertStatus(200);
         
-        $data = $response->json('data.results');
+        $data = $response->json('data');
         $this->assertNotEmpty($data);
         
-        // Check if snippets contain highlighted terms
-        $hasHighlighted = false;
-        foreach ($data as $result) {
-            if (strpos($result['snippet'], '<mark>') !== false) {
-                $hasHighlighted = true;
-                break;
-            }
-        }
-        $this->assertTrue($hasHighlighted, 'At least one result should have highlighted terms');
+        $hasHighlighted = collect($data)->contains(function ($result) {
+            return str_contains($result['snippet'], '<em>DOM</em>');
+        });
+        
+        $this->assertTrue($hasHighlighted, 'At least one result should have highlighted terms.');
     }
 
-    public function test_search_ranking(): void
+    /** @test */
+    public function test_get_specific_page_returns_full_content(): void
     {
-        $response = $this->getJson('/api/search?q=DOM');
+        $pageId = $this->bookPage->id; 
+        
+        $response = $this->getJson("/api/pages/{$pageId}");
 
-        $response->assertStatus(200);
-        
-        $data = $response->json('data.results');
-        $this->assertNotEmpty($data);
-        
-        // Check that results are ordered by relevance
-        $scores = array_column($data, 'relevance_score');
-        $sortedScores = $scores;
-        rsort($sortedScores);
-        
-        $this->assertEquals($sortedScores, $scores);
+        $response->assertStatus(200)
+            ->assertJson([
+                'page_number' => 2,
+                'content' => 'Another page with different content about programming.',
+                'book_title' => 'Test Book',
+            ])
+            ->assertJsonStructure([
+                'page_number',
+                'content',
+                'book_title'
+            ]);
     }
+
+    /** @test */
+    public function test_get_nonexistent_page_returns_404(): void
+    {
+        $response = $this->getJson('/api/pages/99999');
+
+        $response->assertStatus(404);
+    }
+    
 }

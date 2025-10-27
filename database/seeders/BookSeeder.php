@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Book;
-use App\BookPage;
+use App\Models\Book;
+use App\Models\BookPage;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Storage;

@@ -9,9 +9,20 @@ use App\Http\Resources\SearchResultResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Resources\BookResource;
 
 class BookSearchController extends Controller
 {
+    /**
+     * Returns a collection of all available books.
+     */
+    public function index(Request $request)
+    {
+        $books = Book::all(); 
+        
+        return BookResource::collection($books);
+    }
+
     /**
      * Returns the search results for a specific book.
      */

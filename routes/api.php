@@ -16,6 +16,8 @@ use App\Models\BookPage;
 |
 */
 
+Route::get('/books', [BookSearchController::class, 'index'])->name('books.index');
+
 Route::get('/books/{book}/search', [BookSearchController::class, 'search'])->name('books.search');
 
 Route::get('/pages/{page}', [BookSearchController::class, 'showPage'])->name('pages.show');

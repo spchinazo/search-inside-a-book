@@ -2,59 +2,40 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Laravel\Scout\Searchable;
 
 class BookPage extends Model
 {
-    use Searchable;
+    use HasFactory, Searchable;
 
-    protected $fillable = [
-        'book_id',
-        'page_number',
-        'text_content',
-    ];
+    protected $fillable = ['book_id', 'page_number', 'text_content'];
 
-    /**
-     * Define the data to be placed in the search index.
-     */
-    public function toSearchableArray(): array
-    {
-        return [
-            'id' => $this->id,
-            'page_number' => (int) $this->page_number,
-            'text_content' => $this->text_content,
-            'book_id' => $this->book_id, // importante para filtros
-        ];
-    }
-
-    /**
-     * Get the book that owns the page.
-     */
-    public function book(): BelongsTo
+    // Relacionamento com o livro
+    public function book()
     {
         return $this->belongsTo(Book::class);
     }
 
     /**
-     * Get the searchable settings for Meilisearch.
-     * Define filtros, campos pesquisáveis e campos ordenáveis.
+     * Defines the attributes that can be used to filter searches in Meilisearch.
      */
-    public function searchableSettings(): array
+    public static function getFilterableAttributes(): array
     {
-        return [
-            'filterableAttributes' => ['book_id'],
-            'searchableAttributes' => ['text_content'],
-            'sortableAttributes' => ['page_number'],
-        ];
+        return ['book_id'];
     }
 
     /**
-     * (Opcional) Campos adicionais que podem ser usados como filtros.
+     * Optional: Defines which attributes are stored and returned.
      */
-    public function filterableAttributes(): array
+    public function toSearchableArray(): array
     {
-        return ['book_id'];
+        return [
+            'id' => $this->id,
+            'book_id' => $this->book_id,
+            'page_number' => $this->page_number,
+            'text_content' => $this->text_content,
+        ];
     }
 }
