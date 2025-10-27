@@ -2,48 +2,30 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Laravel\Scout\Searchable;
+use Illuminate\Database\Eloquent\Model;
 
 class BookPage extends Model
 {
-    use HasFactory, Searchable;
+    use Searchable;
 
-    protected $fillable = ['book_id', 'page_number', 'text_content'];
-
-    // Relacionamento com o livro
-    public function book()
-    {
-        return $this->belongsTo(Book::class);
-    }
-
-    /**
-     * Defines the attributes that can be used to filter searches in Meilisearch.
-     */
-    public static function getFilterableAttributes(): array
-    {
-        return ['book_id'];
-    }
-
-    /**
-     * Optional: Defines which attributes are stored and returned.
-     */
-    public function toSearchableArray(): array
+    public function toSearchableArray()
     {
         return [
-            'id' => $this->id,
-            'book_id' => $this->book_id,
-            'page_number' => $this->page_number,
             'text_content' => $this->text_content,
+            'book_id' => $this->book_id,
         ];
     }
 
     /**
-     * Defines the attributes that should be highlighted in the search results.
+     * Meilisearch options
      */
-    public static function getHighlightedAttributes(): array
+    public function searchableOptions(): array
     {
-        return ['text_content']; 
+        return [
+            'attributesToHighlight' => ['text_content'],
+            'highlightPreTag' => '<em>',
+            'highlightPostTag' => '</em>',
+        ];
     }
 }

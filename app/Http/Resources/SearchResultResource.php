@@ -7,22 +7,21 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class SearchResultResource extends JsonResource
 {
-    public function toArray($request)
+    public function toArray(Request $request): array
     {
-        $formattedContent = $this->resource->_formatted['text_content'] ?? $this->text_content;
-        
-        $snippet = $this->extractSnippet($formattedContent);
+        // Pega o snippet destacado do MeiliSearch (_formatted) ou cai no texto completo
+        $formattedContent = $this->resource->_formatted['text_content'] ?? $this->resource->text_content ?? '';
 
         return [
-            'id' => $this->id,
-            'page_number' => $this->page_number,
-            'snippet' => $snippet,
-            'full_page_url' => route('pages.show', $this->id),
+            'id' => $this->resource->id,
+            'page_number' => $this->resource->page_number,
+            'snippet' => $this->extractSnippet($formattedContent),
+            'full_page_url' => route('pages.show', $this->resource->id),
         ];
     }
 
     /**
-     * Tries to extract a snippet focused on the first occurrence of the highlight.
+     * Extrai um snippet focado na primeira ocorrência do highlight.
      */
     protected function extractSnippet(string $formattedContent): string
     {
@@ -32,16 +31,13 @@ class SearchResultResource extends JsonResource
         $pos = strpos($formattedContent, $highlightTag);
 
         if ($pos === false) {
-            return mb_substr(strip_tags($this->text_content), 0, 150) . '...';
+            return mb_substr(strip_tags($formattedContent), 0, 150) . '...';
         }
 
         $start = max(0, $pos - $radius);
-        
         $prefix = ($start > 0) ? '... ' : '';
-        
-        // Extrai o trecho
         $snippet = mb_substr($formattedContent, $start, (2 * $radius) + 10);
-        
+
         return $prefix . $snippet . ' ...';
     }
 }

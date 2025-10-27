@@ -5,10 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Book;
 use App\Models\BookPage;
-use App\Http\Resources\SearchResultResource;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Storage;
+use App\Http\Resources\SearchResultResource;
 use App\Http\Resources\BookResource;
 
 class BookSearchController extends Controller
@@ -19,12 +17,11 @@ class BookSearchController extends Controller
     public function index(Request $request)
     {
         $books = Book::all(); 
-        
         return BookResource::collection($books);
     }
 
     /**
-     * Returns the search results for a specific book.
+     * Returns the search results for a specific book, with highlighting enabled.
      */
     public function search(Request $request, Book $book)
     {
@@ -34,12 +31,23 @@ class BookSearchController extends Controller
             return response()->json(['message' => 'The "q" parameter is required for search.'], 400);
         }
 
-        $results = BookPage::search($query)
-            ->where('book_id', $book->id)
-            ->take(20)
-            ->get(); 
+        $rawResults = BookPage::search($query, function ($meiliSearch, $query, $options) use ($book) {
+            $options['filter'] = 'book_id = ' . $book->id;
+            $options['attributesToHighlight'] = ['text_content'];
+            $options['highlightPreTag'] = '<em>';
+            $options['highlightPostTag'] = '</em>';
+            $options['limit'] = 20;
         
-        return SearchResultResource::collection($results);
+            return $meiliSearch->search($query, $options);
+        })->raw();
+
+        $hits = $rawResults['hits'] ?? [];
+
+        $results = collect($hits)->map(function ($hit) {
+            return new SearchResultResource((object) $hit);
+        });
+
+        return $results;
     }
 
     /**
