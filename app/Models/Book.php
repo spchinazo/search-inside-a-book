@@ -3,21 +3,38 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Laravel\Scout\Searchable;
 
 class Book extends Model
 {
+    use Searchable;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
     protected $fillable = [
         'title',
         'author',
-        'isbn',
         'description',
     ];
 
     /**
-     * Get the pages for the book.
+     * Define the name of the index in Meilisearch.
+     * By default, it would be 'books'.
+     *
+     * @return string
      */
-    public function pages(): HasMany
+    public function searchableAs()
+    {
+        return 'books';
+    }
+
+    /**
+     * Relationship: a book has many pages.
+     */
+    public function pages()
     {
         return $this->hasMany(BookPage::class);
     }

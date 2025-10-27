@@ -65,9 +65,9 @@ return [
 
         'redis' => [
             'driver' => 'redis',
-            'connection' => env('REDIS_QUEUE_CONNECTION', 'default'),
-            'queue' => env('REDIS_QUEUE', 'default'),
-            'retry_after' => (int) env('REDIS_QUEUE_RETRY_AFTER', 90),
+            'connection' => 'default', // Uses the 'default' Redis connection in config/database.php
+            'queue' => env('REDIS_QUEUE', 'default'), // Default queue name
+            'retry_after' => 90, // Maximum time in seconds to process a job before trying again
             'block_for' => null,
             'after_commit' => false,
         ],
@@ -112,8 +112,8 @@ return [
     */
 
     'failed' => [
-        'driver' => env('QUEUE_FAILED_DRIVER', 'database-uuids'),
-        'database' => env('DB_CONNECTION', 'sqlite'),
+        'driver' => env('QUEUE_FAILED_DRIVER', 'database'),
+        'database' => env('DB_CONNECTION', 'mysql'),
         'table' => 'failed_jobs',
     ],
 

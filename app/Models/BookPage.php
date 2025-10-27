@@ -5,10 +5,13 @@ namespace App\Models;
 use Laravel\Scout\Searchable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class BookPage extends Model
+class BookPage extends Model implements ShouldQueue
 {
     use Searchable;
+
+    public $queue = 'default'; 
 
     protected $fillable = [
         'book_id',
@@ -16,13 +19,18 @@ class BookPage extends Model
         'text_content',
     ];
 
-    public function toSearchableArray()
+    public function getScoutKey()
+    {
+        return $this->id;
+    }
+
+    public function toSearchableArray(): array
     {
         return [
-            'id' => $this->id,
-            'page_number' => $this->page_number,
+            'id' => (int) $this->id,
+            'book_id' => (int) $this->book_id,
+            'page_number' => (int) $this->page_number,
             'text_content' => $this->text_content,
-            'book_id' => $this->book_id,
         ];
     }
 
@@ -32,17 +40,5 @@ class BookPage extends Model
     public function book(): BelongsTo
     {
         return $this->belongsTo(Book::class);
-    }
-
-    /**
-     * Meilisearch options
-     */
-    public function searchableOptions(): array
-    {
-        return [
-            'attributesToHighlight' => ['text_content'],
-            'highlightPreTag' => '<em>',
-            'highlightPostTag' => '</em>',
-        ];
     }
 }

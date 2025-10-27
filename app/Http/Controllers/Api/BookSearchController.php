@@ -5,60 +5,82 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Book;
 use App\Models\BookPage;
-use Illuminate\Http\Request;
+use App\Http\Requests\SearchBookRequest;
 use App\Http\Resources\SearchResultResource;
 use App\Http\Resources\BookResource;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class BookSearchController extends Controller
 {
-    /**
-     * Returns a collection of all available books.
-     */
-    public function index(Request $request)
+    public function index()
     {
-        $books = Book::all(); 
+        $books = Cache::remember('all_books_list', 3600, function () {
+            return Book::all();
+        });
+
         return BookResource::collection($books);
     }
 
-    /**
-     * Returns the search results for a specific book, with highlighting enabled.
-     */
-    public function search(Request $request, Book $book)
+    public function search(SearchBookRequest $request, Book $book)
     {
-        $query = $request->input('q');
+        $validated = $request->validated();
+        $query = $validated['q'];
+        $page = $validated['page'] ?? 1;
+        $perPage = 20;
 
-        if (empty($query)) {
-            return response()->json(['message' => 'The "q" parameter is required for search.'], 400);
-        }
+        // Log for relevance analysis
+        Log::channel('searches')->info('Search performed', [
+            'query' => $query,
+            'book_id' => $book->id,
+            'ip' => $request->ip(),
+            'timestamp' => now(),
+        ]);
 
-        $rawResults = BookPage::search($query, function ($meiliSearch, $query, $options) use ($book) {
+        $rawResults = BookPage::search($query, function ($meiliSearch, $query, $options) use ($book, $page, $perPage) {
             $options['filter'] = 'book_id = ' . $book->id;
             $options['attributesToHighlight'] = ['text_content'];
             $options['highlightPreTag'] = '<em>';
             $options['highlightPostTag'] = '</em>';
-            $options['limit'] = 20;
+            $options['cropLength'] = 200;
+            $options['offset'] = ($page - 1) * $perPage;
+            $options['limit'] = $perPage;
         
             return $meiliSearch->search($query, $options);
         })->raw();
 
         $hits = $rawResults['hits'] ?? [];
+        $totalHits = $rawResults['estimatedTotalHits'] ?? 0;
 
         $results = collect($hits)->map(function ($hit) {
-            return new SearchResultResource((object) $hit);
+            return new SearchResultResource($hit);
         });
 
-        return response()->json(['data' => $results], 200);
+        return response()->json([
+            'data' => $results,
+            'meta' => [
+                'total' => $totalHits,
+                'per_page' => $perPage,
+                'current_page' => $page,
+                'last_page' => ceil($totalHits / $perPage),
+            ]
+        ], 200);
     }
 
-    /**
-     * Returns the full content of a specific page.
-     */
     public function showPage(BookPage $page)
     {
-        return response()->json([
-            'page_number' => $page->page_number,
-            'content' => $page->text_content,
-            'book_title' => $page->book->title,
-        ]);
+        $cacheKey = "full_page_content_{$page->id}";
+
+        $pageData = Cache::remember($cacheKey, 3600, function () use ($page) {
+            $page->load('book');
+
+            return [
+                'page_number' => $page->page_number,
+                'content' => $page->text_content,
+                'book_title' => $page->book->title,
+            ];
+        });
+
+        return response()->json($pageData);
     }
 }
