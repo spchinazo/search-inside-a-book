@@ -1,7 +1,9 @@
 <?php
 
-use App\Http\Controllers\Api\SearchController;
+use App\Http\Controllers\Api\BookSearchController;
 use Illuminate\Http\Request;
+use App\Models\Book;
+use App\Models\BookPage;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,8 +16,10 @@ use Illuminate\Http\Request;
 |
 */
 
-// Book search API routes
-Route::get('/book', [SearchController::class, 'getBook']);
-Route::get('/search', [SearchController::class, 'search']);
-Route::get('/page/{pageId}', [SearchController::class, 'getPage']);
-Route::get('/page-number/{pageNumber}', [SearchController::class, 'getPageByNumber']);
+Route::get('/books/{book}/search', [BookSearchController::class, 'search'])->name('books.search');
+
+Route::get('/pages/{page}', [BookSearchController::class, 'showPage'])->name('pages.show');
+
+Route::get('/test', function () {
+    return response()->json(['status' => 'API is running']);
+});

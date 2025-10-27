@@ -15,12 +15,14 @@ class BookSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create the book
-        $book = Book::create([
-            'title' => 'Eloquent JavaScript',
-            'author' => 'Marijn Haverbeke',
-            'description' => 'A Modern Introduction to Programming - 3rd Edition',
-        ]);
+        // Create or find the book to avoid duplicates
+        $book = Book::firstOrCreate(
+            ['title' => 'Eloquent JavaScript'],
+            [
+                'author' => 'Marijn Haverbeke',
+                'description' => 'A Modern Introduction to Programming - 3rd Edition',
+            ]
+        );
 
         // Load and parse the JSON file
         $jsonPath = storage_path('exercise-files/Eloquent_JavaScript.json');
@@ -37,15 +39,19 @@ class BookSeeder extends Seeder
             return;
         }
 
-        $this->command->info('Loading ' . count($pagesData) . ' pages...');
+        $this->command->info('Loading ' . count($pagesData) . ' pages for ' . $book->title . '...');
 
-        // Create book pages
+        // Create or update book pages to avoid duplicates
         foreach ($pagesData as $pageData) {
-            BookPage::create([
-                'book_id' => $book->id,
-                'page_number' => $pageData['page'],
-                'text_content' => $pageData['text_content'],
-            ]);
+            BookPage::updateOrCreate(
+                [
+                    'book_id' => $book->id,
+                    'page_number' => $pageData['page'],
+                ],
+                [
+                    'text_content' => $pageData['text_content'],
+                ]
+            );
         }
 
         $this->command->info('Book and pages loaded successfully!');
