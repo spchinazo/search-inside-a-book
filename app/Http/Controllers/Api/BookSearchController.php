@@ -47,7 +47,7 @@ class BookSearchController extends Controller
             return new SearchResultResource((object) $hit);
         });
 
-        return $results;
+        return response()->json(['data' => $results], 200);
     }
 
     /**
