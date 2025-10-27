@@ -152,9 +152,21 @@ This validates that the data is correctly persisted in the PostgreSQL database, 
 
 This verifies that the entire pipeline—Laravel, Scout configuration, Meilisearch indexing, Controller logic, and Resource formatting—is functional.
 
-**Request:** `GET http://localhost:8888/api/books/17/search?q=DOM`
+**Request:** `GET http://localhost:8888/api/books/{book}/search?q=DOM`
 
 ![Screenshot of Postman request and JSON 200 OK response] (get-postman.png)
+
+**Request:** `GET http://localhost:8888/api/books`
+
+![Screenshot of Postman request and JSON 200 OK response] (searchallbooks.png)
+
+**Request:** `GET http://localhost:8888/api/pages/{page}`
+
+![Screenshot of Postman request and JSON 200 OK response] (searchallbooks.png)
+
+**Request:** `GET http://localhost:8888/api/books/{book}/search?q=`
+
+![Screenshot of Postman request and JSON 400 OK response] (invalidparam.png)
 
 ---
 
