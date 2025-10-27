@@ -78,6 +78,7 @@ These instructions will quickly set up the entire development environment on you
     # NOTE: This ensures 'book_id' is filterable and all pages are indexed.
     ./vendor/bin/sail artisan scout:import "App\Models\BookPage"
     ./vendor/bin/sail artisan scout:sync-index-settings
+    ./vendor/bin/sail artisan scout:sync
     ```
 
 ## Meilisearch Indexing and Configuration
