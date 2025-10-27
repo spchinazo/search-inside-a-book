@@ -39,6 +39,7 @@ class SearchResultResource extends JsonResource
         
         $prefix = ($start > 0) ? '... ' : '';
         
+        // Extrai o trecho
         $snippet = mb_substr($formattedContent, $start, (2 * $radius) + 10);
         
         return $prefix . $snippet . ' ...';

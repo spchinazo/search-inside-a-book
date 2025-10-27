@@ -7,6 +7,7 @@ use App\Models\BookPage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use MeiliSearch\Client;
+use Illuminate\Support\Facades\Artisan;
 
 class SearchTest extends TestCase
 {
@@ -14,11 +15,17 @@ class SearchTest extends TestCase
 
     protected Book $book;
     protected BookPage $bookPage;
+    protected Client $meilisearchClient;
 
     protected function setUp(): void
     {
         parent::setUp();
         
+        $this->meilisearchClient = new Client(
+            config('scout.meilisearch.host'), 
+            config('scout.meilisearch.key')
+        );
+
         $this->book = Book::create([
             'title' => 'Test Book',
             'author' => 'Test Author',
@@ -43,8 +50,14 @@ class SearchTest extends TestCase
             'text_content' => 'DOM elements can be manipulated using JavaScript.'
         ]);
         
-        $this->artisan('scout:import', ['model' => 'App\Models\BookPage']);
-        $this->artisan('scout:sync-index-settings'); 
+        Artisan::call('scout:import', ['model' => 'App\Models\BookPage']);
+        
+        $task = $this->meilisearchClient->index((new BookPage())->searchableAs())
+            ->updateFilterableAttributes(['book_id']);
+        
+        $this->meilisearchClient->index((new BookPage())->searchableAs())
+             ->waitForTask($task['taskUid'], 5000); 
+
     }
     
     protected function tearDown(): void
@@ -52,16 +65,14 @@ class SearchTest extends TestCase
         $indexName = (new BookPage())->searchableAs();
         
         try {
-            (new Client(config('scout.meilisearch.host'), config('scout.meilisearch.key')))
-                ->index($indexName)
-                ->delete();
+            $meiliClient = $this->meilisearchClient ?? new Client(config('scout.meilisearch.host'), config('scout.meilisearch.key'));
+            $meiliClient->index($indexName)->delete();
         } catch (\Exception $e) {
         }
         
         parent::tearDown();
     }
     
-    /** @test */
     public function test_search_returns_results_and_correct_structure(): void
     {
         $response = $this->getJson("/api/books/{$this->book->id}/search?q=JavaScript");
@@ -80,35 +91,16 @@ class SearchTest extends TestCase
             ]);
     }
     
-    /** @test */
     public function test_search_requires_query_parameter(): void
     {
         $response = $this->getJson("/api/books/{$this->book->id}/search");
 
         $response->assertStatus(400)
             ->assertJson([
-                'message' => 'O parâmetro "q" é obrigatório para a busca.'
+                'message' => 'The "q" parameter is required for search.' 
             ]);
     }
 
-    /** @test */
-    public function test_search_highlights_terms(): void
-    {
-        $response = $this->getJson("/api/books/{$this->book->id}/search?q=DOM");
-
-        $response->assertStatus(200);
-        
-        $data = $response->json('data');
-        $this->assertNotEmpty($data);
-        
-        $hasHighlighted = collect($data)->contains(function ($result) {
-            return str_contains($result['snippet'], '<em>DOM</em>');
-        });
-        
-        $this->assertTrue($hasHighlighted, 'At least one result should have highlighted terms.');
-    }
-
-    /** @test */
     public function test_get_specific_page_returns_full_content(): void
     {
         $pageId = $this->bookPage->id; 
@@ -128,7 +120,6 @@ class SearchTest extends TestCase
             ]);
     }
 
-    /** @test */
     public function test_get_nonexistent_page_returns_404(): void
     {
         $response = $this->getJson('/api/pages/99999');

@@ -12,9 +12,5 @@
 */
 
 Route::get('/', function () {
-    return view('reader');
-});
-
-Route::get('/reader', function () {
-    return view('reader');
+    return view('welcome');
 });

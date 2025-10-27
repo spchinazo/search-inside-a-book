@@ -129,6 +129,13 @@ This demonstrates that the application successfully migrated the schema and load
 
 ![Screenshot of successful db:seed terminal output] (seed.png)
 
+**IMPORTANT**  
+Always run this command to sync the registers with the database:
+
+```bash
+./vendor/bin/sail artisan scout:sync
+![Screenshot of successful db:seed terminal output] (seedandsync.png)
+
 ---
 
 ### 2. Data Persistence Proof (DBeaver/SQL Client)
@@ -148,3 +155,8 @@ This verifies that the entire pipeline—Laravel, Scout configuration, Meilisear
 **Request:** `GET http://localhost:8888/api/books/17/search?q=DOM`
 
 ![Screenshot of Postman request and JSON 200 OK response] (get-postman.png)
+
+---
+
+### 4. Tests
+![Screenshot of all tests passing] (alltests.png)

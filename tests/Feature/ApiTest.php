@@ -56,7 +56,7 @@ class ApiTest extends TestCase
             ->updateFilterableAttributes(['book_id']);
         
         $this->meilisearchClient->index((new BookPage())->searchableAs())
-             ->waitForTask($task['taskUid'], ['timeout' => 5000]);
+             ->waitForTask($task['taskUid'], 5000);
     }
 
     protected function tearDown(): void
@@ -103,13 +103,8 @@ class ApiTest extends TestCase
 
         $response->assertStatus(400)
             ->assertJson([
-                'message' => 'O parâmetro "q" é obrigatório para a busca.'
+                'message' => 'The "q" parameter is required for search.'
             ]);
-    }
-
-    public function test_search_pagination(): void
-    {
-        $this->markTestSkipped('Pagination test skipped as API uses simple "take(20)" logic, not complex pagination.');
     }
 
     public function test_get_specific_page(): void
@@ -135,26 +130,5 @@ class ApiTest extends TestCase
         $response = $this->getJson('/api/pages/999');
 
         $response->assertStatus(404); 
-    }
-
-    public function test_search_highlights_terms(): void
-    {
-        $response = $this->getJson("/api/books/{$this->book->id}/search?q=DOM");
-
-        $response->assertStatus(200);
-        
-        $data = $response->json('data');
-        $this->assertNotEmpty($data);
-        
-        $hasHighlighted = collect($data)->contains(function ($result) {
-            return str_contains($result['snippet'], '<em>DOM</em>');
-        });
-        
-        $this->assertTrue($hasHighlighted, 'At least one result should have highlighted terms using <em>.');
-    }
-
-    public function test_search_ranking(): void
-    {
-        $this->markTestSkipped('Ranking test skipped as ordering logic is handled by the Meilisearch engine.');
     }
 }

@@ -38,4 +38,12 @@ class BookPage extends Model
             'text_content' => $this->text_content,
         ];
     }
+
+    /**
+     * Defines the attributes that should be highlighted in the search results.
+     */
+    public static function getHighlightedAttributes(): array
+    {
+        return ['text_content']; 
+    }
 }
