@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use Laravel\Scout\Searchable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
 class BookPage extends Model implements ShouldQueue
 {
-    use Searchable;
+    use Searchable, HasFactory;
 
     public $queue = 'default'; 
 

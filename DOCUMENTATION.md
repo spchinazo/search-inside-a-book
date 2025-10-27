@@ -77,6 +77,9 @@ These instructions will quickly set up the entire development environment on you
    | MEILISEARCH_MASTER_KEY | [YOUR_MASTER_KEY] | Must match the key used in docker-compose.yml. |
    | QUEUE_CONNECTION | redis | Required for Laravel Horizon. Use `async` for simpler setup without Horizon. |
    | CACHE_STORE | redis | Required for optimal cache performance. |
+   | REDIS_HOST | redis | Correct service name from docker-compose. |
+   | REDIS_PASSWORD | null | Default for local development. |
+   | REDIS_PORT | 6379 | Default Redis port. |
 
 4. **Database Migration and Seeding**:
    Run migrations to create the tables and seed data (which includes book content).
@@ -95,6 +98,49 @@ These instructions will quickly set up the entire development environment on you
    ./vendor/bin/sail artisan scout:import "App\Models\BookPage"
    ```
 
+5. **Configure Redis and Laravel Horizon** (Optional but Recommended):
+   
+   Laravel Horizon provides a beautiful dashboard and robust queue management for Redis-backed queues.
+
+   ```bash
+   # Install Horizon
+   ./vendor/bin/sail composer require laravel/horizon
+   
+   # Publish Horizon assets and configuration
+   ./vendor/bin/sail artisan horizon:install
+   
+   # Publish Horizon configuration file (optional, for customization)
+   ./vendor/bin/sail artisan vendor:publish --tag=horizon-config
+   ```
+
+   **Update your `.env` file:**
+   ```properties
+   QUEUE_CONNECTION=redis
+   REDIS_HOST=redis
+   REDIS_PASSWORD=null
+   REDIS_PORT=6379
+   ```
+
+   **Start Horizon** (keep this running in a separate terminal):
+   ```bash
+   ./vendor/bin/sail artisan horizon
+   ```
+
+   **Access Horizon Dashboard:**
+   Once Horizon is running, access the dashboard at:
+   ```
+   http://localhost:8888/horizon
+   ```
+
+   **Note:** In production, you should protect the Horizon route. See [Laravel Horizon Documentation](https://laravel.com/docs/11.x/horizon#dashboard-authorization) for authentication setup.
+
+   **Alternative (Simpler Setup):**
+   If you don't want to use Horizon, you can use the `async` queue driver:
+   ```properties
+   QUEUE_CONNECTION=async
+   ```
+   This processes jobs asynchronously without requiring Redis or Horizon, but without the monitoring dashboard.
+
 **NOTE on Docker Persistence**:
 During development, data was lost due to improper shutdown. To maintain the integrity of the PostgreSQL and Meilisearch data volumes, avoid using the destructive command `sail down -v`. Use `sail down` to stop containers safely.
 
@@ -106,28 +152,72 @@ To ensure API performance is maintained, even with large volumes of data or duri
 
 Data indexing in Meilisearch is an I/O (input/output) operation that consumes time. Executing it synchronously (in the same HTTP request) would degrade the user experience.
 
-- **Redis**: Configured as the broker (manager) for Laravel's queues (`QUEUE_CONNECTION=redis`). Redis is an in-memory store that holds indexing "jobs" extremely fast.
+**How it works:**
 
-- **Laravel Horizon**: Is the management dashboard and worker supervisor for Redis. It ensures that workers (processes that execute the Jobs) are always active, monitoring the queues.
+- **Redis**: Configured as the broker (manager) for Laravel's queues (`QUEUE_CONNECTION=redis`). Redis is an in-memory store that holds indexing "jobs" extremely fast. Laravel Sail includes Redis in the Docker stack by default.
+
+- **Laravel Horizon**: Is the management dashboard and worker supervisor for Redis. It ensures that workers (processes that execute the Jobs) are always active, monitoring the queues. Horizon provides:
+  - Real-time monitoring of job throughput and runtime
+  - Job retry configuration
+  - Failed job management
+  - Metrics and insights
 
 - **Asynchronicity (ShouldQueue)**: The `App\Models\BookPage` model implements the `ShouldQueue` trait. This ensures that CRUD operations (Create, Update, Delete) on the model do not make synchronous API calls to Meilisearch; instead, they send a Job to Redis.
 
-**Essential Commands**:
-
-To process indexing in the background, Horizon must always be active:
+**Installation Steps** (if not done in setup):
 
 ```bash
-# Horizon installation (once)
-composer require laravel/horizon
-./vendor/bin/sail artisan horizon:install
+# Install Horizon via Composer
+./vendor/bin/sail composer require laravel/horizon
 
-# Starts the queue processing (must be kept active in a separate terminal)
+# Publish Horizon assets
+./vendor/bin/sail artisan horizon:install
+```
+
+**Running Horizon**:
+
+Horizon must always be running to process jobs. In development, keep it running in a separate terminal:
+
+```bash
 ./vendor/bin/sail artisan horizon
 ```
+
+**Monitoring Horizon**:
+
+Access the Horizon dashboard at `http://localhost:8888/horizon` to monitor:
+- Jobs being processed
+- Failed jobs
+- Queue wait times
+- Worker status
+
+**Production Considerations**:
+
+In production, Horizon should run as a supervised process (using systemd, Supervisor, or similar). See the [Horizon Deployment Documentation](https://laravel.com/docs/11.x/horizon#deploying-horizon) for details.
 
 ### 2. Cache Implementation (Redis)
 
 Redis is also used as the application's primary cache store, being the fastest and most suitable driver for production use.
+
+**Configuration:**
+
+Ensure Redis is configured as your cache driver in `.env`:
+
+```properties
+CACHE_STORE=redis
+REDIS_HOST=redis
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+```
+
+Laravel Sail includes Redis in the Docker stack, so no additional installation is needed.
+
+**Why Redis for Caching?**
+
+- **Speed**: In-memory storage provides microsecond-level response times
+- **Persistence**: Can be configured to persist data to disk
+- **Data Structures**: Supports complex data types (strings, hashes, lists, sets)
+- **TTL Support**: Built-in expiration for cache entries
+- **Production Ready**: Battle-tested and widely used in production environments
 
 **Motivation**:
 
@@ -140,12 +230,12 @@ Redis is also used as the application's primary cache store, being the fastest a
 **Where Cache is Used**:
 
 ```php
-// Listing all books
+// Listing all books (60 minutes TTL)
 $books = Cache::remember('all_books_list', 3600, function () {
     return Book::all();
 });
 
-// Full page content
+// Full page content (60 minutes TTL)
 $pageData = Cache::remember("full_page_content_{$page->id}", 3600, function () use ($page) {
     return [
         'page_number' => $page->page_number,
@@ -153,6 +243,34 @@ $pageData = Cache::remember("full_page_content_{$page->id}", 3600, function () u
         'book_title' => $page->book->title,
     ];
 });
+```
+
+**Cache Invalidation Strategy**:
+
+Currently, cache entries expire after their TTL (60 minutes). In a production scenario, you would implement cache invalidation when:
+- A book is created, updated, or deleted
+- A page is modified
+- Content is reindexed
+
+Example invalidation:
+```php
+// When a book is updated
+Cache::forget('all_books_list');
+Cache::forget("full_page_content_{$page->id}");
+```
+
+**Monitoring Cache Performance**:
+
+You can monitor Redis cache hit/miss rates and memory usage using:
+```bash
+# Connect to Redis CLI
+./vendor/bin/sail redis redis-cli
+
+# View Redis info
+INFO stats
+
+# Monitor cache keys
+KEYS *
 ```
 
 ## API Endpoints
