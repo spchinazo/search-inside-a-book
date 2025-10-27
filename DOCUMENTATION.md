@@ -1,554 +1,150 @@
-# Book Search Feature - Technical Documentation
+# Search Inside a Book (Laravel, Laravel Scout & Meilisearch)
 
-## Overview
+This project implements a backend solution for full-text search within digitized books, using Laravel, Laravel Scout, and Meilisearch for powerful, fast filtering and indexing.
 
-This document outlines the technical development process and architectural decisions for the book search feature implemented for the Publica.la engineering exercise. The solution focuses on a **Fullstack backend mindset** approach, emphasizing data modeling, search algorithms, API design, and performance optimization.
+The solution focuses on clean API design, robust containerization via Docker, and adherence to modern PHP development standards.
 
-## Development Approach
+## Getting Started
 
-### Track Selection: Fullstack Backend Mindset
-
-The implementation prioritizes:
-- **Data modeling and indexing** for efficient search operations
-- **API design** with comprehensive search capabilities
-- **Performance optimization** through database indexing and query optimization
-- **Search relevance** with custom ranking algorithms
-- **Scalability considerations** for future growth
-
-## Technical Implementation
-
-### 1. Data Architecture
-
-#### JSON File Structure
-```json
-[
-  {
-    "page": 2,
-    "text_content": "EloquentJavaScript 3rdedition Marijn Haverbeke"
-  },
-  {
-    "page": 3,
-    "text_content": "Copyright © 2018 by Marijn Haverbeke This work is licensed under a Creative Commons attribution-noncommercial license..."
-  }
-]
-```
-
-#### Key Design Decisions:
-- **JSON file storage** for simplicity and portability
-- **In-memory data loading** for fast access
-- **No database dependency** for core search functionality
-- **File-based approach** for easy deployment and maintenance
-
-#### JSON Implementation Details:
-```php
-private function loadBookData(): array
-{
-    if ($this->bookData === null) {
-        $jsonPath = storage_path('exercise-files/Eloquent_JavaScript.json');
-        
-        if (!file_exists($jsonPath)) {
-            throw new \Exception('Book data file not found');
-        }
-        
-        $this->bookData = json_decode(file_get_contents($jsonPath), true);
-        
-        if (!$this->bookData) {
-            throw new \Exception('Failed to parse book data');
-        }
-    }
-    
-    return $this->bookData;
-}
-```
-
-#### Advantages of JSON Approach:
-- **Zero database setup** required for core functionality
-- **Portable deployment** with single file
-- **Fast in-memory processing** for search operations
-- **Easy data updates** by replacing JSON file
-- **Version control friendly** for data changes
-
-#### Database Migrations (Future Implementation)
-The project includes database migrations (`create_books_table` and `create_book_pages_table`) that are **not currently used** in the implementation. These migrations serve as:
-
-- **Future-proofing**: Ready-to-use database schema for when database integration is needed
-- **Scalability preparation**: Structured approach for handling multiple books and large datasets
-- **Testing infrastructure**: Available for running tests that require database state
-- **Development flexibility**: Easy transition from JSON to database when requirements change
-
-**Current Status**: The application works entirely with JSON files, making the database optional. The migrations are available but not required for core functionality.
-
-#### PostgreSQL Availability and Decision
-The Docker environment includes a fully configured PostgreSQL database:
-- **Host**: 127.0.0.1:5432
-- **Username**: publicala_user
-- **Password**: publicala_password
-- **Database**: publicala_db
-
-**Decision Rationale**: Despite PostgreSQL being readily available, the JSON approach was chosen because:
-- **Immediate deployment**: No database setup required
-- **Simplified architecture**: Single file contains all data
-- **Portability**: Easy to move between environments
-- **Development speed**: Faster iteration without database complexity
-
-#### Hybrid Architecture Benefits
-This approach provides the best of both worlds:
-
-- **Immediate functionality**: JSON-based implementation works out-of-the-box
-- **Future scalability**: Database migrations ready for when needed
-- **Development flexibility**: Easy to switch between JSON and database
-- **Testing options**: Can test both approaches independently
-- **Production readiness**: Can deploy with JSON for simplicity or database for scale
-
-### 2. Search Algorithm Implementation
-
-#### Relevance Scoring System
-```php
-private function calculateRelevanceScore(string $text, string $query, array $searchTerms): int
-{
-    $score = 0;
-    $textLower = strtolower($text);
-    $queryLower = strtolower($query);
-    
-    // Exact phrase match gets highest score
-    if (strpos($textLower, $queryLower) !== false) {
-        $score += 100;
-    }
-    
-    // Word frequency scoring
-    foreach ($searchTerms as $term) {
-        $termLower = strtolower($term);
-        if (strlen($term) > 2) { // Only count terms longer than 2 characters
-            $count = substr_count($textLower, $termLower);
-            $score += $count * 10;
-        }
-    }
-    
-    return $score;
-}
-```
-
-#### Search Features:
-- **Exact phrase matching** (100 points)
-- **Word frequency scoring** (10 points per match)
-- **Position-based ranking** for result ordering
-- **Case-insensitive search** with stripos()
-- **Multi-term search** with OR logic
-- **In-memory processing** for fast results
-
-### 3. API Architecture
-
-#### RESTful Endpoints
-```php
-GET /api/search?q={query}&limit={limit}&page={page}
-
-GET /api/page/{pageId}
-GET /api/page-number/{pageNumber}
-
-GET /api/book
-```
-
-#### Response Structure
-```json
-{
-    "success": true,
-    "data": {
-        "results": [
-            {
-                "id": 163,
-                "page_number": 164,
-                "snippet": "...<mark>highlighted</mark> content...",
-                "relevance_score": 100,
-                "match_position": 1
-            }
-        ],
-        "total": 106,
-        "query": "search term"
-    },
-    "pagination": {
-        "current_page": 1,
-        "per_page": 10,
-        "total": 106
-    }
-}
-```
-
-### 4. Performance Optimizations
-
-#### JSON File Optimizations
-- **In-memory data caching** for fast access
-- **Lazy loading** of JSON data when needed
-- **Efficient array processing** for search operations
-- **Pagination** to limit result sets (max 1000 results)
-
-#### Application Optimizations
-- **Memory-efficient data structures** for large datasets
-- **Efficient snippet generation** (200 character limit)
-- **PHP-based ranking** with optimized algorithms
-- **Input sanitization** for security
-- **File caching** to avoid repeated JSON parsing
-
-### 5. Snippet Generation Algorithm
-
-```php
-private function generateSnippet(string $text, string $query, array $searchTerms): string
-{
-    $snippetLength = 200;
-    
-    // Find best match position
-    $bestPosition = $this->findBestMatchPosition($text, $searchTerms);
-    
-    // Calculate snippet boundaries
-    $start = max(0, $bestPosition - $snippetLength / 2);
-    $end = min(strlen($text), $start + $snippetLength);
-    
-    // Adjust boundaries to avoid cutting words
-    $start = $this->adjustStartBoundary($text, $start);
-    $end = $this->adjustEndBoundary($text, $end);
-    
-    // Generate snippet with highlighting
-    return $this->highlightSearchTerms($snippet, $searchTerms);
-}
-```
-
-## Think Big: 2-3 Month Development Roadmap
-
-### Phase 1: Enhanced Search Capabilities (Weeks 1-4)
-
-#### Advanced Search Features
-- **Fuzzy matching** for typo tolerance
-- **Stemming and lemmatization** for better term matching
-- **Boolean search operators** (AND, OR, NOT)
-- **Phrase search** with exact matching
-- **Wildcard support** for partial matches
-
-#### Search Analytics
-- **Search query logging** for optimization
-- **Click-through rate tracking** for relevance improvement
-- **Popular search terms** analysis
-- **Search performance metrics**
-
-### Phase 2: Scalability and Performance (Weeks 5-8)
-
-#### Database Scaling
-```sql
--- Advanced indexing strategy
-CREATE INDEX idx_text_content_gin ON book_pages USING gin(to_tsvector('english', text_content));
-CREATE INDEX idx_text_content_trgm ON book_pages USING gin(text_content gin_trgm_ops);
-
--- Partitioning for large datasets
-CREATE TABLE book_pages_partitioned (
-    LIKE book_pages INCLUDING ALL
-) PARTITION BY RANGE (book_id);
-```
-
-#### Caching Layer
-- **Redis caching** for frequent searches
-- **Search result caching** with TTL
-- **Database query result caching**
-- **CDN integration** for static assets
-
-#### API Enhancements
-- **Rate limiting** with Redis
-- **API versioning** for backward compatibility
-- **GraphQL endpoint** for flexible queries
-- **WebSocket support** for real-time search
-
-### Phase 3: Advanced Features (Weeks 9-12)
-
-#### Machine Learning Integration
-- **Search result ranking** with ML models
-- **Query suggestion** based on user behavior
-- **Content recommendation** system
-- **Semantic search** with embeddings
-
-#### Multi-tenant Architecture
-```php
-// Tenant-aware search
-class SearchController extends Controller
-{
-    public function search(Request $request, Tenant $tenant)
-    {
-        $results = BookPage::where('tenant_id', $tenant->id)
-            ->where('text_content', 'ILIKE', "%{$query}%")
-            ->get();
-    }
-}
-```
-
-#### Security and Compliance
-- **Content encryption** for sensitive books
-- **Access control** with role-based permissions
-- **Audit logging** for compliance
-- **Data retention policies**
-
-## Architecture Diagram
-
-```mermaid
-graph TB
-    subgraph "Frontend Layer"
-        A[React/Vue SPA] --> B[Search Interface]
-        B --> C[Results Display]
-        C --> D[Page Viewer]
-    end
-    
-    subgraph "API Layer"
-        E[REST API] --> F[Search Controller]
-        F --> G[Rate Limiting]
-        G --> H[Authentication]
-    end
-    
-    subgraph "Business Logic"
-        I[Search Service] --> J[Ranking Algorithm]
-        J --> K[Snippet Generator]
-        K --> L[Highlighting Engine]
-    end
-    
-    subgraph "Data Layer"
-        M[JSON File] --> N[In-Memory Search]
-        N --> O[Array Processing]
-        O --> P[PHP Optimization]
-    end
-    
-    subgraph "Caching Layer"
-        Q[Redis Cache] --> R[Search Results]
-        R --> S[Query Cache]
-        S --> T[Session Store]
-    end
-    
-    subgraph "External Services"
-        U[Elasticsearch] --> V[Advanced Search]
-        V --> W[Analytics]
-        W --> X[ML Models]
-    end
-    
-    A --> E
-    E --> I
-    I --> M
-    I --> Q
-    I --> U
-    
-    style A fill:#e1f5fe
-    style E fill:#f3e5f5
-    style I fill:#e8f5e8
-    style M fill:#fff3e0
-    style Q fill:#fce4ec
-    style U fill:#f1f8e9
-```
-
-## Performance Metrics and Monitoring
-
-### Key Performance Indicators
-- **Search latency**: < 100ms for 95th percentile
-- **Throughput**: 1000+ searches per second
-- **Accuracy**: 90%+ relevant results in top 10
-- **Availability**: 99.9% uptime
-
-### Monitoring Stack
-- **Application Performance Monitoring** (APM)
-- **Database query performance** tracking
-- **Search analytics** and user behavior
-- **Error tracking** and alerting
-- **Resource utilization** monitoring
-
-## Security Considerations
-
-### Data Protection
-- **Input sanitization** for all search queries
-- **SQL injection prevention** with Eloquent ORM
-- **XSS protection** in search results
-- **Rate limiting** to prevent abuse
-
-### Access Control
-- **Authentication** for protected content
-- **Authorization** based on user roles
-- **Content filtering** for sensitive materials
-- **Audit trails** for compliance
-
-## Testing Strategy
-
-### Test Coverage
-- **Unit tests** for search algorithms
-- **Integration tests** for API endpoints
-- **Performance tests** for scalability
-- **Security tests** for vulnerability assessment
-
-### Test Implementation
-```bash
-# Run test suite
-./vendor/bin/sail artisan test --filter=SearchTest
-
-# Performance testing
-./vendor/bin/sail artisan test tests/Performance
-
-# Security testing
-./vendor/bin/sail artisan test tests/Security
-```
-
-## Deployment and DevOps
-
-### Infrastructure
-- **Container orchestration** with Kubernetes
-- **Database clustering** for high availability
-- **Load balancing** for traffic distribution
-- **Auto-scaling** based on demand
-
-### CI/CD Pipeline
-- **Automated testing** on every commit
-- **Code quality checks** with static analysis
-- **Security scanning** for vulnerabilities
-- **Automated deployment** to staging/production
-
-## Future Enhancements
-
-### Advanced Search Features
-- **Natural language processing** for complex queries
-- **Image search** within book content
-- **Cross-book search** across multiple titles
-- **Collaborative filtering** for recommendations
-
-### Platform Integration
-- **Mobile app** with offline search capabilities
-- **Browser extension** for web search integration
-- **API marketplace** for third-party integrations
-- **White-label solutions** for enterprise clients
-
-## Setup and Execution Instructions
+These instructions will get your project environment up and running on your local machine.
 
 ### Prerequisites
-- PHP 8.3+ and Composer installed locally
-- Docker and Docker Desktop
-- Git for version control
 
-### Step-by-Step Setup
-```bash
-# 1. Clone and setup environment
-git clone <repository-url>
-cd search-inside-a-book
-cp .env.example .env
+* **Docker Desktop:** Required to run the application via Laravel Sail.
+* **PHP:** Included in the Sail container.
+* **Composer:** Included in the Sail container.
 
-# 2. Install dependencies
-composer install
-./vendor/bin/sail up -d
+### Installation and Setup
 
-# 3. Generate application key
-./vendor/bin/sail artisan key:generate
+1.  **Clone the Repository:**
+    ```bash
+    git clone [YOUR_REPO_URL] search-inside-a-book
+    cd search-inside-a-book
+    ```
 
-# 4. Install frontend dependencies
-./vendor/bin/sail yarn install
+2.  **Install Dependencies & Build Containers:**
+    Use Laravel Sail to start the environment and install PHP dependencies.
+    ```bash
+    # Install PHP dependencies and ensure environment is ready
+    composer install
 
-# 5. Create storage symlink
-./vendor/bin/sail artisan storage:link
+    # Start the Docker containers (application, PostgreSQL, Meilisearch)
+    ./vendor/bin/sail up -d
+    ```
 
-# 6. Run database migrations (optional - for testing only)
-# Note: These migrations are NOT used in the current JSON-based implementation
-# They are available for future database integration or testing purposes
-./vendor/bin/sail artisan migrate
+3.  **Configure Environment Variables:**
+    Ensure your `.env` file is configured correctly for the database and Meilisearch.
 
-# 7. Seed the database with book data (optional - for testing only)
-# Note: This is only needed if you want to test database functionality
-# The main application uses JSON files, not the database
-./vendor/bin/sail artisan db:seed --class=BookSeeder
+    | Variable | Value | Status |
+    | :--- | :--- | :--- |
+    | `APP_PORT` | `8888` | Configured to avoid port conflicts. |
+    | `DB_HOST` | `pgsql` | Correct service name. |
+    | `MEILISEARCH_HOST` | `http://meilisearch:7700` | Correct service name. |
+    | `MEILISEARCH_MASTER_KEY` | `[YOUR_MASTER_KEY]` | **Must match** the key used in `docker-compose.yml`. |
 
-# 8. Start development server
-./vendor/bin/sail yarn dev
-```
+4.  **Database Migration and Seeding:**
+    Run migrations to create the tables and seed data (which includes book content).
 
-### Validation Steps
-```bash
-# Run all tests
-./vendor/bin/sail artisan test
+    ```bash
+    # Run database migrations
+    ./vendor/bin/sail artisan migrate
 
-# Run specific search tests
-./vendor/bin/sail artisan test --filter=SearchTest
+    # Seed the database with sample data (e.g., Book and BookPages)
+    ./vendor/bin/sail artisan db:seed
+    ```
 
-# Test API endpoints manually
-curl "http://localhost:8888/api/book"
-curl "http://localhost:8888/api/search?q=DOM&limit=5"
+## Meilisearch Indexing and Configuration
 
-# Build production assets
-./vendor/bin/sail yarn build
-```
+After the database is seeded, the book content must be indexed for search functionality.
 
-### Access Points
-- **Application**: http://localhost:8888
-- **API Base**: http://localhost:8888/api
-- **JSON Data**: storage/exercise-files/Eloquent_JavaScript.json
-- **Database**: 127.0.0.1:5432 (publicala_user/publicala_password) - Optional for testing
+1.  **Synchronize Index Settings:**
+    The `book_id` attribute must be configured as filterable in Meilisearch to allow scoped searches (e.g., searching only within Book ID 17).
 
-## Development Assumptions and Trade-offs
+    ```bash
+    # Synchronizes filterable attributes (book_id) to Meilisearch
+    ./vendor/bin/sail artisan scout:sync-index-settings
+    ```
 
-### Key Assumptions Made
-- **Single book focus**: Implementation optimized for one book (Eloquent JavaScript)
-- **JSON file preference**: Chose JSON file over database for simplicity
-- **Laravel ecosystem**: Leveraged existing Laravel infrastructure
-- **Basic UI**: Prioritized backend functionality over complex frontend
-- **Local development**: Optimized for local Docker environment
-- **File-based approach**: No database dependency for core functionality
-- **PostgreSQL availability**: While PostgreSQL is available in the Docker environment (127.0.0.1:5432, publicala_user/publicala_password, publicala_db), it was not utilized in favor of the JSON approach
+2.  **Import Data to Meilisearch:**
+    Index all records from the `book_pages` table into Meilisearch.
 
-### Trade-offs and Compromises
-- **Search complexity**: Implemented basic relevance scoring instead of ML-based ranking
-- **Data storage**: Chose JSON file over database for simplicity and portability
-- **Database migrations**: Created but not used - available for future database integration
-- **PostgreSQL utilization**: Despite PostgreSQL being available in the Docker environment, chose JSON approach for immediate functionality
-- **Caching**: Deferred Redis implementation for MVP
-- **Security**: Basic input sanitization without advanced security features
-- **Monitoring**: No APM implementation in current version
-- **Multi-tenancy**: Single-tenant architecture for simplicity
-- **Scalability**: File-based approach limits concurrent access but simplifies deployment
+    ```bash
+    # Imports all App\Models\BookPage records into the Meilisearch index
+    ./vendor/bin/sail artisan scout:import "App\Models\BookPage"
+    ```
 
-### Mocked/Simulated Components
-- **Rate limiting**: Basic implementation without Redis
-- **Analytics**: Search logging prepared but not fully implemented
-- **Advanced search**: Fuzzy matching and stemming prepared but not active
-- **Caching layer**: Architecture designed but not implemented
+## API Endpoints
 
-## Presentation Outline
+The core functionality is exposed via the following REST API endpoints:
 
-### What Will Be Covered During Presentation
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/api/books/{book}/search?q={query}` | Searches for a term (`q`) within the pages of a specific book. Returns snippets. |
+| `GET` | `/api/pages/{page}` | Retrieves the full content of a specific `BookPage` by its ID. |
 
-#### 1. Technical Implementation (15 minutes)
-- **Database architecture** and indexing strategy
-- **Search algorithm** with relevance scoring
-- **API design** and response structure
-- **Performance optimizations** implemented
+### Example Request (Search)
 
-#### 2. Code Walkthrough (10 minutes)
-- **SearchController** implementation details
-- **Database queries** and optimization techniques
-- **Snippet generation** algorithm
-- **Frontend integration** with APIs
+To search for the term "DOM" in the book with ID 17:
+GET http://localhost:8888/api/books/17/search?q=DOM
 
-#### 3. Challenges and Solutions (10 minutes)
-- **Performance bottlenecks** encountered
-- **Search relevance** tuning process
-- **Database indexing** decisions
-- **API response** optimization
 
-#### 4. "Think Big" Roadmap (10 minutes)
-- **2-3 month development plan**
-- **Advanced features** roadmap
-- **Scalability considerations**
-- **Technology stack** evolution
+**Example Successful Response (200 OK):**
 
-#### 5. Q&A and Discussion (15 minutes)
-- **Technical decisions** rationale
-- **Alternative approaches** considered
-- **Future improvements** priorities
-- **Team collaboration** aspects
+```json
+{
+    "data": [
+        {
+            "id": 483,
+            "page_number": 436,
+            "snippet": "dom.appendChild(child); } return dom; } A display is created by giving it a parent element to which it should append itself and a level object. class ...",
+            "full_page_url": "http://localhost:8888/api/pages/483"
+        },
+        {
+            "id": 211,
+            "page_number": 164,
+            "snippet": "Dominantwritingdirection Write a function that computes the dominant writing direction in a string of text. Remember that each script object has a dir...",
+            "full_page_url": "http://localhost:8888/api/pages/211"
+        },
+        {
+            "id": 585,
+            "page_number": 538,
+            "snippet": "this.dom = elt(\"canvas\", { onmousedown: event => this.mouse(event, pointerDown), ontouchstart: event => this.touch(event, pointerDown) }); this.syncSt...",
+            "full_page_url": "http://localhost:8888/api/pages/585"
+        }
+        ...
+    ]
+}
 
-### Key Points to Highlight
-- **Backend-first approach** with focus on search quality
-- **Performance optimization** through database indexing
-- **Scalable architecture** for future growth
-- **Clean API design** for frontend integration
-- **Comprehensive testing** strategy
+## Evidence of Backend Functionality
 
-## Conclusion
+This section serves as proof of the backend components working correctly, as requested by the project scope.
 
-This technical documentation outlines a comprehensive approach to building a scalable, performant book search system. The implementation prioritizes backend excellence with robust data modeling, efficient search algorithms, and API design that supports both current needs and future growth.
+---
 
-The "Think Big" roadmap demonstrates how the solution would evolve over 2-3 months, incorporating advanced features like machine learning, multi-tenancy, and enterprise-grade security while maintaining the core focus on search relevance and performance.
+### 1. Database Seeding Proof
 
-The architecture is designed to be modular, allowing for incremental improvements and feature additions without disrupting existing functionality. This approach ensures the solution can grow with user needs while maintaining the high performance and reliability expected in a production environment.
+This demonstrates that the application successfully migrated the schema and loaded data into the `books` and `book_pages` tables.
+
+**Command Used:** `./vendor/bin/sail artisan db:seed`
+
+![Screenshot of successful db:seed terminal output] (seed.png)
+
+---
+
+### 2. Data Persistence Proof (DBeaver/SQL Client)
+
+This validates that the data is correctly persisted in the PostgreSQL database, confirming the presence of the seeded book pages.
+
+**Query Used:** `SELECT * FROM book_pages WHERE book_id = 17 LIMIT 5;`
+
+![Screenshot of DBeaver/SQL client showing query results] (querysql.png)
+
+---
+
+### 3. API Search Functionality Proof (Postman)
+
+This verifies that the entire pipeline—Laravel, Scout configuration, Meilisearch indexing, Controller logic, and Resource formatting—is functional.
+
+**Request:** `GET http://localhost:8888/api/books/17/search?q=DOM`
+
+![Screenshot of Postman request and JSON 200 OK response] (get-postman.png)
