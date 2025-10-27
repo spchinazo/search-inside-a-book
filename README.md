@@ -32,7 +32,8 @@ Develop a feature that would allow a user to search inside a book, displaying a 
 - There's a demo of this kind of functionality [here](https://alephdigital.publica.la/reader/eloquent-javascript).
 - You can use any tool, strategy, library or template for any part of your solution. Keep in mind you're now a member of the team, so go ahead and ask for feedback if you need it.
 
-This feature may be developed in 1h, 1 day, 1 week or take months worth of work. Take this as an opportunity to cut scope, get creative and focus on your strengths. You may even fake parts of the feature and focus on what matters to you. We're not looking for a "perfect solution", we want to understand your skills and see where your expertise guides you.
+This feature may be developed in 1h, 1 day, 1 week or take months worth of work. Take this as an opportunity to cut scope, get creative and focus on your strengths. You may even fake parts of the feature and focus on what matters to you.  
+We're not looking for a "perfect solution", we want to understand your skills and see where your expertise guides you.
 
 ### 2. Think Big
 Imagine you have 2 to 3 entire months to develop the solution, would you take a different approach? Think about how to increase the relevance of the results, scalability, performance, content security or maintainability. Describe it in as many details as you see fit.
@@ -45,7 +46,7 @@ If you followed a specific focus in the **Hands on** stage, outline how that str
 The solution has to be presented in written form, a markdown file in the repo is more than enough. You may include a diagram or anything you see useful.
 
 ### 3. Presentation
-After you submit your Merge Request, we'll review it. We may then schedule a call where you present your solution for point **1** and your plan for point **2**.
+After you submit your Merge Request, we'll review it. We may then schedule a call where you present your solution for point **1** and your plan for point **2**.  
 If we meet, we'll be very interested in every little detail, complication or blocker you had, compromises you made, how you would improve what you've done, if you found something interesting, if you are particularly happy with something in the solution, etc.
 
 ## Deliverables
@@ -60,14 +61,16 @@ When you open your Merge Request, include:
 
 ## Local Setup
 
-### Included Stack
+**Stack**
+
 This repository ships with a fresh [Laravel](https://laravel.com) 12 backend you can extend, integrate with, or pair with your own clients. To run it, you'll need:
 - PHP 8.3+ and [Composer](https://getcomposer.org/) installed locally. We recommend using [php.new](http://php.new/) to install both in a single step if you don't already have them.
 - [Docker](https://www.docker.com/products/docker-desktop)
 
 The project uses [Sail](https://laravel.com/docs/12.x/sail), a simple and easy to use Docker based Laravel development environment.
 
-### Setup Steps
+**Setup Steps**
+
 1. Fork this repository in GitLab, then clone your fork: `git clone git@gitlab.com:<your-namespace>/search-inside-a-book.git` and `cd search-inside-a-book`
 2. Copy the .env.example file into .env, `cp .env.example .env`
 3. Install PHP dependencies: `composer install`
@@ -79,11 +82,11 @@ The project uses [Sail](https://laravel.com/docs/12.x/sail), a simple and easy t
 9. Create the storage symlink if your solution needs it: `./vendor/bin/sail artisan storage:link`
 10. Access the Laravel app from `http://localhost` (or the port you configure in `.env`). If you keep the defaults in `.env.example` it's `http://localhost:8888`.
 
-### Sail Reference
-To start or stop the environment use `./vendor/bin/sail up` and `./vendor/bin/sail down`. You have more detailed info [here](https://laravel.com/docs/12.x/sail).
-After starting the environment the project is accessible from `http://localhost:8888` by default (change `APP_PORT` in `.env` if you need another value).
-You can access the included PostgreSQL database from outside the container using `127.0.0.1:${FORWARD_DB_PORT}` (defaults to `5432`) with username `publicala_user` and password `publicala_password`.
-The database itself is called `publicala_db`. For example, in TablePlus you may use [this config](PostgreSQL_config_example.png).
+**Basic Sail Reference**
+
+To start or stop the environment use `./vendor/bin/sail up` and `./vendor/bin/sail down`.  
+After starting the environment the project is accessible from `http://localhost:8888` by default (change `APP_PORT` in `.env` if you need another value).  
+You can access the included PostgreSQL database from outside the container using `127.0.0.1:${FORWARD_DB_PORT}` (defaults to `5432`) with username `publicala_user` and password `publicala_password`. The database itself is called `publicala_db`. For example, in TablePlus you may use [this config](PostgreSQL_config_example.png).
 
 ## Additional Guidance
 - Focus on the **search feature** itself, there's no need to design and implement a fancy UI as long as it's clear and easy to use. Feel free to use a template or any UI library.
@@ -91,6 +94,6 @@ The database itself is called `publicala_db`. For example, in TablePlus you may 
 - You'll be given access to a Slack channel, where you may ask any question or share ideas in order to complete the exercise. We'll be waiting for you, come say hello!
 
 ## AI Usage & Accountability
-Throughout this exercise, you are encouraged to use any AI tool you are comfortable with. Go ahead and take advantage of them!
-We welcome AI tools, but you must personally audit every line you ship and own it completely; **if we sense you skipped that review, expect immediate disqualification.**
+Throughout this exercise, you are encouraged to use any AI tool you are comfortable with. Go ahead and take advantage of them!  
+We welcome AI tools, but you must personally audit every line you ship and own it completely; **if we sense you skipped that review, expect immediate disqualification.**  
 We'll want to know what tools you used, how and why you used them in those specific ways.
