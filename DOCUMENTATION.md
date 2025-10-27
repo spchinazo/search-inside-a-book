@@ -15,6 +15,17 @@ This approach allowed me to prioritize:
 
 By focusing on the backend, I built a foundation that any future frontend (Livewire, React, or Mobile) can consume reliably and efficiently.
 
+### Major Technical Challenges
+
+1.  **Meilisearch Asynchronous Configuration (`waitForTask`):**
+    * **The Problem:** Meilisearch tasks (like updating `filterableAttributes` for `book_id`) are asynchronous. In a test environment, if the next operation (the search query) runs before the configuration task is complete, the search fails with an error (`book_id is not filterable`).
+    * **The Fix:** We had to manually implement the Meilisearch PHP client's `->waitForTask($taskUid, 5000)` function in the `setUp()` method of the feature tests. This forced the test suite to pause until Meilisearch confirmed the configuration changes were active, ensuring reliable test execution.
+
+2.  **Data Persistence in Docker/Sail:**
+    * **The Problem:** During development, the database data and Meilisearch index data were frequently lost, forcing repetitive re-runs of `db:seed` and `scout:import`.
+    * **The Cause:** This was traced to the incorrect use of the destructive Docker command `sail down -v`, which removes persistent volumes.
+    * **The Fix:** The documentation now explicitly advises against `sail down -v` and uses the robust `sail up --build -d` sequence to maintain the integrity of the `sail-pgsql` and `sail-meilisearch` volumes.
+
 ## Getting Started
 
 These instructions will quickly set up the entire development environment on your local machine.
