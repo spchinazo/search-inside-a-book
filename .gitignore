@@ -47,3 +47,4 @@ publicala-production-a424d432adf4.json
 Homestead.json
 # Homestead.yaml we need this tracked!
 .vagrant/
+coverage-report/

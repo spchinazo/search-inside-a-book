@@ -17,7 +17,9 @@ install:php:
       - vendor/
       - ~/.composer/cache/
   script:
-    - composer install --prefer-dist --no-progress --no-interaction
+    # Ignore pcntl requirement (needed by Horizon) in CI environment
+    # PCNTL is only required in production for managing queue workers
+    - composer install --prefer-dist --no-progress --no-interaction --ignore-platform-req=ext-pcntl
   artifacts:
     paths:
       - vendor/
