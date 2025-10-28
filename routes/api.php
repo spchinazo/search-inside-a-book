@@ -17,3 +17,5 @@ use App\Http\Controllers\SearchController;
 
 // Ruta de búsqueda de términos en el libro
 Route::get('/search', [SearchController::class, 'search']);
+// Ruta para obtener el contenido completo de una página
+Route::get('/page/{numero}', [SearchController::class, 'pagina']);
