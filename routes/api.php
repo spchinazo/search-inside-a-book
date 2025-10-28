@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\BookSearchController;
 use App\Http\Controllers\Api\HealthController;
+use App\Http\Controllers\Api\SwaggerController;
 use Illuminate\Support\Facades\Route;
 
 // Search route
@@ -18,3 +19,7 @@ Route::middleware('throttle:120,1')->group(function () {
 
     Route::get('/health', HealthController::class)->name('health');
 });
+
+// Swagger Documentation
+Route::get('/docs', [SwaggerController::class, 'index'])->name('api.swagger');
+Route::get('/docs/json', [SwaggerController::class, 'json'])->name('api.swagger.json');
