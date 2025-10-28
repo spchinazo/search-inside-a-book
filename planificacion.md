@@ -59,3 +59,5 @@ Escrever testes unitários e de feature para garantir o funcionamento correto.
 
 Revisar código, tratar erros, melhorar UX se necessário.
 Atualizar README ou documentação adicional.
+
+

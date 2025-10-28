@@ -1,4 +1,5 @@
 root = true
+APP_DEBUG=true
 
 [*]
 charset = utf-8
