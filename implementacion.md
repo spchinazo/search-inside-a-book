@@ -90,4 +90,22 @@ A continuación se muestra una captura de pantalla de la prueba de los endpoints
 
 ---
 
+## Pruebas automatizadas de la API
+
+- Se crearon pruebas automatizadas en `tests/Feature/SearchTest.php` para validar los endpoints de búsqueda y visualización de página.
+- Las pruebas cubren:
+  - Búsqueda de un término existente (debe retornar resultados y total mayor que cero).
+  - Búsqueda de un término inexistente (debe retornar lista vacía y total igual a cero).
+  - Visualización de una página existente (debe retornar el contenido de la página).
+  - Visualización de una página inexistente (debe retornar error 404 y mensaje adecuado).
+- Todas las pruebas fueron ejecutadas y pasaron correctamente:
+
+```bash
+vendor\bin\phpunit --filter=SearchTest
+```
+
+- Esto garantiza que la API responde correctamente a los casos esperados y a los errores.
+
+---
+
 *Próximos passos: detalhar as decisões técnicas, trade-offs e plano de evolução do projeto.*
