@@ -113,11 +113,14 @@ These instructions will quickly set up the entire development environment on you
    # 2. Seed the database with sample book content (e.g., Eloquent JavaScript)
    ./vendor/bin/sail artisan db:seed
 
-   # 3. Configure Meilisearch index settings (ranking, filters, etc.)
-   ./vendor/bin/sail artisan meilisearch:configure
-
-   # 4. Import data to Meilisearch
+   # 3. Import data to Meilisearch
    ./vendor/bin/sail artisan scout:import "App\Models\BookPage"
+
+   # 4. Sync Meilisearch index settings
+   ./vendor/bin/sail artisan scout:sync-index-settings
+
+   # 5. Finalize Meilisearch synchronization
+   ./vendor/bin/sail artisan scout:sync
    ```
 
 5. **Access the API Documentation**:
