@@ -31,7 +31,7 @@ class ErrorHandlingTest extends TestCase
     #[\PHPUnit\Framework\Attributes\Test]
     public function it_returns_404_for_nonexistent_page(): void
     {
-        $response = $this->getJson('/api/pages/99999');
+        $response = $this->getJson('/api/books/99999/pages/99999');
 
         $response->assertStatus(404);
     }

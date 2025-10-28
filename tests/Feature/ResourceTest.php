@@ -44,6 +44,7 @@ class ResourceTest extends TestCase
     {
         $hit = [
             'id' => 1,
+            'book_id' => 10,  // ← ADICIONADO: necessário para gerar a URL
             'page_number' => 5,
             'text_content' => 'This is a test content',
             '_formatted' => [
@@ -59,7 +60,7 @@ class ResourceTest extends TestCase
         $this->assertEquals(5, $array['page_number']);
         $this->assertEquals('This is a <em>test</em> content', $array['snippet']);
         $this->assertEquals(0.9876, $array['relevance_score']);
-        $this->assertStringContainsString('/api/pages/1', $array['full_page_url']);
+        $this->assertStringContainsString('/api/books/10/pages/5', $array['full_page_url']);
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
@@ -67,6 +68,7 @@ class ResourceTest extends TestCase
     {
         $hit = [
             'id' => 2,
+            'book_id' => 1,
             'page_number' => 10,
             'text_content' => 'Original content without highlighting',
             '_rankingScore' => 0.5,
@@ -85,6 +87,7 @@ class ResourceTest extends TestCase
 
         $hit = [
             'id' => 3,
+            'book_id' => 1,
             'page_number' => 15,
             'text_content' => $longText,
             '_rankingScore' => 0.7,
@@ -102,6 +105,7 @@ class ResourceTest extends TestCase
     {
         $hit = [
             'id' => 4,
+            'book_id' => 1,
             'page_number' => 20,
             'text_content' => 'Content without score',
         ];
@@ -117,6 +121,7 @@ class ResourceTest extends TestCase
     {
         $hit = [
             'id' => 5,
+            'book_id' => 1,
             'page_number' => 25,
             'text_content' => 'Test content',
             '_rankingScore' => 0.123456789,
@@ -126,5 +131,46 @@ class ResourceTest extends TestCase
         $array = $resource->toArray(new Request());
 
         $this->assertEquals(0.1235, $array['relevance_score']);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function it_generates_correct_restful_page_url(): void
+    {
+        $hit = [
+            'id' => 6,
+            'book_id' => 42,
+            'page_number' => 100,
+            'text_content' => 'Test content for URL',
+            '_rankingScore' => 0.8,
+        ];
+
+        $resource = new SearchResultResource($hit);
+        $array = $resource->toArray(new Request());
+
+        $this->assertEquals('http://localhost/api/books/42/pages/100', $array['full_page_url']);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function it_includes_all_required_fields(): void
+    {
+        $hit = [
+            'id' => 7,
+            'book_id' => 1,
+            'page_number' => 30,
+            'text_content' => 'Complete test',
+            '_formatted' => [
+                'text_content' => '<em>Complete</em> test',
+            ],
+            '_rankingScore' => 0.95,
+        ];
+
+        $resource = new SearchResultResource($hit);
+        $array = $resource->toArray(new Request());
+
+        $this->assertArrayHasKey('id', $array);
+        $this->assertArrayHasKey('page_number', $array);
+        $this->assertArrayHasKey('snippet', $array);
+        $this->assertArrayHasKey('full_page_url', $array);
+        $this->assertArrayHasKey('relevance_score', $array);
     }
 }

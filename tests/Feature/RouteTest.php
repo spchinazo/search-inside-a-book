@@ -28,7 +28,7 @@ class RouteTest extends TestCase
         $response->assertHeader('Content-Type', 'application/json');
 
         // Test page show endpoint
-        $response = $this->getJson("/api/pages/{$page->id}");
+        $response = $this->getJson("/api/books/{$book->id}/pages/{$page->page_number}");
         $this->assertEquals(200, $response->status());
         $response->assertHeader('Content-Type', 'application/json');
 

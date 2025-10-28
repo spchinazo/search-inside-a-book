@@ -72,7 +72,7 @@ namespace App\OpenAPI;
  *                     @OA\Property(property="id", type="integer", example=1),
  *                     @OA\Property(property="page_number", type="integer", example=5),
  *                     @OA\Property(property="snippet", type="string", example="This is a <em>test</em> snippet"),
- *                     @OA\Property(property="full_page_url", type="string", example="/api/pages/1"),
+ *                     @OA\Property(property="full_page_url", type="string", example="/api/books/{$book->id}/pages/1"),
  *                     @OA\Property(property="relevance_score", type="number", format="float", example=0.95)
  *                 )
  *             ),
@@ -99,7 +99,7 @@ namespace App\OpenAPI;
 
 /**
  * @OA\Get(
- *     path="/api/pages/{page}",
+ *     path="/api/books/{$book->id}/pages/{page}",
  *     summary="Get full page content",
  *     description="Retrieves the complete text content of a specific book page. Results are cached for 1 hour.",
  *     tags={"Pages"},

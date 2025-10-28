@@ -295,7 +295,7 @@ class BookSearchTest extends TestCase
         
         $results = $response->json('data');
         if (!empty($results)) {
-            $this->assertStringContainsString('/api/pages/', $results[0]['full_page_url']);
+            $this->assertStringContainsString("/api/books/{$book->id}/pages/", $results[0]['full_page_url']);
         }
     }
 

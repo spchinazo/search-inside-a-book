@@ -104,11 +104,11 @@ class PerformanceTest extends TestCase
         $page = BookPage::factory()->create(['book_id' => $book->id]);
         
         // Prime cache
-        $this->getJson("/api/pages/{$page->id}");
+        $this->getJson("/api/books/{$book->id}/pages/{$page->page_number}");
         
         // Measure cached response
         $start = microtime(true);
-        $response = $this->getJson("/api/pages/{$page->id}");
+        $response = $this->getJson("/api/books/{$book->id}/pages/{$page->page_number}");
         $duration = (microtime(true) - $start) * 1000;
         
         $response->assertStatus(200);
