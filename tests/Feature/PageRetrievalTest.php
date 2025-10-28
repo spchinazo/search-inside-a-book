@@ -23,18 +23,15 @@ class PageRetrievalTest extends TestCase
             'text_content' => 'This is the full content of page 42.',
         ]);
 
-        $response = $this->getJson("/api/pages/{$page->id}");
+        // MUDANÇA: Agora usa book_id e page_number
+        $response = $this->getJson("/api/books/{$book->id}/pages/42");
 
         $response->assertStatus(200)
             ->assertJson([
+                'book_id' => $book->id,
                 'page_number' => 42,
                 'content' => 'This is the full content of page 42.',
                 'book_title' => 'Test Book',
-            ])
-            ->assertJsonStructure([
-                'page_number',
-                'content',
-                'book_title',
             ]);
     }
 

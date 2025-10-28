@@ -29,7 +29,6 @@ class BookSearchController extends Controller
         $page = $validated['page'] ?? 1;
         $perPage = 20;
 
-        // Log for relevance analysis
         Log::channel('searches')->info('Search performed', [
             'query' => $query,
             'book_id' => $book->id,
@@ -67,17 +66,26 @@ class BookSearchController extends Controller
         ], 200);
     }
 
-    public function showPage(BookPage $page)
+    /**
+     * Returns the full page content for a given book and page number.
+     * 
+     * @param Book $book - The book (route model binding)
+     * @param int $pageNumber - The page number (1, 2, 3, etc.)
+     */
+    public function showPage(Book $book, int $pageNumber)
     {
-        $cacheKey = "full_page_content_{$page->id}";
+        $bookPage = BookPage::where('book_id', $book->id)
+            ->where('page_number', $pageNumber)
+            ->firstOrFail();
 
-        $pageData = Cache::remember($cacheKey, 3600, function () use ($page) {
-            $page->load('book');
+        $cacheKey = "full_page_content_{$book->id}_{$pageNumber}";
 
+        $pageData = Cache::remember($cacheKey, 3600, function () use ($bookPage, $book) {
             return [
-                'page_number' => $page->page_number,
-                'content' => $page->text_content,
-                'book_title' => $page->book->title,
+                'book_id' => $book->id,
+                'book_title' => $book->title,
+                'page_number' => $bookPage->page_number,
+                'content' => $bookPage->text_content,
             ];
         });
 
