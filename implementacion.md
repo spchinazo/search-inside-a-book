@@ -82,4 +82,12 @@ A continuación se documentan los pasos y decisiones tomadas durante la implemen
 
 ---
 
+## Ejemplo de uso de la API
+
+A continuación se muestra una captura de pantalla de la prueba de los endpoints utilizando Postman y el navegador:
+
+![Ejemplo de uso de la API de búsqueda y visualización de página](docs/ejemplo_api_busqueda_pagina.png)
+
+---
+
 *Próximos passos: detalhar as decisões técnicas, trade-offs e plano de evolução do projeto.*
