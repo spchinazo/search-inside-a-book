@@ -11,18 +11,42 @@ Actualización: revisión inicial para validar el flujo de trabajo del fork y co
 - Verificar que el entorno local funciona (Docker, Sail, dependencias, .env, migraciones, storage:link, yarn dev).
 
 ## 3. Análisis de los datos
-- Explorar los archivos en storage/exercise-files/ para entender el formato de los datos de los libros.
+- Se exploraron los archivos en `storage/exercise-files/`, especialmente `Eloquent_JavaScript_clean.json`, que contiene un arreglo de objetos, cada uno representando una página del libro.
+- Cada objeto tiene la siguiente estructura:
+  ```json
+  {
+    "page": <número de página>,
+    "text_content": "<texto completo de la página>"
+  }
+  ```
+- Este formato facilita la importación a la base de datos y permite búsquedas eficientes por número de página o por contenido textual.
 
 ## 4. Definición de la arquitectura de búsqueda
-- Decidir si la búsqueda será en memoria, por archivos o en base de datos.
-- Planificar las clases, controladores, rutas y posibles servicios.
+- Se optó por una arquitectura basada en base de datos (PostgreSQL) para almacenar y consultar las páginas del libro, permitiendo búsquedas eficientes y escalables.
+- Se creó el modelo `Page` y su migración correspondiente para representar cada página como un registro en la base de datos.
+- Se implementó un comando Artisan personalizado para importar los datos del archivo JSON a la base de datos, validando la estructura y asegurando la codificación UTF-8.
+- Se desarrolló el controlador `SearchController` con dos endpoints principales:
+  - `GET /api/search`: búsqueda de términos en el contenido de las páginas, con paginación y fragmentos de contexto.
+  - `GET /api/page/{numero}`: obtención del contenido completo de una página específica.
+- Las rutas de la API fueron definidas en `routes/api.php` siguiendo el estándar REST.
+- Esta arquitectura facilita la extensión futura (por ejemplo, filtros avanzados, búsqueda por capítulo, etc.) y el mantenimiento del sistema.
 
 ## 5. Implementación de la funcionalidad de búsqueda
-- Crear endpoint(s) para búsqueda.
-- Implementar la lógica de búsqueda según los requisitos (por palabra, página, contexto, etc).
+- Se implementaron dos endpoints principales en el controlador `SearchController`:
+  - `GET /api/search`: Permite buscar un término en el contenido de todas las páginas, devolviendo resultados paginados y fragmentos de contexto donde aparece la coincidencia.
+  - `GET /api/page/{numero}`: Permite obtener el contenido completo de una página específica por su número.
+- La lógica de búsqueda utiliza consultas a la base de datos (Eloquent ORM) para filtrar las páginas por coincidencia textual (`ILIKE` para búsquedas insensibles a mayúsculas/minúsculas).
+- Se implementó paginación y control de parámetros (`query`, `page`, `per_page`) para mejorar la experiencia y eficiencia de la API.
+- Se validan los parámetros de entrada y se gestionan los errores con respuestas JSON claras y mensajes descriptivos.
+- Se garantiza la codificación UTF-8 en todas las respuestas para evitar problemas de caracteres especiales.
+- La funcionalidad fue probada manualmente con curl y Postman, y las evidencias fueron documentadas en el archivo `implementacion.md`.
 
 ## 6. Visualización de resultados
-- Crear las vistas/blades o endpoints de API para mostrar los resultados de la búsqueda.
+- La visualización de los resultados se realiza a través de los endpoints de la API, que retornan respuestas en formato JSON.
+- El endpoint `/api/search` devuelve una lista paginada de coincidencias, cada una con el número de página y un fragmento de contexto donde aparece el término buscado.
+- El endpoint `/api/page/{numero}` permite visualizar el contenido completo de una página específica.
+- Las respuestas están diseñadas para ser fácilmente consumidas por clientes web, móviles o herramientas como Postman y curl.
+- Se documentaron ejemplos de uso y respuestas reales en el archivo `implementacion.md`, facilitando la validación y pruebas por parte de otros desarrolladores o evaluadores.
 
 ## 7. Pruebas
 - Escribir pruebas unitarias y de feature para asegurar el correcto funcionamiento.

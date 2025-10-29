@@ -2,7 +2,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+
+use App\Models\Page;
 
 class SearchController extends Controller
 {
@@ -13,29 +14,15 @@ class SearchController extends Controller
      */
     public function pagina($numero)
     {
-        $path = storage_path('exercise-files/Eloquent_JavaScript_clean.json');
-        if (!file_exists($path)) {
+        $pagina = Page::where('page', $numero)->first();
+        if (!$pagina) {
             return response()->json([
-                'error' => 'Archivo de datos no encontrado.'
-            ], 500);
+                'error' => 'Página no encontrada.'
+            ], 404);
         }
-        $json = file_get_contents($path);
-        $pages = json_decode($json, true);
-        if (!is_array($pages)) {
-            return response()->json([
-                'error' => 'Error al leer el archivo JSON: ' . json_last_error_msg()
-            ], 500);
-        }
-        foreach ($pages as $pagina) {
-            if (isset($pagina['page']) && $pagina['page'] == $numero) {
-                // Forçar UTF-8 válido
-                $pagina['text_content'] = mb_convert_encoding($pagina['text_content'], 'UTF-8', 'UTF-8');
-                return response()->json($pagina);
-            }
-        }
-        return response()->json([
-            'error' => 'Página no encontrada.'
-        ], 404);
+        // Forçar UTF-8 válido
+        $pagina->text_content = mb_convert_encoding($pagina->text_content, 'UTF-8', 'UTF-8');
+        return response()->json($pagina);
     }
     /**
      * Realiza una búsqueda de un término en el libro Eloquent JavaScript.
@@ -52,45 +39,36 @@ class SearchController extends Controller
                 ], 400);
             }
 
-            $path = storage_path('exercise-files/Eloquent_JavaScript_clean.json');
-            if (!file_exists($path)) {
-                return response()->json([
-                    'error' => 'Archivo de datos no encontrado.'
-                ], 500);
-            }
+            // Parâmetros de paginação
+            $page = (int) $request->input('page', 1);
+            $perPage = (int) $request->input('per_page', 10);
+            $offset = ($page - 1) * $perPage;
 
+            // Busca no banco
+            $queryBuilder = Page::where('text_content', 'ILIKE', "%$query%")
+                ->orderBy('page');
 
-            $json = file_get_contents($path);
-            $pages = json_decode($json, true);
-            if (!is_array($pages)) {
-                \Log::error('Falha ao decodificar JSON', [
-                    'json_error' => json_last_error_msg(),
-                    'json_sample' => substr($json, 0, 200)
-                ]);
-                return response()->json([
-                    'error' => 'Error al leer el archivo JSON: ' . json_last_error_msg()
-                ], 500);
-            }
+            $total = $queryBuilder->count();
+            $resultados = $queryBuilder->offset($offset)->limit($perPage)->get();
 
-            $resultados = [];
-            foreach ($pages as $pagina) {
-                if (isset($pagina['text_content']) && stripos($pagina['text_content'], $query) !== false) {
-                    // Extraer un fragmento de contexto
-                    $texto = $pagina['text_content'];
-                    $pos = stripos($texto, $query);
-                    $contexto = substr($texto, max(0, $pos - 30), strlen($query) + 60);
-                    // Forçar UTF-8 válido
-                    $contexto = mb_convert_encoding($contexto, 'UTF-8', 'UTF-8');
-                    $resultados[] = [
-                        'pagina' => $pagina['page'] ?? null,
-                        'contexto' => $contexto
-                    ];
-                }
+            // Montar resposta com fragmento de contexto
+            $response = [];
+            foreach ($resultados as $pagina) {
+                $texto = $pagina->text_content;
+                $pos = stripos($texto, $query);
+                $contexto = $pos !== false ? substr($texto, max(0, $pos - 30), strlen($query) + 60) : '';
+                $contexto = mb_convert_encoding($contexto, 'UTF-8', 'UTF-8');
+                $response[] = [
+                    'pagina' => $pagina->page,
+                    'contexto' => $contexto
+                ];
             }
 
             return response()->json([
-                'resultados' => $resultados,
-                'total' => count($resultados)
+                'resultados' => $response,
+                'total' => $total,
+                'pagina_atual' => $page,
+                'por_pagina' => $perPage
             ]);
         } catch (\Throwable $e) {
             \Log::error('Error en SearchController: ' . $e->getMessage(), ['exception' => $e]);

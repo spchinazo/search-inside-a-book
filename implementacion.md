@@ -1,8 +1,27 @@
+## Cómo ejecutar y probar localmente (fuera de Docker)
+
+Por defecto, el archivo `.env` está configurado para el entorno Docker/Sail, usando `DB_HOST=pgsql`.
+Para ejecutar y probar localmente (usando `php artisan serve`), defina la variable de entorno `DB_HOST` como `127.0.0.1` antes de iniciar el servidor:
+
+- En PowerShell/Windows:
+  ```powershell
+  $env:DB_HOST="127.0.0.1"
+  php artisan serve
+  ```
+- En Linux/macOS:
+  ```bash
+  export DB_HOST=127.0.0.1
+  php artisan serve
+  ```
+
+Así, la aplicación podrá conectarse al PostgreSQL local normalmente.
+
 ## Evidencia de pruebas
 
 Se realizaron pruebas del endpoint de búsqueda utilizando Postman, confirmando que la API responde correctamente con los resultados esperados:
 
 ![Prueba del endpoint de búsqueda](docs/postman_test.png)
+
 # Implementación técnica
 
 A continuación se documentan los pasos y decisiones tomadas durante la implementación de la funcionalidad de búsqueda en el proyecto "search-inside-a-book".
@@ -98,14 +117,84 @@ A continuación se muestra una captura de pantalla de la prueba de los endpoints
   - Búsqueda de un término inexistente (debe retornar lista vacía y total igual a cero).
   - Visualización de una página existente (debe retornar el contenido de la página).
   - Visualización de una página inexistente (debe retornar error 404 y mensaje adecuado).
-- Todas las pruebas fueron ejecutadas y pasaron correctamente:
+- Todas as provas foram executadas e passaram corretamente:
 
 ```bash
 vendor\bin\phpunit --filter=SearchTest
 ```
 
-- Esto garantiza que la API responde correctamente a los casos esperados y a los errores.
+- Isso garante que a API responde corretamente aos casos esperados e aos erros.
+
+---
+
+## Decisiones técnicas, trade-offs y limitaciones
+
+- **Decisión:** Se optó por una solución backend puro (Laravel) para la búsqueda e visualización, facilitando la integración com qualquer frontend ou cliente.
+- **Trade-offs:**
+  - La búsqueda se realiza en memoria sobre un archivo JSON. Esto es eficiente para archivos pequeños/medianos, pero no escala bien para libros muy grandes o múltiples libros.
+  - No se utiliza base de datos para el texto del libro, lo que simplifica la solución pero limita funcionalidades avanzadas (paginación real, filtros complejos, escalabilidad).
+  - El enfoque facilita la portabilidad y la ejecución local, pero não é recomendado para ambientes de produção com grande volume de dados.
+- **Limitaciones:**
+  - El rendimiento depende del tamaño del archivo JSON e dos recursos do servidor.
+  - Não há autenticação, controle de acesso nem logs detalhados de uso.
+  - Não há frontend implementado, apenas endpoints de API documentados e testados.
+
+## Proposta de evolução
+
+- Migrar el armazenamento do livro para uma base de dados relacional (PostgreSQL) para permitir buscas mais eficientes e escaláveis.
+- Implementar paginação real e filtros avançados na busca.
+- Adicionar autenticação e autorização para proteger os endpoints.
+- Criar uma interface frontend (web ou mobile) para facilitar a experiência do usuário.
+- Adicionar logs e métricas de uso para monitoramento e auditoria.
 
 ---
 
 *Próximos passos: detalhar as decisões técnicas, trade-offs e plano de evolução do projeto.*
+
+## Evidencias de pruebas de los endpoints (29/10/2025)
+
+### 1. Endpoint de búsqueda paginada
+
+**Solicitud:**
+```
+curl -G --data-urlencode "query=JavaScript" --data-urlencode "page=1" --data-urlencode "per_page=3" http://localhost:8888/api/search
+```
+**Respuesta:**
+```
+{
+  "resultados": [
+    { "pagina": 2, "contexto": "EloquentJavaScript 3rdedition Marijn Haverbeke" },
+    { "pagina": 3, "contexto": "The third edition of Eloquent JavaScript was made possible by 325 fina" },
+    { "pagina": 4, "contexto": " . . . . . . . . .  4 What is JavaScript? . . . . . . . . . . . . . . " }
+  ],
+  "total": 187,
+  "pagina_atual": 1,
+  "por_pagina": 3
+}
+```
+
+### 2. Endpoint de página específica
+
+**Solicitud:**
+```
+curl http://localhost:8888/api/page/2
+```
+**Respuesta:**
+```
+{
+  "id": 1,
+  "page": 2,
+  "text_content": "EloquentJavaScript 3rdedition Marijn Haverbeke",
+  ...
+}
+```
+
+Ambos endpoints respondieron correctamente, comprobando el funcionamiento de la API integrada con la base de datos Docker.
+
+### Captura de pantalla de las pruebas de los endpoints
+
+![Pruebas de los endpoints de búsqueda y página](docs/teste_api_search.png)
+
+La imagen anterior muestra la terminal ejecutando los comandos curl para los endpoints `/api/search` y `/api/page/2`, comprobando el funcionamiento correcto de la API.
+
+---
