@@ -1,3 +1,22 @@
+## Observação sobre ambiente local e Docker
+
+Para que a aplicação funcione tanto em Docker/Sail quanto rodando localmente (fora do container), utilize a variável de ambiente `DB_HOST_OVERRIDE`:
+
+- **No Docker/Sail:** Não é necessário fazer nada, o padrão já conecta ao serviço do banco pelo host `pgsql`.
+- **Localmente (fora do Docker):** Defina a variável antes de rodar o servidor local:
+
+	- No PowerShell/Windows:
+		```powershell
+		$env:DB_HOST_OVERRIDE="127.0.0.1"
+		php artisan serve
+		```
+	- No Linux/macOS:
+		```bash
+		export DB_HOST_OVERRIDE=127.0.0.1
+		php artisan serve
+		```
+
+Assim, o mesmo `.env` funciona para ambos os ambientes, sem necessidade de edição manual.
 # Search Inside a Book Exercise
 
 ## Goals
