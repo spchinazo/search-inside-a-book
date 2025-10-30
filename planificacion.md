@@ -80,39 +80,18 @@ Evidencia de pruebas frontend Blade:
 - **Documentación técnica:** El archivo `implementacion.md` detalla decisiones técnicas, trade-offs, ejemplos de uso de la API, capturas de pruebas y propuesta de evolución futura.
 - **Planificación rastreable:** El archivo `planificacion.md` documenta todas las etapas, decisiones y entregables, facilitando la evaluación del flujo de trabajo.
 
-Evidencias de pruebas unitarias (TDD):
-1. Instanciação e atributos do model Page:
-  ![Evidencia de prueba unitaria](docs/evidencia_test_tdd.png)
-2. Extração de snippet/contexto com destaque:
-  ![Evidencia de prueba unitaria 2](docs/evidencia_test_tdd2.png)
-Segue um planejamento inicial para resolver o exercício do projeto search-inside-a-book:
 
-1. Leitura dos requisitos
+**Evidencias de pruebas unitarias (TDD):**
 
-Analisar o README.md para entender o objetivo, regras e critérios de avaliação do exercício.
-2. Configuração do ambiente
-
-Garantir que o ambiente local está funcionando (Docker, Sail, dependências, .env, migrations, storage:link, yarn dev).
-3. Análise dos dados
-
-Explorar os arquivos em storage/exercise-files/ para entender o formato dos dados dos livros.
-4. Definição da arquitetura da busca
-
-Decidir se a busca será feita em memória, via arquivos ou banco de dados.
-Planejar as classes, controllers, rotas e possíveis serviços.
-5. Implementação da funcionalidade de busca
-
-Criar endpoint(s) para busca.
-Implementar a lógica de busca conforme os requisitos (ex: busca por palavra, página, contexto, etc).
-6. Exibição dos resultados
-
-Criar as views/blades ou endpoints de API para exibir os resultados da busca.
-7. Testes
-
-Escrever testes unitários e de feature para garantir o funcionamento correto.
-8. Ajustes finais e documentação
-
-Revisar código, tratar erros, melhorar UX se necessário.
-Atualizar README ou documentação adicional.
+<div style="display: flex; gap: 24px; align-items: flex-start;">
+  <div>
+    <strong>1. Instanciación y atributos del modelo Page:</strong><br>
+    <img src="docs/evidencia_test_tdd.png" alt="Evidencia de prueba unitaria" width="350" />
+  </div>
+  <div>
+    <strong>2. Extracción de snippet/contexto con destaque:</strong><br>
+    <img src="docs/evidencia_test_tdd2.png" alt="Evidencia de prueba unitaria 2" width="350" />
+  </div>
+</div>
 
 
