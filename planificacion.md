@@ -70,8 +70,21 @@ Evidencia de pruebas frontend Blade:
 ![Evidencia de pruebas frontend](docs/evidencia_test_frontend.png)
 
 ## 8. Ajustes finales y documentación
-- Revisar el código, manejar errores, mejorar la UX si es necesario.
-- Actualizar el README o documentación adicional.
+
+- **Revisión de código:** Todo el código fue revisado para garantizar claridad, buenas prácticas y adherencia al estándar Laravel.
+- **Tratamiento de errores:** Las respuestas de la API y del frontend gestionan errores de forma clara, con mensajes descriptivos para búsquedas sin resultados o páginas inexistentes.
+- **Mejora de UX:** La interfaz Blade es simple, responsiva y permite navegación fácil entre búsqueda y visualización de página.
+- **Pruebas unitarias y de feature:** Se implementaron pruebas unitarias (ejemplo: PageTest) y pruebas Feature para la API y el frontend Blade, garantizando robustez y cobertura de los principales flujos.
+- **Evidencias:** Capturas de pantalla de los tests automatizados (API, frontend y TDD/unitario) y del frontend están en la carpeta `docs/` y referenciadas en la documentación.
+- **README actualizado:** El README contiene instrucciones claras de ejecución, requisitos, comandos para correr localmente y vía Docker/Sail, además de observaciones sobre el entorno.
+- **Documentación técnica:** El archivo `implementacion.md` detalla decisiones técnicas, trade-offs, ejemplos de uso de la API, capturas de pruebas y propuesta de evolución futura.
+- **Planificación rastreable:** El archivo `planificacion.md` documenta todas las etapas, decisiones y entregables, facilitando la evaluación del flujo de trabajo.
+
+Evidencias de pruebas unitarias (TDD):
+1. Instanciação e atributos do model Page:
+  ![Evidencia de prueba unitaria](docs/evidencia_test_tdd.png)
+2. Extração de snippet/contexto com destaque:
+  ![Evidencia de prueba unitaria 2](docs/evidencia_test_tdd2.png)
 Segue um planejamento inicial para resolver o exercício do projeto search-inside-a-book:
 
 1. Leitura dos requisitos
