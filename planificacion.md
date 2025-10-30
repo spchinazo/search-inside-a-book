@@ -90,11 +90,11 @@ Evidencia de prueba manual con Postman:
 <div style="display: flex; gap: 24px; align-items: flex-start;">
   <div>
     <strong>1. Instanciación y atributos del modelo Page:</strong><br>
-    <img src="docs/evidencia_test_tdd.png" alt="Evidencia de prueba unitaria" width="350" />
+    <img src="docs/evidencia_test_tdd.png" alt="Evidencia de prueba unitaria" width="1100" />
   </div>
   <div>
     <strong>2. Extracción de snippet/contexto con destaque:</strong><br>
-    <img src="docs/evidencia_test_tdd2.png" alt="Evidencia de prueba unitaria 2" width="350" />
+    <img src="docs/evidencia_test_tdd2.png" alt="Evidencia de prueba unitaria 2" width="1100" />
   </div>
 </div>
 
