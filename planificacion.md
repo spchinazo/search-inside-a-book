@@ -71,7 +71,7 @@ Evidencia de pruebas frontend Blade:
 ![Evidencia de pruebas frontend](docs/evidencia_test_frontend.png)
 
 Evidencia de prueba manual con Postman:
-![Evidencia de prueba Postman](docs/evidencia_postman.png)
+![Evidencia de prueba Postman](docs/postman_test.png)
 
 ## 8. Ajustes finales y documentación
 
