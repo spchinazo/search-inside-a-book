@@ -56,7 +56,18 @@ Actualización: revisión inicial para validar el flujo de trabajo del fork y co
 ![Evidencia de la interfaz Blade funcionando](docs/evidencia_blade_frontend.png)
 
 ## 7. Pruebas
-- Escribir pruebas unitarias y de feature para asegurar el correcto funcionamiento.
+- Se implementaron pruebas automatizadas (Feature) para la API y el frontend Blade, ejecutadas dentro del contenedor Docker.
+- Las pruebas cubren:
+  - Búsqueda por término existente y inexistente (API y web)
+  - Visualización de página existente e inexistente (API y web)
+  - Renderización del formulario y mensajes de la interfaz
+- Todas las pruebas pasaron correctamente, validando la robustez de la solución.
+
+Evidencia de pruebas API:
+![Evidencia de pruebas API](docs/evidencia_test_api.png)
+
+Evidencia de pruebas frontend Blade:
+![Evidencia de pruebas frontend](docs/evidencia_test_frontend.png)
 
 ## 8. Ajustes finales y documentación
 - Revisar el código, manejar errores, mejorar la UX si es necesario.

@@ -210,3 +210,13 @@ Ambos endpoints respondieron correctamente, comprobando el funcionamiento de la 
 La imagen anterior muestra la terminal ejecutando los comandos curl para los endpoints `/api/search` y `/api/page/2`, comprobando el funcionamiento correcto de la API.
 
 ---
+## Pruebas automatizadas de la API y frontend (Docker)
+
+Se implementaron pruebas Feature para la API y la interfaz Blade, ejecutadas dentro del contenedor Docker.
+Todas las pruebas pasaron correctamente, validando la robustez de la solución.
+
+Evidencia de pruebas API:
+![Evidencia de pruebas API](docs/evidencia_test_api.png)
+
+Evidencia de pruebas frontend Blade:
+![Evidencia de pruebas frontend](docs/evidencia_test_frontend.png)
