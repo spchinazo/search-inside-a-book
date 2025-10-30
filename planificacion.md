@@ -63,11 +63,15 @@ Actualización: revisión inicial para validar el flujo de trabajo del fork y co
   - Renderización del formulario y mensajes de la interfaz
 - Todas las pruebas pasaron correctamente, validando la robustez de la solución.
 
+
 Evidencia de pruebas API:
 ![Evidencia de pruebas API](docs/evidencia_test_api.png)
 
 Evidencia de pruebas frontend Blade:
 ![Evidencia de pruebas frontend](docs/evidencia_test_frontend.png)
+
+Evidencia de prueba manual con Postman:
+![Evidencia de prueba Postman](docs/evidencia_postman.png)
 
 ## 8. Ajustes finales y documentación
 
