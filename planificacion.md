@@ -42,11 +42,16 @@ Actualización: revisión inicial para validar el flujo de trabajo del fork y co
 - La funcionalidad fue probada manualmente con curl y Postman, y las evidencias fueron documentadas en el archivo `implementacion.md`.
 
 ## 6. Visualización de resultados
-- La visualización de los resultados se realiza a través de los endpoints de la API, que retornan respuestas en formato JSON.
-- El endpoint `/api/search` devuelve una lista paginada de coincidencias, cada una con el número de página y un fragmento de contexto donde aparece el término buscado.
-- El endpoint `/api/page/{numero}` permite visualizar el contenido completo de una página específica.
-- Las respuestas están diseñadas para ser fácilmente consumidas por clientes web, móviles o herramientas como Postman y curl.
-- Se documentaron ejemplos de uso y respuestas reales en el archivo `implementacion.md`, facilitando la validación y pruebas por parte de otros desarrolladores o evaluadores.
+- Se implementó una interfaz web sencilla utilizando Blade (Laravel) para buscar y visualizar resultados de la API.
+- La view `search.blade.php` permite realizar búsquedas por termo, exibe resultados paginados y links para visualizar la página completa.
+- El controlador `SearchWebController` consume la API internamente y renderiza los resultados na interface.
+- También se creó la view `page.blade.php` para mostrar el contenido completo de una página seleccionada.
+- Las rutas web fueron definidas en `routes/web.php` para acceso amigable desde el navegador.
+- Ventajas de esta abordagem:
+  - Demuestra integración frontend-backend.
+  - Facilita pruebas manuales y presentación visual del proyecto.
+  - Valoriza la entrega para la evaluación en Publicala.
+- Se mantienen los endpoints API para consumo externo y se documentaron ejemplos de uso en `implementacion.md`.
 
 ## 7. Pruebas
 - Escribir pruebas unitarias y de feature para asegurar el correcto funcionamiento.

@@ -11,6 +11,8 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+
+use App\Http\Controllers\SearchWebController;
+
+Route::get('/', [SearchWebController::class, 'index'])->name('search.index');
+Route::get('/page/{numero}', [SearchWebController::class, 'show'])->name('search.show');

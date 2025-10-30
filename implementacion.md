@@ -129,15 +129,27 @@ vendor\bin\phpunit --filter=SearchTest
 
 ## Decisiones técnicas, trade-offs y limitaciones
 
-- **Decisión:** Se optó por una solución backend puro (Laravel) para la búsqueda e visualización, facilitando la integración com qualquer frontend ou cliente.
-- **Trade-offs:**
-  - La búsqueda se realiza en memoria sobre un archivo JSON. Esto es eficiente para archivos pequeños/medianos, pero no escala bien para libros muy grandes o múltiples libros.
-  - No se utiliza base de datos para el texto del libro, lo que simplifica la solución pero limita funcionalidades avanzadas (paginación real, filtros complejos, escalabilidad).
-  - El enfoque facilita la portabilidad y la ejecución local, pero não é recomendado para ambientes de produção com grande volume de dados.
-- **Limitaciones:**
-  - El rendimiento depende del tamaño del archivo JSON e dos recursos do servidor.
-  - Não há autenticação, controle de acesso nem logs detalhados de uso.
-  - Não há frontend implementado, apenas endpoints de API documentados e testados.
+## Visualización web integrada (Blade)
+
+Se implementó una interfaz web sencilla utilizando Blade (Laravel) para buscar y visualizar resultados de la API:
+
+- La página principal muestra un formulario de búsqueda y lista de resultados paginados, con links para ver la página completa.
+- El controlador `SearchWebController` consume la API internamente y renderiza los resultados en la view `search.blade.php`.
+- Al clicar en "Ver página completa", se accede a la view `page.blade.php` con el texto completo de la página seleccionada.
+- Las rutas web están definidas en `routes/web.php` para acceso directo desde el navegador.
+
+### Cómo probar la interfaz web
+
+1. Acceda a `http://localhost:8888/` (ou la porta configurada) en el navegador.
+2. Realice una búsqueda por cualquier término.
+3. Navegue por los resultados y acceda a la página completa desde los links.
+
+**Ventajas:**
+- Demuestra integración frontend-backend.
+- Facilita pruebas manuales y presentación visual del proyecto.
+- Valoriza la entrega para la evaluación en Publicala.
+
+La API sigue disponible para consumo externo y pruebas automatizadas.
 
 ## Proposta de evolução
 
