@@ -53,6 +53,8 @@ Actualización: revisión inicial para validar el flujo de trabajo del fork y co
   - Valoriza la entrega para la evaluación en Publicala.
 - Se mantienen los endpoints API para consumo externo y se documentaron ejemplos de uso en `implementacion.md`.
 
+![Evidencia de la interfaz Blade funcionando](docs/evidencia_blade_frontend.png)
+
 ## 7. Pruebas
 - Escribir pruebas unitarias y de feature para asegurar el correcto funcionamiento.
 
