@@ -54,17 +54,14 @@ A continuación se documentan los pasos y decisiones tomadas durante la implemen
 - Atenção: sempre garantir que todos os arquivos PHP tenham a tag de abertura `<?php` para evitar problemas de autoload no Laravel.
 - O JSON de dados deve estar limpo e codificado em UTF-8.
 
-# Resumo dos Itens 1 e 2 do Planejamento
 
 ## 1. Leitura de Requisitos (README.md)
 - **Objetivo:** Implementar uma busca dentro de um livro, exibindo trechos e informações sobre onde a correspondência foi encontrada.
 - O usuário pode visualizar a página completa ao selecionar um resultado.
-- O arquivo `Eloquent_JavaScript.json` (em `storage/exercise-files/`) contém o texto do livro, página por página.
 - O exercício permite foco em backend, frontend, mobile ou abordagem combinada.
 - **Documentação:** Decisões, trade-offs, limitações e plano de evolução devem ser registrados.
 - **Entrega:** Via Merge Request, funcionando localmente, com instruções claras de execução e testes.
 
-## 2. Configuração do Ambiente
 - **Stack:** Laravel 12, PHP 8.3+, Docker, Sail, PostgreSQL, Vite.
 - **Passos principais:**
   1. Clonar o fork do repositório.
@@ -85,44 +82,23 @@ A continuación se documentan los pasos y decisiones tomadas durante la implemen
 - Testado com sucesso via Postman e curl, retornando corretamente o conteúdo da página solicitada.
 - Documentado o fluxo de busca e visualização de página:
   1. Usuário realiza busca por termo usando `/api/search?query=...`.
-  2. Recebe lista de resultados com trechos e número da página.
-  3. Pode acessar `/api/page/{numero}` para visualizar o texto completo da página.
-- Próximos passos: documentar exemplos de uso, adicionar testes automatizados e subir para o GitLab.
-
----
 
 ## Etapa de paginación y visualización de página completa
 
 - Se implementó el endpoint `/api/page/{numero}` en el backend (Laravel) para permitir la visualización del contenido completo de una página del libro.
 - El controlador `SearchController` ahora incluye el método `pagina($numero)`, que busca la página solicitada en el archivo JSON y retorna su contenido en formato JSON.
-- Se corrigió un problema de autoload (falta de la etiqueta `<?php` en el archivo del controlador), lo que impedía que Laravel reconociera la clase.
-- Se probó el endpoint con Postman y curl, confirmando que retorna correctamente el contenido de la página solicitada.
-- Esta funcionalidad permite que, tras una búsqueda, el usuario pueda consultar el texto completo de cualquier página encontrada.
 
 ---
 
-## Ejemplo de uso de la API
-
-A continuación se muestra una captura de pantalla de la prueba de los endpoints utilizando Postman y el navegador:
 
 ![Ejemplo de uso de la API de búsqueda y visualización de página](docs/ejemplo_api_busqueda_pagina.png)
-
----
 
 ## Pruebas automatizadas de la API
 
 - Se crearon pruebas automatizadas en `tests/Feature/SearchTest.php` para validar los endpoints de búsqueda y visualización de página.
 - Las pruebas cubren:
-  - Búsqueda de un término existente (debe retornar resultados y total mayor que cero).
-  - Búsqueda de un término inexistente (debe retornar lista vacía y total igual a cero).
-  - Visualización de una página existente (debe retornar el contenido de la página).
-  - Visualización de una página inexistente (debe retornar error 404 y mensaje adecuado).
-- Todas as provas foram executadas e passaram corretamente:
-
 ```bash
 vendor\bin\phpunit --filter=SearchTest
-```
-
 - Isso garante que a API responde corretamente aos casos esperados e aos erros.
 
 ---
@@ -136,46 +112,24 @@ Se implementó una interfaz web sencilla utilizando Blade (Laravel) para buscar 
 - La página principal muestra un formulario de búsqueda y lista de resultados paginados, con links para ver la página completa.
 - El controlador `SearchWebController` consume la API internamente y renderiza los resultados en la view `search.blade.php`.
 - Al clicar en "Ver página completa", se accede a la view `page.blade.php` con el texto completo de la página seleccionada.
-- Las rutas web están definidas en `routes/web.php` para acceso directo desde el navegador.
-
-### Cómo probar la interfaz web
-
 1. Acceda a `http://localhost:8888/` (ou la porta configurada) en el navegador.
 2. Realice una búsqueda por cualquier término.
 3. Navegue por los resultados y acceda a la página completa desde los links.
-
 **Ventajas:**
-- Demuestra integración frontend-backend.
 - Facilita pruebas manuales y presentación visual del proyecto.
 - Valoriza la entrega para la evaluación en Publicala.
 
-La API sigue disponible para consumo externo y pruebas automatizadas.
-
-## Proposta de evolução
-
-- Migrar el armazenamento do livro para uma base de dados relacional (PostgreSQL) para permitir buscas mais eficientes e escaláveis.
 - Implementar paginação real e filtros avançados na busca.
 - Adicionar autenticação e autorização para proteger os endpoints.
 - Criar uma interface frontend (web ou mobile) para facilitar a experiência do usuário.
 - Adicionar logs e métricas de uso para monitoramento e auditoria.
 
----
-
-*Próximos passos: detalhar as decisões técnicas, trade-offs e plano de evolução do projeto.*
-
-## Evidencias de pruebas de los endpoints (29/10/2025)
 
 ### 1. Endpoint de búsqueda paginada
 
-**Solicitud:**
-```
 curl -G --data-urlencode "query=JavaScript" --data-urlencode "page=1" --data-urlencode "per_page=3" http://localhost:8888/api/search
 ```
 **Respuesta:**
-```
-{
-  "resultados": [
-    { "pagina": 2, "contexto": "EloquentJavaScript 3rdedition Marijn Haverbeke" },
     { "pagina": 3, "contexto": "The third edition of Eloquent JavaScript was made possible by 325 fina" },
     { "pagina": 4, "contexto": " . . . . . . . . .  4 What is JavaScript? . . . . . . . . . . . . . . " }
   ],
