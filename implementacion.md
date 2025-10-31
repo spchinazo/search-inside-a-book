@@ -170,13 +170,9 @@ La imagen anterior muestra la terminal ejecutando los comandos curl para los end
 Se implementaron pruebas Feature para la API y la interfaz Blade, ejecutadas dentro del contenedor Docker.
 Todas las pruebas pasaron correctamente, validando la robustez de la solución.
 
-Evidencia de pruebas API:
-![Evidencia de pruebas API](docs/evidencia_test_api.png)
 
-Evidencia de pruebas frontend Blade:
-![Evidencia de pruebas frontend](docs/evidencia_test_frontend.png)
+## Pruebas viusal de frontend React
 
-Evidencia visual del frontend React funcionando:
-![Evidencia del frontend React funcionando](docs/evidencia_frontend_react.png)
+- Evidencia visual del frontend React funcionando:
+![Ejemplo de uso de Frontend de búsqueda y visualización de página](docs/evidencia_frontend_react.png)
 
-![Ejemplo de uso de la API de búsqueda y visualización de página](docs/evidencia_frontend_react.png)
