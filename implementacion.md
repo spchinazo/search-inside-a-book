@@ -178,3 +178,5 @@ Evidencia de pruebas frontend Blade:
 
 Evidencia visual del frontend React funcionando:
 ![Evidencia del frontend React funcionando](docs/evidencia_frontend_react.png)
+
+![Ejemplo de uso de la API de búsqueda y visualización de página](docs/evidencia_frontend_react.png)
