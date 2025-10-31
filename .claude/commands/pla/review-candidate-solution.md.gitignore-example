@@ -1,0 +1,11 @@
+# Candidate Review Command (Gitignored)
+
+This directory contains a gitignored file: `review-candidate-solution.md`
+
+This is Publica.la's internal review command for evaluating candidate exercise submissions.
+
+The actual review criteria and command implementation are not shared publicly to maintain evaluation integrity.
+
+## For Team Members
+
+If you're a Publica.la team member and don't have this file, ask a team lead for access.

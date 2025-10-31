@@ -47,3 +47,9 @@ publicala-production-a424d432adf4.json
 Homestead.json
 # Homestead.yaml we need this tracked!
 .vagrant/
+
+# Claude Code - Internal review commands
+.claude/commands/pla/review-candidate-solution.md
+
+# Candidate reviews (private)
+reviews/*.md

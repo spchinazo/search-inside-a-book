@@ -12,6 +12,8 @@ We will evaluate:
 - Creativity
 - Ability to understand the context and evaluate trade-offs
 
+**Note:** You're welcome to use alternative technologies (e.g., switching from PostgreSQL to MySQL, using different search libraries, etc.), but please state **why** somewhere in your submission. A simple justification is enough—even "I know MySQL better" works.
+
 ## Scenario
 As a programmer, I remember reading about "the DOM" in a book and I want to be able to search inside the book so that I can clarify some doubts.
 
