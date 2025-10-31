@@ -35,53 +35,53 @@ A continuación se documentan los pasos y decisiones tomadas durante la implemen
 - Se realizaron pruebas exhaustivas del endpoint `/api/search?query=JavaScript`, resolviendo problemas de codificación y garantizando que la API responde correctamente con resultados esperados.
 - Se documentó el proceso de limpieza y validación del archivo JSON para evitar errores de UTF-8.
 
-## Implementação da API de Busca e Página Completa
 
-## Passos realizados
+## Implementación de la API de Búsqueda y Página Completa
 
-- Corrigido problema de autoload do Laravel: o arquivo `SearchController.php` estava sem a tag de abertura `<?php`, impedindo o reconhecimento da classe pelo Composer. Após adicionar a tag, o endpoint `/api/page/{numero}` passou a funcionar normalmente.
-- Testado endpoint `/api/page/2` via Postman, retornando corretamente o conteúdo da página.
-- Testado endpoint `/api/search?query=palavra`, retornando resultados (ou vazio, conforme o termo).
+### Pasos realizados
 
-## Próximos passos
+- Se corrigió un problema de autoload en Laravel: el archivo `SearchController.php` no tenía la etiqueta de apertura `<?php`, lo que impedía el reconocimiento de la clase por Composer. Tras añadir la etiqueta, el endpoint `/api/page/{numero}` funcionó normalmente.
+- Se probó el endpoint `/api/page/2` vía Postman, retornando correctamente el contenido de la página.
+- Se probó el endpoint `/api/search?query=palabra`, retornando resultados (o vacío, según el término).
 
-- [ ] Melhorar documentação dos endpoints e exemplos de uso.
-- [ ] Adicionar testes automatizados para os endpoints.
-- [ ] (Opcional) Implementar paginação ou filtros avançados na busca.
+### Próximos pasos
 
-## Observações
+- [ ] Mejorar la documentación de los endpoints y ejemplos de uso.
+- [ ] Añadir pruebas automatizadas para los endpoints.
+- [ ] (Opcional) Implementar paginación o filtros avanzados en la búsqueda.
 
-- Atenção: sempre garantir que todos os arquivos PHP tenham a tag de abertura `<?php` para evitar problemas de autoload no Laravel.
-- O JSON de dados deve estar limpo e codificado em UTF-8.
+### Observaciones
 
+- Importante: siempre garantizar que todos los archivos PHP tengan la etiqueta de apertura `<?php` para evitar problemas de autoload en Laravel.
+- El JSON de datos debe estar limpio y codificado en UTF-8.
 
-## 1. Leitura de Requisitos (README.md)
-- **Objetivo:** Implementar uma busca dentro de um livro, exibindo trechos e informações sobre onde a correspondência foi encontrada.
-- O usuário pode visualizar a página completa ao selecionar um resultado.
-- O exercício permite foco em backend, frontend, mobile ou abordagem combinada.
-- **Documentação:** Decisões, trade-offs, limitações e plano de evolução devem ser registrados.
-- **Entrega:** Via Merge Request, funcionando localmente, com instruções claras de execução e testes.
+## 1. Lectura de Requisitos (README.md)
+- **Objetivo:** Implementar una búsqueda dentro de un libro, mostrando fragmentos y la información sobre dónde se encontró la coincidencia.
+- El usuario puede visualizar la página completa al seleccionar un resultado.
+- El ejercicio permite enfoque en backend, frontend, mobile o enfoque combinado.
+- **Documentación:** Decisiones, trade-offs, limitaciones y plan de evolución deben ser registrados.
+- **Entrega:** Vía Merge Request, funcionando localmente, con instrucciones claras de ejecución y pruebas.
 
 - **Stack:** Laravel 12, PHP 8.3+, Docker, Sail, PostgreSQL, Vite.
-- **Passos principais:**
-  1. Clonar o fork do repositório.
-  2. Copiar `.env.example` para `.env`.
-  3. Rodar `composer install`.
-  4. Subir o ambiente com `./vendor/bin/sail up -d`.
-  5. Gerar a chave da aplicação.
-  6. Instalar dependências JS com `./vendor/bin/sail yarn install`.
-  7. Rodar `./vendor/bin/sail yarn dev` para desenvolvimento.
-  8. Rodar migrations se necessário.
-  9. Criar o symlink de storage se for usar arquivos.
-  10. Acessar a aplicação em http://localhost:8888.
+- **Pasos principales:**
+  1. Clonar el fork del repositorio.
+  2. Copiar `.env.example` a `.env`.
+  3. Ejecutar `composer install`.
+  4. Levantar el entorno con `./vendor/bin/sail up -d`.
+  5. Generar la clave de la aplicación.
+  6. Instalar dependencias JS con `./vendor/bin/sail yarn install`.
+  7. Ejecutar `./vendor/bin/sail yarn dev` para desarrollo.
+  8. Ejecutar migraciones si es necesario.
+  9. Crear el symlink de storage si se usan archivos.
+  10. Acceder a la aplicación en http://localhost:8888.
 
-## Etapa: Implementação da visualização de página completa
+## Etapa: Implementación de la visualización de página completa
 
-- Implementado endpoint `/api/page/{numero}` no backend Laravel, permitindo ao usuário visualizar o conteúdo completo de uma página do livro.
-- Corrigido problema de autoload do controller (ausência da tag `<?php` no início do arquivo).
-- Testado com sucesso via Postman e curl, retornando corretamente o conteúdo da página solicitada.
-- Documentado o fluxo de busca e visualização de página:
-  1. Usuário realiza busca por termo usando `/api/search?query=...`.
+- Se implementó el endpoint `/api/page/{numero}` en el backend Laravel, permitiendo al usuario visualizar el contenido completo de una página del libro.
+- Se corrigió un problema de autoload del controlador (ausencia de la etiqueta `<?php` al inicio del archivo).
+- Probado con éxito vía Postman y curl, retornando correctamente el contenido de la página solicitada.
+- Documentado el flujo de búsqueda y visualización de página:
+  1. El usuario realiza búsqueda por término usando `/api/search?query=...`.
 
 ## Etapa de paginación y visualización de página completa
 
@@ -164,6 +164,7 @@ Ambos endpoints respondieron correctamente, comprobando el funcionamiento de la 
 La imagen anterior muestra la terminal ejecutando los comandos curl para los endpoints `/api/search` y `/api/page/2`, comprobando el funcionamiento correcto de la API.
 
 ---
+
 ## Pruebas automatizadas de la API y frontend (Docker)
 
 Se implementaron pruebas Feature para la API y la interfaz Blade, ejecutadas dentro del contenedor Docker.
@@ -174,3 +175,6 @@ Evidencia de pruebas API:
 
 Evidencia de pruebas frontend Blade:
 ![Evidencia de pruebas frontend](docs/evidencia_test_frontend.png)
+
+Evidencia visual del frontend React funcionando:
+![Evidencia del frontend React funcionando](docs/evidencia_frontend_react.png)
