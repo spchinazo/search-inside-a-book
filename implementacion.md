@@ -18,9 +18,13 @@ Así, la aplicación podrá conectarse al PostgreSQL local normalmente.
 
 ## Evidencia de pruebas
 
+
 Se realizaron pruebas del endpoint de búsqueda utilizando Postman, confirmando que la API responde correctamente con los resultados esperados:
 
 ![Prueba del endpoint de búsqueda](docs/postman_test.png)
+
+Evidencia visual del frontend React funcionando:
+![Evidencia visual del frontend React funcionando](docs/evidencia_frontend_react.png)
 
 # Implementación técnica
 
@@ -171,8 +175,5 @@ Se implementaron pruebas Feature para la API y la interfaz Blade, ejecutadas den
 Todas las pruebas pasaron correctamente, validando la robustez de la solución.
 
 
-## Pruebas viusal de frontend React
 
-- Evidencia visual del frontend React funcionando:
-![Ejemplo de uso de Frontend de búsqueda y visualización de página](docs/evidencia_frontend_react.png)
 
