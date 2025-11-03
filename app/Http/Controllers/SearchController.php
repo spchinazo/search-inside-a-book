@@ -8,7 +8,7 @@ use App\Models\Page;
 class SearchController extends Controller
 {
     /**
-     * Retorna o conteúdo completo de uma página pelo número.
+     * Devuelve el contenido completo de una página por su número.
      * @param int $numero
      * @return \Illuminate\Http\JsonResponse
      */
@@ -20,7 +20,7 @@ class SearchController extends Controller
                 'error' => 'Página no encontrada.'
             ], 404);
         }
-        // Forçar UTF-8 válido
+    // Forzar UTF-8 válido
         $pagina->text_content = mb_convert_encoding($pagina->text_content, 'UTF-8', 'UTF-8');
         return response()->json($pagina);
     }
@@ -39,19 +39,19 @@ class SearchController extends Controller
                 ], 400);
             }
 
-            // Parâmetros de paginação
+            // Parámetros de paginación
             $page = (int) $request->input('page', 1);
             $perPage = (int) $request->input('per_page', 10);
             $offset = ($page - 1) * $perPage;
 
-            // Busca no banco
+            // Busca en la base de datos
             $queryBuilder = Page::where('text_content', 'ILIKE', "%$query%")
                 ->orderBy('page');
 
             $total = $queryBuilder->count();
             $resultados = $queryBuilder->offset($offset)->limit($perPage)->get();
 
-            // Montar resposta com fragmento de contexto
+            // Construir respuesta con fragmento de contexto
             $response = [];
             foreach ($resultados as $pagina) {
                 $texto = $pagina->text_content;

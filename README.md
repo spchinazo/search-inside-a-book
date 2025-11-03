@@ -1,22 +1,67 @@
-## Observação sobre ambiente local e Docker
+## Running the React Frontend (outside Docker)
 
-Para que a aplicação funcione tanto em Docker/Sail quanto rodando localmente (fora do container), utilize a variável de ambiente `DB_HOST_OVERRIDE`:
+To run the React frontend locally (without Docker/Sail):
 
-- **No Docker/Sail:** Não é necessário fazer nada, o padrão já conecta ao serviço do banco pelo host `pgsql`.
-- **Localmente (fora do Docker):** Defina a variável antes de rodar o servidor local:
+```sh
+cd apps/web
+npm install
+npm run dev
+# Access http://localhost:5173/
+```
+For production build:
+```sh
+npm run build
+node server.js
+# Access http://localhost:3000/
+```
 
-	- No PowerShell/Windows:
-		```powershell
-		$env:DB_HOST_OVERRIDE="127.0.0.1"
-		php artisan serve
-		```
-	- No Linux/macOS:
-		```bash
-		export DB_HOST_OVERRIDE=127.0.0.1
-		php artisan serve
-		```
+## Running Automated Backend Tests
 
-Assim, o mesmo `.env` funciona para ambos os ambientes, sem necessidade de edição manual.
+To run backend (PHPUnit) tests with Sail (Docker):
+
+```sh
+./vendor/bin/sail test
+# Or for a specific test:
+./vendor/bin/sail test --filter=SearchTest
+```
+
+## Importing Book Pages from JSON
+
+To import the book pages into the database (with Sail/Docker):
+
+```sh
+./vendor/bin/sail app:import-pages-from-json
+```
+
+## Architecture Diagram
+
+See `implementacion.md` for a Mermaid diagram illustrating the overall system architecture and team collaboration.
+
+## AI Usage
+
+You are encouraged to use AI tools to assist in the development, as long as you review and take responsibility for all code. See the end of this README for more details and requirements regarding AI usage and accountability.
+
+
+## Note on Local and Docker Environments
+
+To make the application work both in Docker/Sail and running locally (outside the container), use the environment variable `DB_HOST_OVERRIDE`:
+
+- **With Docker/Sail:** No action needed, the default connects to the database service using host `pgsql`.
+- **Locally (outside Docker):** Set the variable before running the backend API (if needed):
+
+    - On PowerShell/Windows:
+      ```powershell
+      $env:DB_HOST_OVERRIDE="127.0.0.1"
+      # Start your backend as needed (see below)
+      ```
+    - On Linux/macOS:
+      ```bash
+      export DB_HOST_OVERRIDE=127.0.0.1
+      # Start your backend as needed (see below)
+      ```
+
+This way, the same `.env` works for both environments without manual editing.
+
 # Search Inside a Book Exercise
 
 ## Goals

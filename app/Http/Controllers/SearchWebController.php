@@ -9,7 +9,7 @@ use App\Models\Page;
 class SearchWebController extends Controller
 {
     /**
-     * API: Busca páginas pelo termo e retorna JSON.
+     * API: Busca páginas por término y devuelve JSON.
      */
     public function apiSearch(Request $request)
     {
@@ -41,7 +41,7 @@ class SearchWebController extends Controller
     }
 
     /**
-     * API: Retorna o conteúdo completo de uma página em JSON.
+     * API: Devuelve el contenido completo de una página en JSON.
      */
     public function apiPage(Request $request, $numero)
     {
@@ -52,10 +52,10 @@ class SearchWebController extends Controller
                 'text_content' => $page->text_content,
             ]);
         }
-        return response()->json(['error' => 'Página não encontrada'], 404);
+        return response()->json(['error' => 'Pagina no encontrada'], 404);
     }
     /**
-     * Exibe o formulário de busca e os resultados (se houver).
+     * Muestra el formulario de búsqueda y los resultados (si existen).
      */
     public function index(Request $request)
     {
@@ -88,7 +88,7 @@ class SearchWebController extends Controller
     }
 
     /**
-     * Exibe o conteúdo completo de uma página.
+     * Muestra el contenido completo de una página.
      */
     public function show(Request $request, $numero)
     {
@@ -100,7 +100,7 @@ class SearchWebController extends Controller
     }
 
     /**
-     * Retorna um fragmento de contexto com o termo destacado.
+     * Devuelve un fragmento de contexto con el término resaltado.
      */
     private function getContextFragment($text, $term, $contextLength = 60)
     {

@@ -1,20 +1,275 @@
+
+# Documentación del Frontend React, PostgreSQL y Docker
+
+## Aplicación React (apps/web)
+
+### Instalación y Ejecución del Frontend
+
+1. Accede a la carpeta del frontend:
+  ```sh
+  cd apps/web
+  ```
+2. Instala las dependencias:
+  ```sh
+  npm install
+  ```
+3. Para desarrollo (hot reload):
+  ```sh
+  npm run dev
+  # Accede a http://localhost:5173/
+  ```
+4. Para producción:
+  ```sh
+  npm run build
+  node server.js
+  # Accede a http://localhost:3000/
+  ```
+
+### Estructura del Proyecto React
+
+- `src/`: Código fuente de los componentes React.
+- `public/`: Archivos estáticos.
+- `vite.config.js`: Configuración de Vite.
+- `package.json`: Dependencias y scripts.
+
+### Notas sobre el Frontend
+
+- Utiliza Vite para desarrollo rápido y recarga en caliente.
+- Arquitectura basada en componentes reutilizables.
+- Puede integrarse fácilmente con la API Laravel.
+
+---
+
+## Instalación de PostgreSQL
+
+### Opción 1: Usando Docker (Recomendado)
+
+1. Asegúrate de tener Docker instalado.
+2. El entorno ya incluye un servicio PostgreSQL configurado en `docker-compose.yml`.
+3. Para iniciar todo el entorno:
+  ```sh
+  ./vendor/bin/sail up -d
+  ```
+  - El contenedor PostgreSQL estará disponible en el puerto 5432.
+  - Usuario: `publicala_user`
+  - Contraseña: `publicala_password`
+  - Base de datos: `publicala_db`
+
+### Opción 2: Instalación Manual
+
+1. Instala PostgreSQL desde https://www.postgresql.org/download/
+2. Crea una base de datos y un usuario con los mismos datos del entorno Docker.
+3. Ajusta el archivo `.env` para que `DB_HOST=127.0.0.1` y los datos de usuario/contraseña sean correctos.
+
+---
+
+## Uso de Docker y Laravel Sail
+
+- Laravel Sail simplifica la gestión de contenedores Docker para PHP, PostgreSQL, Redis, etc.
+- Comandos principales:
+  - Iniciar: `./vendor/bin/sail up -d`
+  - Parar: `./vendor/bin/sail down`
+  - Acceder al contenedor: `./vendor/bin/sail bash`
+  - Ejecutar migraciones: `./vendor/bin/sail artisan migrate`
+  - Instalar dependencias JS: `./vendor/bin/sail yarn install`
+  - Ejecutar tests: `./vendor/bin/sail artisan test`
+
+  
+# 2. Piensa en Grande: Evolución de la Solución en 2-3 Meses
+
+## Visión General
+
+Con un plazo extendido de 2 a 3 meses, la solución puede ser significativamente mejorada en términos de relevancia de resultados, escalabilidad, rendimiento, seguridad y facilidad de mantenimiento. A continuación, se detallan las principales estrategias y roadmap para cada área.
+
+## Backend
+- **¿Cómo mejorar el ranking, pipelines asíncronos, observabilidad y multi-tenant?**
+  - Evolucionar el ranking con algoritmos avanzados y búsqueda semántica.
+  - Implementar pipelines asíncronos para indexación y procesamiento de datos.
+  - Mejorar la observabilidad con métricas, logs estructurados y alertas.
+  - Diseñar la arquitectura multi-tenant desde el inicio, aislando datos y configuraciones por cliente.
+- **¿Cómo colaborar con frontend y mobile?**
+  - Mantener APIs versionadas y bien documentadas.
+  - Participar en reuniones regulares para alinear prioridades y resolver bloqueos.
+  - Proveer endpoints flexibles y seguros, y responder rápido a necesidades de nuevas funcionalidades.
+  - Compartir ejemplos de payloads y errores para facilitar la integración.
+
+**Relevancia y Ranking:**
+- Implementar algoritmos de ranking más sofisticados (TF-IDF, BM25, embeddings semánticos).
+- Soporte para búsqueda por sinónimos, stemming y corrección ortográfica.
+- Añadir filtros por capítulo, autor, fecha, etc.
+
+> **Justificación:** Estas tecnologías y técnicas permiten que la búsqueda sea mucho más relevante y útil para el usuario, encontrando resultados no solo por coincidencia exacta, sino también por significado, contexto y variantes del término buscado. Algoritmos como BM25 y embeddings semánticos mejoran la calidad de los resultados, mientras que los filtros y el soporte para sinónimos aumentan la flexibilidad de la búsqueda.
+
+
+**Escalabilidad y Rendimiento:**
+- Migrar el almacenamiento de páginas a una base de datos optimizada para búsqueda textual (por ejemplo, Elasticsearch o PostgreSQL full-text search).
+- Implementar caché de resultados frecuentes (Redis/Memcached).
+- Procesamiento asíncrono de indexación y actualización de contenido mediante colas (Laravel Queues).
+
+> **Justificación:** Bases de datos como Elasticsearch y PostgreSQL full-text search están diseñadas para búsquedas rápidas y eficientes en grandes volúmenes de texto. El uso de caché (Redis/Memcached) reduce la carga y acelera las respuestas. Las colas asíncronas (Laravel Queues) permiten procesar tareas pesadas sin afectar la experiencia del usuario.
+
+
+**Seguridad y Multi-Tenant:**
+- Implementar autenticación y autorización robustas (OAuth2/JWT).
+- Soporte multi-tenant para separar datos de diferentes clientes.
+- Cifrado de datos sensibles y logs de auditoría.
+
+> **Justificación:** OAuth2/JWT son estándares modernos para proteger APIs y gestionar usuarios de forma segura. El soporte multi-tenant es esencial para aplicaciones SaaS, permitiendo aislar datos de distintos clientes. El cifrado y los logs de auditoría garantizan la privacidad y trazabilidad de la información.
+
+
+**Observabilidad:**
+- Añadir monitoreo (APM), métricas y alertas (Prometheus, Grafana, Sentry).
+- Logging estructurado y trazabilidad de peticiones.
+
+> **Justificación:** Herramientas como Prometheus, Grafana y Sentry permiten monitorear el sistema en tiempo real, detectar errores y analizar el rendimiento. El logging estructurado facilita la depuración y el seguimiento de problemas en producción.
+
+
+
+## Frontend (React/Blade)
+
+- **¿Cómo reforzar la arquitectura de componentes, UX, accesibilidad y patrones de interfaz?**
+  - Adoptar Atomic Design y Storybook para una arquitectura de componentes escalable y documentada.
+  - Implementar pruebas de usabilidad con usuarios reales y automatizadas (Cypress, Testing Library).
+  - Garantizar accesibilidad siguiendo WCAG, con navegación por teclado y soporte para lectores de pantalla.
+  - Usar un Design System compartido y, para SSR a gran escala, integrar Livewire o Next.js.
+- **¿Qué necesitaría del backend y mobile?**
+  - APIs bien documentadas y estandarizadas (OpenAPI/Swagger).
+  - Contratos claros para datos, paginación, filtros y autenticación.
+  - Soporte para notificaciones y sincronización en tiempo real.
+  - Colaboración para definir eventos y endpoints que faciliten la experiencia del usuario.
+
+**Arquitectura de Componentes:**
+- Refactorizar hacia Atomic Design, Storybook y componentes reutilizables.
+- Adoptar TypeScript para mayor robustez.
+
+> **Justificación:** Atomic Design y Storybook ayudan a crear una interfaz consistente, escalable y fácil de mantener. TypeScript aporta tipado estático, reduciendo errores y mejorando la calidad del código.
+
+
+**UX y Accesibilidad:**
+- Pruebas de usabilidad con usuarios reales.
+- Garantizar accesibilidad (WCAG), navegación por teclado y lectores de pantalla.
+- Feedback visual para carga, errores y resultados vacíos.
+
+> **Justificación:** Las pruebas de usabilidad y la accesibilidad aseguran que la aplicación sea usable por cualquier persona, incluyendo personas con discapacidad. El feedback visual mejora la experiencia y reduce la frustración del usuario.
+
+
+**Patrones de Interfaz:**
+- Design System compartido entre equipos.
+- Integración con Livewire para SSR/hidratación progresiva a gran escala.
+
+> **Justificación:** Un Design System facilita la colaboración y la coherencia visual entre equipos. Livewire permite renderizar interfaces reactivas desde el servidor, mejorando el SEO y el rendimiento en aplicaciones grandes.
+
+
+**Testing:**
+- Pruebas automatizadas de interfaz (Cypress, Testing Library).
+- Pruebas de snapshot y regresión visual.
+
+> **Justificación:** Las pruebas automatizadas y de regresión visual previenen errores en la interfaz y garantizan que nuevas funcionalidades no rompan el sistema existente.
+
+
+
+## Mobile
+
+- **¿Cómo evolucionar la experiencia, soporte offline, empaquetado y lógica compartida?**
+  - Desarrollar una PWA o apps nativas con sincronización offline y notificaciones push.
+  - Automatizar builds y publicación para Android/iOS.
+  - Compartir lógica de validación y modelos en TypeScript entre web y mobile.
+- **¿Qué esperar del backend?**
+  - APIs rápidas, seguras y con soporte para sincronización incremental.
+  - Endpoints para autenticación, notificaciones y gestión de estado offline.
+  - Documentación clara y ejemplos de uso para facilitar la integración.
+
+**Experiencia del Cliente:**
+- App nativa o PWA con soporte offline.
+- Sincronización eficiente y notificaciones push.
+
+> **Justificación:** Las PWAs y apps nativas ofrecen una experiencia fluida, acceso offline y notificaciones, lo que aumenta el engagement y la satisfacción del usuario.
+
+
+**Empaquetado y Distribución:**
+- Automatizar builds y publicación (CI/CD).
+- Soporte multiplataforma (Android/iOS).
+
+> **Justificación:** Automatizar el despliegue y soportar múltiples plataformas reduce el tiempo de entrega y permite llegar a más usuarios con menos esfuerzo manual.
+
+
+**Lógica Compartida:**
+- Compartir validaciones y modelos en TypeScript entre web y mobile.
+
+> **Justificación:** Compartir lógica y modelos en TypeScript evita duplicidad de código y asegura consistencia entre las distintas plataformas (web y mobile).
+
+
+**Expectativas del Backend:**
+- APIs performantes, seguras y bien documentadas (OpenAPI/Swagger).
+- Soporte para autenticación, notificaciones y sincronización incremental.
+
+> **Justificación:** Documentar y estandarizar las APIs facilita la integración y colaboración entre equipos. La seguridad y el rendimiento son esenciales para el crecimiento y la confianza en la plataforma.
+
+## Colaboración Entre Equipos
+
+- Contratos de API claros y versionados.
+- Reuniones regulares para alinear requisitos y prioridades.
+- Documentación centralizada y diagramas de arquitectura.
+- Pruebas end-to-end cubriendo flujos críticos.
+
+## Diagrama de Arquitectura General
+
+```mermaid
+flowchart LR
+  subgraph Usuario
+    U1["Navegador Web"]
+    U2["App Mobile"]
+  end
+  U1 -- "HTTP/REST" --> FE["Frontend React"]
+  U2 -- "HTTP/REST" --> API["API Laravel"]
+  FE -- "HTTP/REST" --> API
+  API -- "ORM/Eloquent" --> DB[("PostgreSQL")]
+  API -- "Cache" --> REDIS[("Redis/Memcached")]
+  API -- "Colas" --> QUEUE["Laravel Queues"]
+  API -- "Logs/Métricas" --> OBS["Prometheus/Grafana/Sentry"]
+  FE -- "Assets" --> CDN["Vite/Node.js"]
+  API -- "Documentación" --> DOCS["OpenAPI/Swagger"]
+  style CDN fill:#f9f,stroke:#333,stroke-width:1px
+  style OBS fill:#bbf,stroke:#333,stroke-width:1px
+```
+
+**Leyenda:**
+- El usuario puede acceder vía navegador (web) o app mobile.
+- El frontend React se comunica con la API Laravel.
+- La API accede a la base de datos PostgreSQL, cache Redis/Memcached y colas asíncronas.
+- Observabilidad y documentación están integradas para monitoreo y colaboración.
+
 ## Cómo ejecutar y probar localmente (fuera de Docker)
 
 Por defecto, el archivo `.env` está configurado para el entorno Docker/Sail, usando `DB_HOST=pgsql`.
-Para ejecutar y probar localmente (usando `php artisan serve`), defina la variable de entorno `DB_HOST` como `127.0.0.1` antes de iniciar el servidor:
+Si deseas ejecutar solo el backend (API Laravel) localmente, define la variable de entorno `DB_HOST` como `127.0.0.1` antes de iniciar el servidor backend:
 
 - En PowerShell/Windows:
   ```powershell
   $env:DB_HOST="127.0.0.1"
-  php artisan serve
+  php artisan serve  # Solo para la API backend
   ```
 - En Linux/macOS:
   ```bash
   export DB_HOST=127.0.0.1
-  php artisan serve
+  php artisan serve  # Solo para la API backend
   ```
 
-Así, la aplicación podrá conectarse al PostgreSQL local normalmente.
+Para el frontend (React), utiliza los siguientes comandos dentro de `apps/web`:
+
+- Para desarrollo:
+  ```sh
+  npm run dev
+  # Accede a http://localhost:5173/
+  ```
+- Para producción:
+  ```sh
+  npm run build
+  node server.js
+  # Accede a http://localhost:3000/
+  ```
+
+Así, la API Laravel y el frontend React pueden ejecutarse y probarse de forma independiente o integrada.
 
 ## Evidencia de pruebas
 
@@ -73,8 +328,22 @@ A continuación se documentan los pasos y decisiones tomadas durante la implemen
   3. Ejecutar `composer install`.
   4. Levantar el entorno con `./vendor/bin/sail up -d`.
   5. Generar la clave de la aplicación.
-  6. Instalar dependencias JS con `./vendor/bin/sail yarn install`.
-  7. Ejecutar `./vendor/bin/sail yarn dev` para desarrollo.
+  6. Instalar dependencias JS del frontend:
+    ```sh
+    cd apps/web
+    npm install
+    ```
+  7. Para desarrollo del frontend (hot reload):
+    ```sh
+    npm run dev
+    # Acceder a http://localhost:5173/ o http://localhost:5174/
+    ```
+  8. Para producción del frontend (build y servidor Node):
+    ```sh
+    npm run build
+    node server.js
+    # Acceder a http://localhost:3000/
+    ```
   8. Ejecutar migraciones si es necesario.
   9. Crear el symlink de storage si se usan archivos.
   10. Acceder a la aplicación en http://localhost:8888.
@@ -103,7 +372,7 @@ A continuación se documentan los pasos y decisiones tomadas durante la implemen
 - Las pruebas cubren:
 ```bash
 vendor\bin\phpunit --filter=SearchTest
-- Isso garante que a API responde corretamente aos casos esperados e aos erros.
+# Esto garantiza que la API responde correctamente a los casos esperados y a los errores.
 
 ---
 
@@ -116,17 +385,30 @@ Se implementó una interfaz web sencilla utilizando Blade (Laravel) para buscar 
 - La página principal muestra un formulario de búsqueda y lista de resultados paginados, con links para ver la página completa.
 - El controlador `SearchWebController` consume la API internamente y renderiza los resultados en la view `search.blade.php`.
 - Al clicar en "Ver página completa", se accede a la view `page.blade.php` con el texto completo de la página seleccionada.
-1. Acceda a `http://localhost:8888/` (ou la porta configurada) en el navegador.
-2. Realice una búsqueda por cualquier término.
-3. Navegue por los resultados y acceda a la página completa desde los links.
+1. Accede a `http://localhost:8888/` (o el puerto configurado) en el navegador.
+2. Realiza una búsqueda por cualquier término.
+3. Navega por los resultados y accede a la página completa desde los enlaces.
+
 **Ventajas:**
 - Facilita pruebas manuales y presentación visual del proyecto.
 - Valoriza la entrega para la evaluación en Publicala.
 
-- Implementar paginação real e filtros avançados na busca.
-- Adicionar autenticação e autorização para proteger os endpoints.
-- Criar uma interface frontend (web ou mobile) para facilitar a experiência do usuário.
-- Adicionar logs e métricas de uso para monitoramento e auditoria.
+## Uso de AdminLTE como base visual (Bootstrap)
+
+Para la interfaz web inicial, se utilizó AdminLTE como tema visual, basado en Bootstrap. Esto permitió:
+- Prototipar rápidamente pantallas administrativas y de búsqueda sin necesidad de crear componentes desde cero.
+- Garantizar la responsividad y compatibilidad entre navegadores.
+- Aprovechar componentes listos (cards, tablas, formularios, navegación) para acelerar la entrega y enfocar en la lógica de búsqueda.
+- Facilitar la personalización visual futura, ya que AdminLTE está ampliamente documentado y es flexible.
+
+AdminLTE fue integrado directamente en la carpeta `public/AdminLTE/` y referenciado en las vistas Blade, permitiendo que la interfaz web tradicional de Laravel tuviera una apariencia moderna y consistente, sin dependencias externas adicionales más allá de Bootstrap ya incluido en la plantilla.
+
+Esta elección fue estratégica para valorizar la entrega visual y facilitar la evaluación del flujo de búsqueda, especialmente para la presentación inicial del proyecto.
+
+- Implementar paginación real y filtros avanzados en la búsqueda.
+- Añadir autenticación y autorización para proteger los endpoints.
+- Crear una interfaz frontend (web o mobile) para facilitar la experiencia del usuario.
+- Añadir logs y métricas de uso para monitoreo y auditoría.
 
 
 ### 1. Endpoint de búsqueda paginada
@@ -175,5 +457,34 @@ Se implementaron pruebas Feature para la API y la interfaz Blade, ejecutadas den
 Todas las pruebas pasaron correctamente, validando la robustez de la solución.
 
 
+# Pruebas automatizadas con PHPUnit
 
+Para validar el correcto funcionamiento de la API y los endpoints implementados, se incluyen pruebas automatizadas utilizando PHPUnit.
+
+### Cómo ejecutar los tests
+
+1. Asegúrate de que las dependencias de PHP estén instaladas:
+  ```sh
+  composer install
+  ```
+2. Si usas Docker/Sail, ejecuta:
+  ```sh
+  ./vendor/bin/sail artisan test
+  ```
+  O para un test específico:
+  ```sh
+  ./vendor/bin/sail artisan test --filter=SearchTest
+  ```
+3. Si ejecutas localmente (sin Docker):
+  ```sh
+  php artisan test
+  ```
+
+Los resultados mostrarán si todos los endpoints y funcionalidades principales están funcionando correctamente.
+
+Las pruebas cubren:
+- Búsqueda de términos existentes e inexistentes
+- Visualización de páginas existentes e inexistentes
+
+Puedes revisar o modificar los tests en `tests/Feature/SearchTest.php`.
 

@@ -14,12 +14,12 @@ class Page extends Model
         'text_content',
     ];
     /**
-     * Extrai um trecho de contexto ao redor do termo buscado.
+     * Extrae un fragmento de contexto alrededor del término buscado.
      *
-     * @param string $text Texto completo da página
-     * @param string $term Termo a ser buscado
-     * @param int $contextLength Quantidade de caracteres antes e depois
-     * @return string Trecho de contexto com o termo destacado
+     * @param string $text Texto completo de la página
+     * @param string $term Término a buscar
+     * @param int $contextLength Cantidad de caracteres antes y después
+     * @return string Fragmento de contexto con el término resaltado
      */
     public static function extractSnippet($text, $term, $contextLength = 30)
     {
@@ -30,7 +30,7 @@ class Page extends Model
         $start = max(0, $pos - $contextLength);
         $length = strlen($term) + $contextLength * 2;
         $snippet = substr($text, $start, $length);
-        // Destacar o termo encontrado
+    // Resaltar el término encontrado
         return preg_replace('/(' . preg_quote($term, '/') . ')/i', '<mark>$1</mark>', $snippet);
     }
 }

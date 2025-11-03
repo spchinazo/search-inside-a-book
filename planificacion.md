@@ -1,6 +1,20 @@
 Este archivo contiene la planificación inicial del proyecto "search-inside-a-book".
 Actualización: revisión inicial para validar el flujo de trabajo del fork y confirmar que los cambios se reflejan correctamente en el repositorio.
+
+
 # Planificación del ejercicio
+
+## Uso de AdminLTE como base visual (Bootstrap)
+
+Para la interfaz web inicial, se utilizó AdminLTE como tema visual, basado en Bootstrap. Esto permitió:
+- Prototipar rápidamente pantallas administrativas y de búsqueda sin necesidad de crear componentes desde cero.
+- Garantizar la responsividad y compatibilidad entre navegadores.
+- Aprovechar componentes listos (cards, tablas, formularios, navegación) para acelerar la entrega y enfocar en la lógica de búsqueda.
+- Facilitar la personalización visual futura, ya que AdminLTE está ampliamente documentado y es flexible.
+
+AdminLTE fue integrado directamente en la carpeta `public/AdminLTE/` y referenciado en las vistas Blade, permitiendo que la interfaz web tradicional de Laravel tuviera una apariencia moderna y consistente, sin dependencias externas adicionales más allá de Bootstrap ya incluido en la plantilla.
+
+Esta elección fue estratégica para valorizar la entrega visual y facilitar la evaluación del flujo de búsqueda, especialmente para la presentación inicial del proyecto.
 
 ## 1. Lectura de requisitos
 
@@ -57,6 +71,7 @@ Evidencia de prueba manual con Postman:
 
 
 ---
+
 
 ## 9. Integración frontend moderno y troubleshooting avanzado
 
