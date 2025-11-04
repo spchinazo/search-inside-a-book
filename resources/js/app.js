@@ -1,7 +1,7 @@
 import '../css/app.css';
 import { createApp } from 'vue';
 
-import DocumentViewer from './components/DocumentViewer.vue';
+import { DocumentViewer } from './features';
 
 const app = createApp({});
 
