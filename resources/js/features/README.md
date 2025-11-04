@@ -288,66 +288,294 @@ describe('useDocumentZoom', () => {
 
 ## Mejoras Futuras
 
+Esta sección describe las oportunidades de mejora identificadas durante el desarrollo del proyecto. Algunas son correcciones de limitaciones actuales, otras son expansiones de funcionalidad que agregarían valor significativo a la aplicación.
+
+---
+
 ### 1. **Responsive Design / Optimización Mobile**
-Mejorar la experiencia en dispositivos móviles con:
-- Controles táctiles optimizados
-- Layout adaptativo para pantallas pequeñas
-- Gestos para zoom y navegación
 
-### 2. **Servicio de API Frontend**
-Crear una clase centralizada para el control de peticiones HTTP desde el frontend:
-- Interceptores para manejo de errores
-- Cache de peticiones
-- Manejo de tokens y autenticación
-- Retry logic
+**Contexto**: La aplicación actual está optimizada para escritorio. En dispositivos móviles la experiencia puede mejorarse significativamente.
 
-### 3. **Optimización de Carga de Archivos (Backend)**
-Implementar soluciones cloud para mejorar la rapidez:
-- **AWS S3** o **Cloudflare R2** para almacenamiento de archivos
-- **CloudFront** o **Cloudflare CDN** para distribución global
-- Compresión y optimización de PDFs
-- Carga bajo demanda (lazy loading) de páginas
+**Implementación sugerida**:
+- **Controles táctiles optimizados**: Botones más grandes y espaciados para navegación con dedos
+- **Layout adaptativo**: Panel de búsqueda colapsable en móviles que no compita por espacio con el PDF
+- **Gestos nativos**:
+  - Pinch-to-zoom para controlar el nivel de zoom
+  - Swipe horizontal para cambiar de página
+  - Tap doble para centrar y hacer zoom rápido
+- **Menú hamburguesa**: Ocultar controles secundarios y mostrarlos bajo demanda
+- **Vista vertical optimizada**: Adaptar el renderizado del PDF para scroll vertical continuo en móviles
 
-### 4. **Lazy Loading de Componentes**
-Implementar carga diferida para no saturar la vista:
+**Beneficio**: Aumentar el alcance de la aplicación permitiendo uso efectivo en tablets y smartphones.
+
+---
+
+### 2. **Servicio Centralizado de API Frontend**
+
+**Contexto**: Actualmente las llamadas HTTP se realizan directamente con `fetch` o axios de forma distribuida. Esto dificulta el manejo consistente de errores y la implementación de funcionalidades transversales.
+
+**Implementación sugerida**:
 ```javascript
-// Carga diferida de componentes pesados
-const DocumentViewer = defineAsyncComponent(() =>
-  import('@/features/document-viewer')
-);
+// services/ApiService.js
+class ApiService {
+  constructor() {
+    this.baseURL = import.meta.env.VITE_API_URL;
+    this.defaultHeaders = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+  }
+
+  /**
+   * @summary Realiza petición HTTP con manejo centralizado
+   * @description Intercepta errores, aplica retry logic y cachea respuestas
+   * @param {string} endpoint - Ruta del endpoint
+   * @param {Object} options - Opciones de fetch
+   * @returns {Promise<Object>} Respuesta parseada
+   */
+  async request(endpoint, options = {}) {
+    // Interceptores, retry, cache, manejo de tokens
+  }
+}
 ```
 
-### 5. **Modos de Visualización**
-Agregar opciones de experiencia de usuario:
-- **Dark Mode**: Modo oscuro para lectura nocturna
-- **Vista de Listado**: Ver títulos de documentos en lista
-- **Vista de Galería**: Ver miniaturas de documentos
-- Preferencias guardadas en localStorage
+**Características clave**:
+- **Interceptores de request/response**: Agregar tokens de autenticación automáticamente
+- **Manejo centralizado de errores**: Mostrar notificaciones consistentes al usuario
+- **Cache inteligente**: Evitar peticiones duplicadas en corto tiempo
+- **Retry automático**: Reintentar peticiones fallidas con backoff exponencial
+- **Request cancellation**: Cancelar peticiones obsoletas (por ejemplo, al cambiar de búsqueda rápidamente)
+- **Loading states**: Gestionar estados de carga de forma centralizada
+
+**Beneficio**: Código más limpio, mantenible y comportamiento consistente en toda la aplicación.
+
+---
+
+### 3. **Optimización de Carga de Archivos (Backend + CDN)**
+
+**Contexto**: Los PDFs se sirven actualmente desde el servidor Laravel. Para archivos grandes o muchos usuarios concurrentes, esto puede crear cuellos de botella.
+
+**Implementación sugerida**:
+
+**Backend (Laravel)**:
+- Migrar almacenamiento de PDFs a **AWS S3** o **Cloudflare R2**
+- Implementar **signed URLs** con expiración para seguridad
+- Compresión de PDFs al momento de subida
+- Generación de thumbnails y previews automáticos
+
+**Frontend (CDN)**:
+- Servir archivos a través de **CloudFront** o **Cloudflare CDN**
+- Aprovechar edge locations para latencia mínima global
+- Cache agresivo con invalidación selectiva
+- Streaming de PDFs (cargar solo las páginas visibles)
+
+**Código ejemplo**:
+```javascript
+// Carga progresiva de páginas
+const loadPage = async (pageNumber) => {
+  const url = `${CDN_URL}/documents/${documentId}/page-${pageNumber}.json`;
+  return await cachedFetch(url);
+};
+```
+
+**Beneficio**: Reducción dramática en tiempos de carga, menor costo de servidor, mejor escalabilidad.
+
+---
+
+### 4. **Lazy Loading de Componentes y Code Splitting**
+
+**Contexto**: Actualmente todos los componentes se cargan al inicio, incluso si el usuario no los usa. Esto aumenta el tiempo de carga inicial innecesariamente.
+
+**Implementación sugerida**:
+```javascript
+// App.vue - Carga diferida del DocumentViewer
+const DocumentViewer = defineAsyncComponent({
+  loader: () => import('@/features/document-viewer'),
+  loadingComponent: LoadingSpinner,
+  delay: 200,
+  errorComponent: ErrorComponent,
+  timeout: 3000
+});
+
+// Lazy loading de features completas
+const features = {
+  search: () => import('@/features/search'),
+  viewer: () => import('@/features/document-viewer'),
+  annotations: () => import('@/features/annotations'), // futura
+};
+```
+
+**Estrategia de code splitting**:
+- Separar vendor bundles (Vue, librerías) del código de aplicación
+- Prefetch de componentes probables (cuando usuario mueve mouse hacia botón de búsqueda)
+- Preload de recursos críticos
+- Lazy loading de iconos y assets pesados
+
+**Beneficio**: Tiempo de carga inicial reducido en ~40-60%, mejor puntuación en Lighthouse, mejor percepción de velocidad.
+
+---
+
+### 5. **Modos de Visualización y Preferencias de Usuario**
+
+**Contexto**: Diferentes usuarios tienen diferentes preferencias de lectura. Ofrecer opciones mejora la experiencia.
+
+**Implementación sugerida**:
+
+**Dark Mode**:
+```javascript
+// composables/useTheme.js
+export const useTheme = () => {
+  const isDark = useLocalStorage('theme-dark', false);
+
+  const toggleTheme = () => {
+    isDark.value = !isDark.value;
+    document.documentElement.classList.toggle('dark');
+  };
+
+  return { isDark, toggleTheme };
+};
+```
+
+**Vistas de Documentos**:
+- **Vista de Lectura**: Actual, enfocada en un solo documento
+- **Vista de Lista**: Tabla con títulos, autores, fechas, tamaño
+- **Vista de Galería**: Grid con portadas y metadata
+- **Vista Comparativa**: Ver dos PDFs lado a lado
+
+**Preferencias guardadas**:
+- Nivel de zoom preferido
+- Página donde quedó la última lectura
+- Tema (claro/oscuro)
+- Vista preferida (lista/galería/lectura)
+- Historial de documentos visitados
+
+**Beneficio**: Personalización que mejora retención de usuarios y satisfacción.
+
+---
 
 ### 6. **Mejora en el Sistema de Búsqueda (Backend)**
-Implementar una librería más robusta para el procesamiento de búsquedas:
-- Librería capaz de leer el contenido del PDF directamente
-- Extracción precisa de posiciones de texto sin depender de JSON
-- Generación dinámica de índices
-- Búsqueda con tolerancia a errores tipográficos
-- Búsqueda por frases exactas y proximidad
+
+**Contexto actual**: La búsqueda depende de un archivo JSON pre-generado que mapea texto a posiciones. Esto tiene limitaciones:
+- Requiere mantenimiento manual del JSON
+- No soporta búsquedas dinámicas complejas
+- Limitado a lo que está indexado en el JSON
+
+**Implementación sugerida**:
+
+Integrar una librería PHP especializada que permita:
+- Extraer contenido del PDF de forma dinámica
+- Obtener posiciones de texto sin depender de archivos estáticos
+- Realizar búsquedas directamente sobre el contenido del documento
+- Generar índices automáticamente según sea necesario
+
+**Beneficio**: Mayor flexibilidad y mantenimiento simplificado al eliminar la dependencia de archivos JSON estáticos.
+
+---
 
 ### 7. **Pruebas Unitarias y de Integración**
-Debido a limitaciones de tiempo, no se pudieron agregar pruebas unitarias completas. A futuro son **esenciales**:
-- Tests unitarios para composables
-- Tests de integración para features completos
-- Tests E2E con Cypress o Playwright
-- Coverage mínimo del 80%
 
-### 8. **Sistema de Anotaciones**
-- Permitir a usuarios agregar notas en los documentos
-- Guardar highlights personalizados
-- Exportar anotaciones
+**Contexto**: Debido a limitaciones de tiempo en el ejercicio, las pruebas son mínimas. En producción, esto es **inaceptable** y debe ser prioridad #1.
 
-### 9. **Búsqueda Avanzada**
-- Filtros por fecha, autor, categoría
-- Búsqueda con operadores booleanos (AND, OR, NOT)
-- Búsqueda por similitud semántica
+**Implementación sugerida**:
+
+**Tests Unitarios (Vitest + Vue Test Utils)**:
+```javascript
+// tests/unit/composables/useDocumentZoom.test.js
+import { describe, it, expect } from 'vitest';
+import { useDocumentZoom } from '@/features/document-viewer';
+
+describe('useDocumentZoom', () => {
+  it('debería inicializar con zoom 100%', () => {
+    const { scale, zoomText } = useDocumentZoom();
+    expect(scale.value).toBe(1);
+    expect(zoomText.value).toBe('100%');
+  });
+
+  it('debería incrementar zoom correctamente', () => {
+    const { scale, zoomIn } = useDocumentZoom();
+    zoomIn();
+    expect(scale.value).toBe(1.25);
+  });
+
+  it('no debería superar el zoom máximo', () => {
+    const { scale, zoomIn } = useDocumentZoom();
+    for(let i = 0; i < 10; i++) zoomIn(); // Intentar zoom excesivo
+    expect(scale.value).toBeLessThanOrEqual(3);
+  });
+});
+```
+
+**Estrategia de testing**:
+- **Coverage objetivo**: Mínimo 80% en código crítico (composables, utils)
+- **CI/CD Integration**: Tests automáticos en cada PR
+- **Visual Regression**: Capturar screenshots y detectar cambios visuales
+- **Performance testing**: Medir tiempo de renderizado de PDFs grandes
+
+**Beneficio**: Confianza en refactorings, prevención de regresiones, documentación viva del comportamiento esperado.
+
+---
+
+### 8. **Búsqueda Avanzada y Filtros**
+
+**Contexto**: La búsqueda actual es simple: texto completo sin filtros. Usuarios avanzados necesitan más control.
+
+**Implementación sugerida**:
+
+**Interfaz de búsqueda avanzada**:
+```vue
+<template>
+  <div class="advanced-search">
+    <input v-model="query" placeholder="Buscar...">
+
+    <select v-model="searchMode">
+      <option value="contains">Contiene</option>
+      <option value="exact">Frase exacta</option>
+      <option value="fuzzy">Búsqueda aproximada</option>
+      <option value="regex">Expresión regular</option>
+    </select>
+
+    <div class="filters">
+      <DateRangePicker v-model="dateRange" label="Fecha documento" />
+      <MultiSelect v-model="authors" :options="availableAuthors" />
+      <MultiSelect v-model="categories" :options="availableCategories" />
+      <Checkbox v-model="caseSensitive" label="Sensible a mayúsculas" />
+    </div>
+  </div>
+</template>
+```
+
+**Filtros avanzados**:
+- Por metadata del PDF (autor, fecha creación, tamaño)
+- Por número de resultados (documentos con >10 coincidencias)
+- Por sección del documento (solo buscar en capítulo específico)
+- Por tipo de contenido (solo en títulos, solo en párrafos)
+
+**Beneficio**: Herramienta profesional para investigadores, académicos y usuarios avanzados.
+
+---
+
+### 9. **Internacionalización (i18n)**
+
+**Preparar la aplicación para múltiples idiomas**:
+```javascript
+// i18n/es.json
+{
+  "search.placeholder": "Buscar en el documento...",
+  "search.results": "{count} resultado(s) encontrado(s)",
+  "nav.next": "Siguiente",
+  "nav.previous": "Anterior"
+}
+
+// i18n/en.json
+{
+  "search.placeholder": "Search in document...",
+  "search.results": "{count} result(s) found",
+  "nav.next": "Next",
+  "nav.previous": "Previous"
+}
+```
+
+**Beneficio**: Alcance global de la aplicación.
 
 ## Migración de Estructura Antigua
 
