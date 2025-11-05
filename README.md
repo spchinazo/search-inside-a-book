@@ -37,18 +37,9 @@ Develop a feature that would allow a user to search inside a book, displaying a 
 This feature may be developed in 1h, 1 day, 1 week or take months worth of work. Take this as an opportunity to cut scope, get creative and focus on your strengths. You may even fake parts of the feature and focus on what matters to you.  
 We're not looking for a "perfect solution", we want to understand your skills and see where your expertise guides you.
 
-### 2. Think Big
-Imagine you have 2 to 3 entire months to develop the solution, would you take a different approach? Think about how to increase the relevance of the results, scalability, performance, content security or maintainability. Describe it in as many details as you see fit.
 
-If you followed a specific focus in the **Hands on** stage, outline how that stream would evolve:
-- Frontend folks: How would you harden component architecture, UX testing, accessibility, or Livewire/server-driven UI patterns at scale? What would you need from backend or mobile peers to make it happen?
-- Backend folks: What would the roadmap look like for better ranking, async pipelines, observability, or multi-tenant considerations? How would you partner with frontend/mobile teams to evolve the contracts?
-- Mobile folks: How would you evolve the client experience, offline support, packaging and distribution, or shared TypeScript domain logic? What expectations would you set for backend capabilities as the app grows?
-
-The solution has to be presented in written form, a markdown file in the repo is more than enough. You may include a diagram or anything you see useful.
-
-### 3. Presentation
-After you submit your Merge Request, we'll review it. We may then schedule a call where you present your solution for point **1** and your plan for point **2**.  
+### 2. Presentation
+After you submit your Merge Request, we'll review it. We may then schedule a call where you present your solution.
 If we meet, we'll be very interested in every little detail, complication or blocker you had, compromises you made, how you would improve what you've done, if you found something interesting, if you are particularly happy with something in the solution, etc.
 
 ## Deliverables
@@ -59,7 +50,7 @@ When you open your Merge Request, include:
 - Clear run instructions for anything outside the default Laravel app (e.g. Expo commands, npm scripts, Postman collections).
 - Tests, scripts or manual steps we should run to validate your work (even if they're as simple as “`./vendor/bin/sail artisan test`” or “`yarn build`”).
 - Any assumptions, trade-offs or mocked pieces we should keep in mind while reviewing.
-- A quick outline of what you'd cover during the presentation (point **3**).
+- A quick outline of what you'd cover during the presentation (point **2**).
 
 ## Local Setup
 
@@ -92,7 +83,7 @@ You can access the included PostgreSQL database from outside the container using
 
 ## Additional Guidance
 - Focus on the **search feature** itself, there's no need to design and implement a fancy UI as long as it's clear and easy to use. Feel free to use a template or any UI library.
-- There are many correct ways of solving this exercise. Don't stress too much about implementing the perfect one, that's where the **Think big** part comes in.
+- There are many correct ways of solving this exercise. Don't stress too much about implementing the perfect one.
 - You'll be given access to a Slack channel, where you may ask any question or share ideas in order to complete the exercise. We'll be waiting for you, come say hello!
 
 ## AI Usage & Accountability
