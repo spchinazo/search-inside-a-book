@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\DocumentController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -14,3 +16,8 @@
 Route::get('/', function () {
     return view('welcome');
 });
+
+// Document routes
+Route::get('/api/documents/pdf', [DocumentController::class, 'getPdf'])->name('documents.pdf');
+Route::get('/api/documents/info', [DocumentController::class, 'getDocumentInfo'])->name('documents.info');
+Route::get('/api/documents/search', [DocumentController::class, 'search'])->name('documents.search');
