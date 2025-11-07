@@ -2,6 +2,8 @@
 
 use Illuminate\Http\Request;
 
+use App\Http\Controllers\SearchController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -12,3 +14,8 @@ use Illuminate\Http\Request;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+// Ruta de búsqueda de términos en el libro
+Route::get('/search', [SearchController::class, 'search']);
+// Ruta para obtener el contenido completo de una página
+Route::get('/page/{numero}', [SearchController::class, 'pagina']);
