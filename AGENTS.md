@@ -10,11 +10,11 @@ For exercise requirements and instructions, refer to the **README.md** file.
 
 ## Technology Stack
 
-- **Laravel 12** with PHP 8.3+
-- **PostgreSQL 15** via Docker
-- **Vite** for asset bundling (replaced webpack)
-- **Laravel Sail** for Docker environment
-- **Bootstrap** via Laravel UI
+-   **Laravel 12** with PHP 8.3+
+-   **PostgreSQL 15** via Docker
+-   **Vite** for asset bundling (replaced webpack)
+-   **Laravel Sail** for Docker environment
+-   **Bootstrap** via Laravel UI
 
 ## Essential Commands
 
@@ -28,6 +28,7 @@ composer install
 ./vendor/bin/sail artisan storage:link
 
 # Development
+./vendor/bin/sail artisan books:import
 ./vendor/bin/sail yarn dev          # Start Vite dev server with HMR
 ./vendor/bin/sail yarn build         # Build production assets
 ./vendor/bin/sail artisan serve      # Alternative local server
@@ -54,12 +55,10 @@ composer install
 
 Book data files are located in `storage/exercise-files/`
 
-
 ## Common Pitfalls to Avoid
 
-- Don't forget to run `storage:link` for serving files
-- Vite requires `yarn dev` running during development
-- PostgreSQL runs on port 5432 inside Docker network
-- Use `./vendor/bin/sail` prefix for all container commands
-- Assets must be built with `yarn build` for production
-
+-   Don't forget to run `storage:link` for serving files
+-   Vite requires `yarn dev` running during development
+-   PostgreSQL runs on port 5432 inside Docker network
+-   Use `./vendor/bin/sail` prefix for all container commands
+-   Assets must be built with `yarn build` for production

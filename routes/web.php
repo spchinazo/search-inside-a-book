@@ -11,6 +11,11 @@
 |
 */
 
+use App\Livewire\BookPage;
+
 Route::get('/', function () {
-    return view('welcome');
+    return redirect('/reader/eloquent-javascript?location=2');
 });
+
+
+Route::get('/reader/{book}', BookPage::class)->name('books.page');
