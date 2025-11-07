@@ -1,13 +1,24 @@
+
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import './AdminLayout.css';
 
 
 export default function AdminLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const location = useLocation();
 
   // Fecha sidebar ao clicar em overlay ou link
   const closeSidebar = () => setSidebarOpen(false);
+
+  // Determina se a rota está ativa
+  const isActive = (path) => {
+    if (!location || !location.pathname) return false;
+    if (path === '/') {
+      return location.pathname === '/';
+    }
+    return location.pathname === path || location.pathname.startsWith(path + '/');
+  };
 
   return (
     <div className="wrapper">
@@ -28,16 +39,16 @@ export default function AdminLayout({ children }) {
         <Link to="/dashboard" className="brand-link d-flex align-items-center" onClick={closeSidebar}>
           <img src="/logo_publicala.png" alt="Logo" className="brand-image elevation-3" style={{ width: 140, height: 36, background: '#fff', borderRadius: 8, objectFit: 'contain' }} />
         </Link>
-        <div className="sidebar mt-3">
+        <div className="sidebar mt-3" >
           <ul className="nav nav-pills nav-sidebar flex-column" role="menu">
             <li className="nav-item">
-              <Link to="/dashboard" className="nav-link" onClick={closeSidebar}>
+              <Link to="/dashboard" className={`nav-link${isActive('/dashboard') ? ' active' : ''}`} onClick={closeSidebar}>
                 <i className="nav-icon fas fa-tachometer-alt"></i>
                 <p className="ml-2 mb-0">Dashboard</p>
               </Link>
             </li>
             <li className="nav-item">
-              <Link to="/" className="nav-link" onClick={closeSidebar}>
+              <Link to="/" className={`nav-link${isActive('/') ? ' active' : ''}`} onClick={closeSidebar}>
                 <i className="nav-icon fas fa-search"></i>
                 <p className="ml-2 mb-0">Buscar en el libro</p>
               </Link>

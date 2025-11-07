@@ -12,7 +12,9 @@ function ResultsList({ results, onSelectPage }) {
               <strong>Página:</strong> {item.pagina || item.page}
             </div>
             <div dangerouslySetInnerHTML={{ __html: item.contexto || item.snippet }} />
-            <button onClick={() => onSelectPage(item.pagina || item.page)} style={{ marginTop: 4 }}>
+            <button onClick={() => {
+              onSelectPage(item.pagina || item.page);
+            }} style={{ marginTop: 4 }}>
               Ver página completa
             </button>
           </li>

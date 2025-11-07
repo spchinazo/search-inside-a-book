@@ -37,7 +37,7 @@ export default function AdminLayout({ children }) {
               </Link>
             </li>
             <li className="nav-item">
-              <Link to="/" className="nav-link" onClick={closeSidebar}>
+              <Link to="/" className="nav-link active" onClick={closeSidebar}>
                 <i className="nav-icon fas fa-search"></i>
                 <p className="ml-2 mb-0">Buscar en el libro</p>
               </Link>

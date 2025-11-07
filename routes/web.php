@@ -19,4 +19,4 @@ Route::get('/dashboard', function () {
 })->name('dashboard');
 
 Route::get('/', [SearchWebController::class, 'index'])->name('search.index');
-Route::get('/page/{numero}', [SearchWebController::class, 'show'])->name('search.show');
+Route::get('/web/page/{numero}', [SearchWebController::class, 'show'])->name('search.show');

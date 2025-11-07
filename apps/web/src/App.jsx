@@ -10,11 +10,13 @@ function App() {
   const [selectedPage, setSelectedPage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [currentView, setCurrentView] = useState('search'); // 'search' or 'page'
 
   const handleSearch = async (query) => {
     setLoading(true);
     setError('');
     setSelectedPage(null);
+    setCurrentView('search');
     try {
       const res = await fetch(`/api/search?query=${encodeURIComponent(query)}`);
       const data = await res.json();
@@ -30,12 +32,31 @@ function App() {
     setError('');
     try {
       const res = await fetch(`/api/page/${pageNumber}`);
+      if (!res.ok) {
+        if (res.status === 404) {
+          setError('Página no encontrada.');
+        } else {
+          setError('Error al cargar la página.');
+        }
+        setCurrentView('page');
+        setLoading(false);
+        return;
+      }
       const data = await res.json();
       setSelectedPage(data);
+      setCurrentView('page');
+      setLoading(false);
     } catch (e) {
       setError('Error al cargar la página.');
+      setCurrentView('page');
+      setLoading(false);
     }
-    setLoading(false);
+  };
+
+  const handleBackToResults = () => {
+    setCurrentView('search');
+    setSelectedPage(null);
+    setError('');
   };
 
   return (
@@ -47,9 +68,23 @@ function App() {
               <h2 className="mb-4">Buscar dentro del libro</h2>
               <SearchForm onSearch={handleSearch} />
               {loading && <p>Cargando...</p>}
-              {error && <p className="text-danger">{error}</p>}
-              {!selectedPage && <ResultsList results={results} onSelectPage={handleSelectPage} />}
-              {selectedPage && <PageView page={selectedPage} onBack={() => setSelectedPage(null)} />}
+              {currentView === 'search' && <ResultsList results={results} onSelectPage={handleSelectPage} />}
+              {currentView === 'page' && (
+                <div style={{ 
+                  position: 'fixed', 
+                  top: 0, 
+                  left: 0, 
+                  width: '100vw',
+                  height: '100vh',
+                  backgroundColor: 'white', 
+                  zIndex: 999999, 
+                  padding: '20px', 
+                  overflow: 'auto',
+                  boxSizing: 'border-box'
+                }}>
+                  <PageView page={selectedPage} onBack={handleBackToResults} error={error} />
+                </div>
+              )}
             </div>
           </div>
         </div>
