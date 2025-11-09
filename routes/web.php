@@ -1,5 +1,8 @@
 <?php
 
+use Illuminate\Support\Facades\View;
+use App\Http\Controllers\SearchWebController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -10,7 +13,10 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
+// Dashboard principal
+Route::get('/dashboard', function () {
+	return View::make('dashboard');
+})->name('dashboard');
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [SearchWebController::class, 'index'])->name('search.index');
+Route::get('/web/page/{numero}', [SearchWebController::class, 'show'])->name('search.show');

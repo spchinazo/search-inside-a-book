@@ -1,14 +1,9 @@
 <?php
 
 use Illuminate\Http\Request;
+use App\Http\Controllers\SearchWebController;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
-|
-*/
+// API: Busca páginas por término
+Route::get('/search', [SearchWebController::class, 'apiSearch']);
+// API: Devuelve el contenido completo de una página
+Route::get('/page/{numero}', [SearchWebController::class, 'apiPage']);
