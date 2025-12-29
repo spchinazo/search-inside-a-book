@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\BookController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -14,3 +16,6 @@
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/page/{page}', [BookController::class, 'showPage'])->name('book.page');
+Route::get('/page/{page}/image', [BookController::class, 'showPageImage'])->name('book.page.image');
