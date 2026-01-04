@@ -1,0 +1,41 @@
+<?php
+
+return [
+    'books' => 'Books',
+    'book' => 'Book',
+    'catalog' => 'Catalog',
+    'search' => 'Search',
+    'search inside a book' => 'Search inside a book',
+    'details'  => [
+        'title' => 'Book details',
+        'description' => 'Start adding your first book to the catalog.',
+        'empty' => 'No books',
+        'search_books'  => 'Search books...',
+        'books_found' => 'Books found',
+        'search_term_required' => 'Search term required',
+        'search_results' => 'Search results'
+    ],
+    'flipbook' => [
+        'print' => 'Print',
+        'printLeftPage' => 'Print left page',
+        'printRightPage' => 'Print right page',
+        'printCurrentPage' => 'Print current page',
+        'printAllPages' => 'Print all pages',
+        'download' => 'Download',
+        'downloadLeftPage' => 'Download left page',
+        'downloadRightPage' => 'Download right page',
+        'downloadCurrentPage' => 'Download current page',
+        'downloadAllPages' => 'Download all pages',
+        'bookmarks' => 'Bookmarks',
+        'bookmarkLeftPage' => 'Bookmark left page',
+        'bookmarkRightPage' => 'Bookmark right page',
+        'bookmarkCurrentPage' => 'Bookmark current page',
+        'search' => 'Search',
+        'findInDocument' => 'Find in document',
+        'pagesFoundContaining' => 'pages found containing',
+        'thumbnails' => 'Thumbnails',
+        'tableOfContent' => 'Table of content',
+        'share' => 'Share',
+        'pressEscToClose' => 'Press ESC to close',
+    ],
+];

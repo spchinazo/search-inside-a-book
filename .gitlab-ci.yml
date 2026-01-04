@@ -16,6 +16,9 @@ install:php:
     paths:
       - vendor/
       - ~/.composer/cache/
+  before_script:
+    - apk add --no-cache icu-dev
+    - docker-php-ext-install intl
   script:
     - composer install --prefer-dist --no-progress --no-interaction
   artifacts:
