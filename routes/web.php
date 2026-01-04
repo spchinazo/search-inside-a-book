@@ -10,7 +10,13 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
+use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', function () { return redirect('app'); });
+
+Route::get('/', function () { return redirect('app'); })->name('login');
+
+Route::get('/books/{book}/search', [\App\Http\Controllers\BooksController::class, 'search'])
+    ->middleware(['auth'])
+    ->name('books.search');
+

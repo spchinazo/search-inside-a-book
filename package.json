@@ -6,8 +6,12 @@
         "preview": "vite preview"
     },
     "devDependencies": {
+        "@tailwindcss/forms": "^0.5.11",
+        "@tailwindcss/typography": "^0.5.19",
+        "@tailwindcss/vite": "^4.1.18",
         "laravel-vite-plugin": "^2.0.1",
         "sass": "^1.93.2",
+        "tailwindcss": "^4.1.18",
         "vite": "^7.1.11"
     }
 }

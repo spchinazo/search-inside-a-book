@@ -45,6 +45,14 @@ return [
             'throw' => false,
             'report' => false,
         ],
+        'exercise-files' => [
+            'driver' => 'local',
+            'root' => storage_path('app/exercise-files'),
+            'url' => env('APP_URL').'/storage/exercise-files',
+            'visibility' => 'public',
+            'throw' => false,
+            'report' => false,
+        ],
 
         's3' => [
             'driver' => 's3',
@@ -74,6 +82,7 @@ return [
 
     'links' => [
         public_path('storage') => storage_path('app/public'),
+        public_path('storage/exercise-files') => storage_path('exercise-files'),
     ],
 
 ];

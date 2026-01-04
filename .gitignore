@@ -54,3 +54,4 @@ Homestead.json
 
 # Candidate reviews (private)
 reviews/*.md
+.pnpm-store
