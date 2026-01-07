@@ -87,4 +87,28 @@ class BookController extends Controller
         
         return $matches;
     }
+
+    /**
+     * Obtener una página específica de un libro.
+     */
+    public function getPage(Book $book, int $pageNumber)
+    {
+        $page = $book->pages()->where('page_number', $pageNumber)->first();
+
+        if (!$page) {
+            return response()->json([
+                'error' => 'Page not found',
+                'message' => "La página {$pageNumber} no existe para este libro."
+            ], 404);
+        }
+
+        return response()->json([
+            'data' => [
+                'id' => $page->id,
+                'book_id' => $page->book_id,
+                'page_number' => $page->page_number,
+                'content' => $page->content,
+            ]
+        ]);
+    }
 }

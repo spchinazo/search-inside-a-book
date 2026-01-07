@@ -22,4 +22,12 @@ Route::prefix('books')->group(function () {
                 'message' => 'El libro solicitado no existe.'
             ], 404);
         });
+
+    Route::get('{book}/pages/{pageNumber}', [BookController::class, 'getPage'])
+        ->missing(function () {
+            return response()->json([
+                'error' => 'Book not found',
+                'message' => 'El libro solicitado no existe.'
+            ], 404);
+        });
 });
