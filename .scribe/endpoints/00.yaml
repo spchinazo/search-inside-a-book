@@ -1,0 +1,245 @@
+name: Books
+description: ''
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/books/{book_id}/search'
+    metadata:
+      custom: []
+      groupName: Books
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Buscar en las páginas de un libro.'
+      description: |-
+        Permite realizar búsquedas de texto completo dentro del contenido de las páginas de un libro específico.
+        Los resultados incluyen fragmentos (snippets) donde se encontró el término buscado con resaltado.
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      book_id:
+        custom: []
+        name: book_id
+        description: 'The ID of the book.'
+        required: true
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      book:
+        custom: []
+        name: book
+        description: 'ID del libro.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      book_id: 16
+      book: 1
+    queryParameters:
+      q:
+        custom: []
+        name: q
+        description: 'El término de búsqueda.'
+        required: true
+        example: DOM
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      page:
+        custom: []
+        name: page
+        description: 'Página de resultados.'
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      per_page:
+        custom: []
+        name: per_page
+        description: 'Cantidad de resultados por página (max 100).'
+        required: false
+        example: 10
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanQueryParameters:
+      q: DOM
+      page: 1
+      per_page: 10
+    bodyParameters:
+      q:
+        custom: []
+        name: q
+        description: 'Must be at least 1 character.'
+        required: true
+        example: bngzmiyvdljnikhw
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      page:
+        custom: []
+        name: page
+        description: 'Must be at least 1.'
+        required: false
+        example: 7
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      per_page:
+        custom: []
+        name: per_page
+        description: 'Must be at least 1. Must not be greater than 100.'
+        required: false
+        example: 24
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      q: bngzmiyvdljnikhw
+      page: 7
+      per_page: 24
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+           "data": [
+             {
+               "book_id": 1,
+               "page_number": 27,
+               "content": null,
+               "snippet": "...it. The same goes for the exercises. Don’t assume you understand them until you’ve actually written a working solution. I recommend you try your solutions to exercises in an actual <mark>JavaScript</mark> interpreter. That way, you’ll get immediate feedback on whether what you are doing is working, and...",
+               "matches": [
+                  {"start": 0, "length": 10},
+                  {"start": 61, "length": 10}
+               ]
+             }
+           ],
+           "current_page": 1,
+           "total": 1,
+           "per_page": 10
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/books/{book_id}/pages/{pageNumber}'
+    metadata:
+      custom: []
+      groupName: Books
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Obtener una página específica.'
+      description: 'Retorna el contenido completo y metadatos de una página específica de un libro.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      book_id:
+        custom: []
+        name: book_id
+        description: 'The ID of the book.'
+        required: true
+        example: 16
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      pageNumber:
+        custom: []
+        name: pageNumber
+        description: 'El número de la página a obtener.'
+        required: true
+        example: 42
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      book:
+        custom: []
+        name: book
+        description: 'ID del libro.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      book_id: 16
+      pageNumber: 42
+      book: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+           "book_id": 1,
+           "page_number": 42,
+           "content": "El contenido completo de la página...",
+           "snippet": null,
+           "matches": []
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+           "error": "Page not found",
+           "message": "La página 42 no existe para este libro."
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null

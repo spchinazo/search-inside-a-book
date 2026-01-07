@@ -20,7 +20,34 @@ class BookController extends Controller
     }
 
     /**
-     * Buscar en las páginas de un libro usando Laravel Scout.
+     * Buscar en las páginas de un libro.
+     * 
+     * Permite realizar búsquedas de texto completo dentro del contenido de las páginas de un libro específico.
+     * Los resultados incluyen fragmentos (snippets) donde se encontró el término buscado con resaltado.
+     * 
+     * @group Books
+     * @urlParam book int required ID del libro. Example: 1
+     * @queryParam q string required El término de búsqueda. Example: DOM
+     * @queryParam page int Página de resultados. Example: 1
+     * @queryParam per_page int Cantidad de resultados por página (max 100). Example: 10
+     * 
+     * @response {
+     *  "data": [
+     *    {
+     *      "book_id": 1,
+     *      "page_number": 27,
+     *      "content": null,
+     *      "snippet": "...it. The same goes for the exercises. Don’t assume you understand them until you’ve actually written a working solution. I recommend you try your solutions to exercises in an actual <mark>JavaScript</mark> interpreter. That way, you’ll get immediate feedback on whether what you are doing is working, and...",
+     *      "matches": [
+     *         {"start": 0, "length": 10},
+     *         {"start": 61, "length": 10}
+     *      ]
+     *    }
+     *  ],
+     *  "current_page": 1,
+     *  "total": 1,
+     *  "per_page": 10
+     * }
      */
     public function search(SearchBookRequest $request, Book $book): JsonResponse
     {
@@ -48,7 +75,25 @@ class BookController extends Controller
     }
 
     /**
-     * Obtener una página específica de un libro.
+     * Obtener una página específica.
+     * 
+     * Retorna el contenido completo y metadatos de una página específica de un libro.
+     * 
+     * @group Books
+     * @urlParam book int required ID del libro. Example: 1
+     * @urlParam pageNumber int required El número de la página a obtener. Example: 42
+     * 
+     * @response {
+     *  "book_id": 1,
+     *  "page_number": 42,
+     *  "content": "El contenido completo de la página...",
+     *  "snippet": null,
+     *  "matches": []
+     * }
+     * @response 404 {
+     *  "error": "Page not found",
+     *  "message": "La página 42 no existe para este libro."
+     * }
      */
     public function getPage(Book $book, int $pageNumber): JsonResponse
     {
