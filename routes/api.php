@@ -15,5 +15,11 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::prefix('books')->group(function () {
-    Route::get('{book}/search', [BookController::class, 'search']);
+    Route::get('{book}/search', [BookController::class, 'search'])
+        ->missing(function () {
+            return response()->json([
+                'error' => 'Book not found',
+                'message' => 'El libro solicitado no existe.'
+            ], 404);
+        });
 });
