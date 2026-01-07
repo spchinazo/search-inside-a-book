@@ -17,6 +17,7 @@ class BookPageResource extends JsonResource
         return [
             'book_id' => $this->book_id ?? $this['book_id'],
             'page_number' => $this->page_number ?? $this['page_number'],
+            'content' => $this->content ?? null,
             'snippet' => $this['snippet'] ?? null,
             'matches' => $this['matches'] ?? [],
         ];
