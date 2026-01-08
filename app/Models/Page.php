@@ -19,7 +19,7 @@ class Page extends Model
     ];
 
     #[Scope]
-    public function search(Builder $query, string $searchTerm): void
+    protected function search(Builder $query, string $searchTerm): void
     {
         $query->whereRaw(
             "text_search_vector @@ plainto_tsquery('english',?)",
@@ -28,7 +28,7 @@ class Page extends Model
     }
 
     #[Scope]
-    public function withSearchRank(Builder $query, string $searchTerm): void
+    protected function withSearchRank(Builder $query, string $searchTerm): void
     {
         $query->selectRaw(
             "*, ts_rank(text_search_vector, plainto_tsquery('english',?)) as search_rank",
