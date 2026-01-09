@@ -27,7 +27,7 @@ class BookSearchController extends Controller
         return response()->json([
             'page_number' => $page->page_number,
             'text_content' => $page->text_content,
-            'pdf_urf' => asset('storage/exercise-files/Eloquent_Javascript.pdf'),
+            'pdf_urf' => asset('books/Eloquent_Javascript.pdf'),
         ]);
 
     }

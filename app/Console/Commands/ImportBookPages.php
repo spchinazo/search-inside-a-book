@@ -16,7 +16,7 @@ class ImportBookPages extends Command
      *
      * @var string
      */
-    protected $signature = 'book:import {file}';
+    protected $signature = 'book:import {file=storage/exercise-files/Eloquent_JavaScript.json}';
 
     /**
      * The console command description.
