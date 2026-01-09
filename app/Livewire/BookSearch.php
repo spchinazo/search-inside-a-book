@@ -34,10 +34,10 @@ class BookSearch extends Component
     }
 
     public function selectPage(int $pageNumber):void{
-$this->selectedPage = $pageNumber;
-$this->dispatch('page-selected', pageNumber: $pageNumber);
+        $this->selectedPage = $pageNumber;
+        $this->dispatch('page-selected', pageNumber: $pageNumber);
 
-$this->saveToHistory();
+        $this->saveToHistory();
     }
 
     private function saveToHistory():void{
