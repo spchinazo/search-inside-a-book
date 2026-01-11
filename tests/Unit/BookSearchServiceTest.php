@@ -31,7 +31,7 @@ class BookSearchServiceTest extends TestCase
 
         Page::create([
             'page_number' => 2,
-            'text_content' => 'Otra página discutiendo el Document Object Model o DOM.',
+            'text_content' => 'Otra página discutiendo sobre el Document Object Model o DOM.',
         ]);
 
         Page::create([
@@ -42,7 +42,7 @@ class BookSearchServiceTest extends TestCase
 
     public function test_search_returns_matching_pages(): void
     {
-        $results = $this->searchService->search('JavaScript');
+        $results = $this->searchService->search('JavaScript y closures');
 
         $this->assertCount(1, $results);
         $this->assertEquals(1, $results->first()['page_number']);
@@ -50,14 +50,14 @@ class BookSearchServiceTest extends TestCase
 
     public function test_search_is_case_insensitive(): void
     {
-        $results = $this->searchService->search('javascript');
+        $results = $this->searchService->search('javascript y closures');
 
         $this->assertCount(1, $results);
     }
 
     public function test_search_returns_snippet_with_highlight(): void
     {
-        $results = $this->searchService->search('DOM');
+        $results = $this->searchService->search('Document Object Model o DOM');
 
         $snippet = $results->first()['snippet'];
 
@@ -69,7 +69,7 @@ class BookSearchServiceTest extends TestCase
     public function test_search_orders_results_by_page_number(): void
     {
         // Buscar algo que aparece en múltiples páginas
-        $results = $this->searchService->search('página');
+        $results = $this->searchService->search('página sobre');
 
         $pageNumbers = $results->pluck('page_number')->toArray();
 
@@ -102,7 +102,7 @@ class BookSearchServiceTest extends TestCase
 
     public function test_count_matches_returns_correct_count(): void
     {
-        $count = $this->searchService->countMatches('página');
+        $count = $this->searchService->countMatches('página sobre');
 
         $this->assertEquals(3, $count);
     }
