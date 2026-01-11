@@ -33,7 +33,6 @@ class Page extends Model
         $query->selectRaw(
             "*, ts_rank(text_search_vector, plainto_tsquery('english',?)) as search_rank",
             [$searchTerm]
-        );
-
+        )->whereRaw("ts_rank(text_search_vector, plainto_tsquery('english',?)) > 0.07", [$searchTerm]);
     }
 }
