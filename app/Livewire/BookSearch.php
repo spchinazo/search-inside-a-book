@@ -17,7 +17,7 @@ class BookSearch extends Component
 
     #[Computed()]
     public function results(){
-        if(strlen(trim($this->query) < 2)){
+        if(strlen(trim($this->query)) < 2){
             return collect();
         }
 
@@ -26,7 +26,7 @@ class BookSearch extends Component
 
     #[Computed()]
     public function totalResults(){
-        if(strlen(trim($this->query) < 2)){
+        if(strlen(trim($this->query)) < 2){
             return 0;
         }
 
