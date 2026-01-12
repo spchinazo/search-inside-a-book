@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Api\BookSearchController;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 
 /*
@@ -12,3 +14,10 @@ use Illuminate\Http\Request;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+Route::controller(BookSearchController::class)->group(function () {
+    Route::get('/search', 'search');
+    Route::get('/pages/{pageNumber}', 'getPage');
+});
+
+Route::get('/ping', fn (Request $request) => response()->json(['message' => 'pong']));
