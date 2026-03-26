@@ -1,2 +1,3 @@
 infrastructure/pgdata/
 .sfdx/
+infrastructure/.env
