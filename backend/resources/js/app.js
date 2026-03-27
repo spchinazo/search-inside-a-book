@@ -17,6 +17,9 @@ let closeViewer;
 let viewButtons;
 let currentView = 'grid';
 let hasSearched = false;
+let suggestionsBox;
+let suggestionsList;
+let suggestTimer;
 
 const seenKey = 'seenPages';
 const favKey = 'favoritePages';
@@ -59,6 +62,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	resultsHeading = document.getElementById('results-heading');
 	favoritesBlock = document.getElementById('favorites-block');
 	favoritesTop = document.getElementById('fav-badges-top');
+	suggestionsBox = document.getElementById('suggestions');
+	suggestionsList = document.getElementById('suggestions-list');
 	viewer = document.getElementById('page-viewer');
 	viewerContent = document.getElementById('viewer-content');
 	viewerTitle = document.getElementById('viewer-title');
@@ -76,6 +81,23 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 			currentPage = 1;
 			search(term, currentPage);
+			renderSuggestions([]);
+		});
+
+		input.addEventListener('input', () => {
+			const term = input.value.trim();
+			if (!term) {
+				renderSuggestions([]);
+				fetchSuggestions('');
+				return;
+			}
+			clearTimeout(suggestTimer);
+			suggestTimer = setTimeout(() => fetchSuggestions(term), 260);
+		});
+
+		input.addEventListener('focus', () => {
+			const term = input.value.trim();
+			fetchSuggestions(term);
 		});
 	}
 
@@ -94,6 +116,30 @@ document.addEventListener('DOMContentLoaded', () => {
 	if (resultsBlock) resultsBlock.hidden = true;
 	renderFavoritesTop();
 });
+
+async function fetchSuggestions(term) {
+	if (!term) {
+		try {
+			const resp = await fetch('/api/search/suggest?limit=8');
+			if (!resp.ok) throw new Error('fail');
+			const data = await resp.json();
+			renderSuggestions(data.data ?? [], term);
+		} catch (e) {
+			renderSuggestions([]);
+		}
+		return;
+	}
+	try {
+		const resp = await fetch(`/api/search/suggest?q=${encodeURIComponent(term)}&limit=8`);
+		if (!resp.ok) {
+			throw new Error('fail');
+		}
+		const data = await resp.json();
+		renderSuggestions(data.data ?? [], term);
+	} catch (e) {
+		renderSuggestions([]);
+	}
+}
 
 function initViewMode() {
 	const saved = loadViewMode();
@@ -192,6 +238,7 @@ async function search(term, page = 1) {
 		setView(currentView);
 		renderBars();
 		renderFavoritesTop();
+		renderSuggestions([]);
 		renderPager();
 		if (resultsBlock) resultsBlock.hidden = false;
 	} catch (err) {
@@ -353,11 +400,7 @@ function renderBars() {
 	if (favBar) {
 		favBar.innerHTML = '';
 		favoritePages.forEach((p) => {
-			const a = document.createElement('a');
-			a.className = 'badge favorite';
-			a.href = `/pages/${p}${lastTerm ? `?q=${encodeURIComponent(lastTerm)}` : ''}`;
-			a.textContent = p;
-			favBar.appendChild(a);
+			favBar.appendChild(buildFavoriteBadge(p));
 		});
 	}
 }
@@ -370,13 +413,71 @@ function renderFavoritesTop() {
 		return;
 	}
 	favoritePages.forEach((p) => {
-		const a = document.createElement('a');
-		a.className = 'badge favorite';
-		a.href = `/pages/${p}${lastTerm ? `?q=${encodeURIComponent(lastTerm)}` : ''}`;
-		a.textContent = p;
-		favoritesTop.appendChild(a);
+		favoritesTop.appendChild(buildFavoriteBadge(p));
 	});
 	favoritesBlock.hidden = false;
+}
+
+function buildFavoriteBadge(pageId) {
+	const isCurrent = false;
+	const link = document.createElement('a');
+	link.className = 'badge favorite closable';
+	link.href = `/pages/${pageId}${lastTerm ? `?q=${encodeURIComponent(lastTerm)}` : ''}`;
+	link.textContent = pageId;
+	link.dataset.pageId = pageId;
+
+	const close = document.createElement('button');
+	close.type = 'button';
+	close.className = 'badge-close';
+	close.textContent = '×';
+	close.title = 'Quitar de favoritos';
+	close.addEventListener('click', (e) => {
+		e.preventDefault();
+		e.stopPropagation();
+		favoritePages = saveFavorites(favoritePages.filter((p) => p !== pageId));
+		renderBars();
+		renderFavoritesTop();
+		refreshResultFavorites();
+	});
+
+	link.appendChild(close);
+	return link;
+}
+
+function refreshResultFavorites() {
+	const nodes = document.querySelectorAll('[data-page-id]');
+	nodes.forEach((node) => {
+		const pageId = parseInt(node.dataset.pageId ?? node.dataset.pageid, 10);
+		decorateResultItem(node, pageId);
+	});
+}
+
+function renderSuggestions(items, typed = '') {
+	if (!suggestionsBox || !suggestionsList) return;
+	suggestionsList.innerHTML = '';
+	if (!items || items.length === 0) {
+		suggestionsBox.hidden = true;
+		return;
+	}
+	items.forEach((item) => {
+		const btn = document.createElement('button');
+		btn.type = 'button';
+		btn.className = 'suggestion-item';
+		btn.innerHTML = `<span class="suggestion-term">${escapeHtml(item.term ?? '')}</span>` +
+			`<span class="suggestion-meta">${item.times ?? 0} búsquedas</span>`;
+		btn.addEventListener('click', () => {
+			if (input) {
+				input.value = item.term ?? '';
+			}
+			renderSuggestions([]);
+			if (item.term) {
+				currentPage = 1;
+				search(item.term, currentPage);
+			}
+		});
+		suggestionsList.appendChild(btn);
+	});
+	suggestionsBox.hidden = false;
 }
 
 async function loadPage(pageId) {

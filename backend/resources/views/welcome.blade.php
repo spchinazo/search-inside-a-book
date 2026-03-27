@@ -20,10 +20,14 @@
         <form id="search-form" class="search-form">
             <label for="search-term">Término de búsqueda</label>
             <div class="search-row">
-                <input id="search-term" name="q" type="text" placeholder="Ej: javascript" required minlength="2" />
+                <input id="search-term" name="q" type="text" placeholder="Ej: javascript" required minlength="2" autocomplete="off" />
                 <button type="submit">Buscar</button>
             </div>
             <p class="help">Búsqueda case-insensitive sobre el contenido del libro.</p>
+            <div id="suggestions" class="suggestions" hidden>
+                <p class="suggestion-title">Recomendaciones</p>
+                <div id="suggestions-list" class="suggestion-list"></div>
+            </div>
         </form>
 
         <div id="status" class="status">Ingresa un término para comenzar.</div>

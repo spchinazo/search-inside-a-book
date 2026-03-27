@@ -25,12 +25,15 @@
         .ghost { background: #fff; border: 1px solid #d1d5db; border-radius: 10px; padding: 8px 12px; cursor: pointer; font-weight: 700; color: #0f172a; transition: background 120ms ease, transform 120ms ease; }
         .ghost:hover { background: #f3f4f6; transform: translateY(-1px); }
         .badge-list { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 12px 0 0 0; }
-        .badge { display: inline-flex; align-items: center; justify-content: center; min-width: 36px; padding: 7px 12px; border-radius: 999px; border: 1px solid #d1d5db; background: #fff; color: #111827; font-weight: 700; text-decoration: none; box-shadow: 0 4px 10px rgba(15,23,42,0.05); }
+        .badge { display: inline-flex; align-items: center; justify-content: center; min-width: 36px; padding: 7px 12px; border-radius: 999px; border: 1px solid #d1d5db; background: #fff; color: #111827; font-weight: 700; text-decoration: none; box-shadow: 0 4px 10px rgba(15,23,42,0.05); position: relative; }
         .badge:hover { background: #eef2ff; border-color: #c7d2fe; }
         .badge.active { background: #0d6efd; color: #fff; border-color: #0d6efd; box-shadow: 0 8px 18px rgba(13,110,253,0.25); }
         .badge.viewed { opacity: 0.55; }
         .badge.favorite { border-color: #f59e0b; background: #fff7ed; color: #92400e; }
-        .badge.current { pointer-events: none; opacity: 0.65; font-weight: 800; }
+        .badge.current { opacity: 0.65; font-weight: 800; cursor: default; }
+        .badge.closable:hover .badge-close { opacity: 1; pointer-events: auto; }
+        .badge-close { position: absolute; top: -8px; right: -8px; border: 1px solid #d1d5db; background: #fff; color: #111827; border-radius: 999px; width: 18px; height: 18px; font-size: 12px; line-height: 1; cursor: pointer; opacity: 0; transition: opacity 120ms ease, transform 120ms ease; box-shadow: 0 4px 10px rgba(15,23,42,0.12); pointer-events: none; }
+        .badge-close:hover { transform: scale(1.08); }
         .badge-label { font-weight: 700; color: #111827; margin-right: 4px; }
         .chips { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: 10px 0; }
         .chip-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -202,11 +205,7 @@
         if (favBar) {
             favBar.innerHTML = '';
             fav.forEach((p) => {
-                const el = document.createElement(p === currentPage ? 'span' : 'a');
-                el.className = 'badge favorite' + (p === currentPage ? ' current' : '');
-                if (p !== currentPage) el.href = `/pages/${p}${qString}`;
-                el.textContent = p;
-                favBar.appendChild(el);
+                favBar.appendChild(buildFavBadge(p));
             });
         }
         renderFavoritesTop();
@@ -320,11 +319,42 @@
         }
         favTopWrap.style.display = 'flex';
         fav.forEach((p) => {
-            const el = document.createElement(p === currentPage ? 'span' : 'a');
-            el.className = 'badge favorite' + (p === currentPage ? ' current' : '');
-            if (p !== currentPage) el.href = `/pages/${p}${qString}`;
-            el.textContent = p;
-            favTop.appendChild(el);
+            favTop.appendChild(buildFavBadge(p));
+        });
+    }
+
+    function buildFavBadge(p) {
+        const isCurrent = p === currentPage;
+        const el = document.createElement(isCurrent ? 'span' : 'a');
+        el.className = 'badge favorite closable' + (isCurrent ? ' current' : '');
+        if (!isCurrent) el.href = `/pages/${p}${qString}`;
+        el.textContent = p;
+
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'badge-close';
+        close.textContent = '×';
+        close.title = 'Quitar de favoritos';
+        close.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            fav = saveFav(fav.filter((v) => v !== p));
+            renderBars();
+            updateFavButtons();
+        });
+
+        el.appendChild(close);
+        return el;
+    }
+
+    function updateFavButtons() {
+        const itemNodes = document.querySelectorAll('[data-page-item]');
+        itemNodes.forEach((node) => {
+            const pageNum = parseInt(node.dataset.pageItem, 10);
+            const favBtn = node.querySelector('[data-fav-page]');
+            if (favBtn) {
+                updateFavBtn(favBtn, pageNum);
+            }
         });
     }
 })();

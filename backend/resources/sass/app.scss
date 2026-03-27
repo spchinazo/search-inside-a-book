@@ -55,6 +55,62 @@ a { color: #0d6efd; }
     gap: 8px;
 }
 
+.suggestions {
+    margin: 6px 0 4px 0;
+    background: #0f172a;
+    color: #f8fafc;
+    border-radius: 12px;
+    padding: 10px 12px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
+}
+
+.suggestion-title {
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #cbd5e1;
+    margin: 0 0 6px 2px;
+}
+
+.suggestion-list {
+    display: grid;
+    gap: 6px;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+
+.suggestion-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.04);
+    color: #f8fafc;
+    cursor: pointer;
+    transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+    font-weight: 700;
+}
+
+.suggestion-item:hover {
+    transform: translateY(-1px);
+    border-color: rgba(255,255,255,0.28);
+    background: rgba(255,255,255,0.08);
+}
+
+.suggestion-term {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.suggestion-meta {
+    font-size: 12px;
+    color: #cbd5e1;
+    white-space: nowrap;
+}
+
 input[type="text"] {
     flex: 1;
     padding: 10px 12px;
@@ -358,11 +414,36 @@ mark {
     color: #111827;
     font-weight: 600;
     text-decoration: none;
+    position: relative;
 }
 
 .badge:hover { background: #eef2ff; border-color: #c7d2fe; }
 .badge.viewed { opacity: 0.55; }
 .badge.favorite { border-color: #f59e0b; background: #fff7ed; }
+.badge.closable:hover .badge-close { opacity: 1; pointer-events: auto; }
+
+.badge-close {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    border: 1px solid #d1d5db;
+    background: #fff;
+    color: #111827;
+    border-radius: 999px;
+    width: 18px;
+    height: 18px;
+    font-size: 12px;
+    line-height: 1;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 120ms ease, transform 120ms ease;
+    box-shadow: 0 4px 10px rgba(15,23,42,0.12);
+    pointer-events: none;
+}
+
+.badge-close:hover {
+    transform: scale(1.08);
+}
 
 .fav-btn {
     border: 1px solid #d1d5db;
