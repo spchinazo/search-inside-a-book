@@ -209,8 +209,9 @@ async function search(term, page = 1) {
 		hasSearched = true;
 		lastResults = results;
 		lastTerm = term;
-		totalPages = data.meta?.total_pages ?? 1;
-		currentPage = data.meta?.page ?? 1;
+		totalPages = Math.max(1, data.meta?.total_pages ?? 1);
+		const incomingPage = parseInt(data.meta?.page, 10) || 1;
+		currentPage = Math.min(Math.max(1, incomingPage), totalPages);
 
 		if (results.length === 0) {
 			statusEl.textContent = 'Sin resultados para este término.';
@@ -504,15 +505,15 @@ function renderPager() {
 
 	prevBtn.onclick = () => {
 		if (currentPage > 1) {
-			currentPage -= 1;
-			search(lastTerm, currentPage);
+			const target = Math.max(1, currentPage - 1);
+			search(lastTerm, target);
 		}
 	};
 
 	nextBtn.onclick = () => {
 		if (currentPage < totalPages) {
-			currentPage += 1;
-			search(lastTerm, currentPage);
+			const target = Math.min(totalPages, currentPage + 1);
+			search(lastTerm, target);
 		}
 	};
 }
